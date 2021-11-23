@@ -23,7 +23,7 @@ DWORD WINAPI UpdateThread(LPVOID)
     {
         if (GetAsyncKeyState(VK_F1) && 0x01)
         {
-            //Functions::InitCheatManager();
+            Functions::InitCheatManager();
             //Functions::DestroyAll("FortHLODSMActor");
             //Functions::SetupCharacterParts();
         }
@@ -112,7 +112,7 @@ DWORD WINAPI MainThread(LPVOID)
 
     Globals::SetupGlobals();
     Functions::InitConsole();
-    Functions::InitCheatManager();
+    //Functions::InitCheatManager();
     //Functions::SwitchLevel(L"Apollo_Terrain?Game=/Script/Engine.GameModeBase");
 
     CreateThread(0, 0, UpdateThread, 0, 0, 0);
