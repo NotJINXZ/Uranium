@@ -4,6 +4,7 @@
 #include "Unreal.hpp"
 #include <fstream>
 #include <iostream>
+#include "Functions.hpp"
 
 static UObject* SpawnActorHook(UObject* InWorld, UClass* Class, FVector* Location, FRotator* Rotation, FActorSpawnParameters& SpawnParameters)
 {
@@ -34,7 +35,8 @@ void* ProcessEventHook(UObject* object, UObject* function, void* params)
 	if (object && function) {
 		if (function->GetName().find("ServerLoadingScreenDropped") != std::string::npos)
 		{
-
+            Functions::InitCheatManager();
+            Functions::DestroyAll("FortHLODSMActor");
 		}
 	}
 

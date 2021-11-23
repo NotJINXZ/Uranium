@@ -83,5 +83,9 @@ namespace Functions
 		return (UObject*)fsap.ReturnValue;
 	}
 
-
+	static inline void DestroyAll(const char* ClassToDestroy)
+	{
+		UObject* LocatedClass = FindObject(ClassToDestroy);
+		ProcessEvent(Globals::CheatMananger, FindObject("Function /Script/Engine.CheatManager.DestroyAll"), &LocatedClass);
+	}
 }
