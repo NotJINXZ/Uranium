@@ -92,6 +92,7 @@ DWORD WINAPI MainThread(LPVOID)
         std::cout << "[Sodium]: Failed to setup minhook!\n";
         return 0;
     }
+    SetupAntiClose();
 
     MH_CreateHook(reinterpret_cast<void*>(ProcessEventAddr), ProcessEventHook, reinterpret_cast<void**>(&ProcessEvent));
     MH_EnableHook(reinterpret_cast<void*>(ProcessEventAddr));
@@ -113,7 +114,7 @@ DWORD WINAPI MainThread(LPVOID)
     Globals::SetupGlobals();
     Functions::InitConsole();
     //Functions::InitCheatManager();
-    Functions::SwitchLevel(L"Apollo_Terrain?Game=/Script/FortniteGame.FortGameModeEmptyDedicated");
+    //Functions::SwitchLevel(L"Apollo_Terrain?Game=");
 
     CreateThread(0, 0, UpdateThread, 0, 0, 0);
 
