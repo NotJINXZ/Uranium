@@ -57,4 +57,15 @@ namespace Offsets
 	{
 		inline __int64 PlayerState = 0x240;
 	}
+
+	namespace Inventory
+	{
+		inline __int64 Inventory = 0x230;
+	}
+
+	namespace FortItemList
+	{
+		inline __int64 ReplicatedEntries = 0x108;
+		inline __int64 ItemInstances = 0x168;
+	}
 }
