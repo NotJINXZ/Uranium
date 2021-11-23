@@ -85,6 +85,8 @@ DWORD WINAPI MainThread(LPVOID)
 
     std::cout << "[Sodium]: ProcessEvent Done!\n";
 
+    auto SCOIAddr
+
     Globals::SetupGlobals();
     Functions::SwitchLevel(L"Apollo_Terrain?Game=/Script/Engine.GameModeBase");
 
