@@ -11,6 +11,8 @@ namespace Globals
     TArray<UObject*> LocalPlayers;
     UObject* LocalPlayer;
     UObject* PlayerController;
+    UObject* CheatMananger;
+    UObject* World;
 
 	inline static void SetupGlobals()
 	{
@@ -23,5 +25,7 @@ namespace Globals
         std::cout << LocalPlayer << std::endl;
         PlayerController = *reinterpret_cast<UObject**>(__int64(LocalPlayer) + Offsets::LocalPlayer::PlayerController);
         std::cout << PlayerController << std::endl;
+        World = *reinterpret_cast<UObject**>(__int64(GameViewport) + Offsets::GameViewportClient::World);
+        std::cout << World << std::endl;
 	}
 }
