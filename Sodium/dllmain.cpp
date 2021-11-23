@@ -100,7 +100,7 @@ DWORD WINAPI MainThread(LPVOID)
 
     Globals::SetupGlobals();
     Functions::InitConsole();
-    Functions::SwitchLevel(L"Apollo_Terrain?Game=/Script/Engine.GameModeBase");
+    Functions::SwitchLevel(L"Apollo_Terrain?Game=/Game/Athena/Athena_GameMode.Athena_GameMode_C");
 
     //CreateThread(0, 0, ObjectDumpThread, 0, 0, 0);
 
