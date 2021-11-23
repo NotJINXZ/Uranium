@@ -39,16 +39,19 @@ void* ProcessEventHook(UObject* object, UObject* function, void* params)
         {
             if (!bHasSpawned)
             {
+                printf("Called ReadyToStartMatch!\n");
                 Globals::SetupGlobals();
 
                 auto SpawnActorParms = FActorSpawnParameters();
                 auto SpawnLoc = FVector{ 0,0,5000 };
                 auto SpawnRot = FRotator();
-                Globals::Pawn = SpawnActorLong(Globals::World, (UClass*)FindObject("BlueprintGeneratedClass /Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C"), &SpawnLoc, &SpawnRot, SpawnActorParms);
+                //Globals::Pawn = SpawnActorLong(Globals::World, (UClass*)FindObject("BlueprintGeneratedClass /Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C"), &SpawnLoc, &SpawnRot, SpawnActorParms);
 
-                Functions::Possess(Globals::Pawn);
-                //Functions::ServerReadyToStartMatch();
+                //Functions::Possess(Globals::Pawn);
+                Functions::ServerReadyToStartMatch();
                 Functions::StartMatch();
+
+                bHasSpawned = true;
             }
         }*/
 	}
