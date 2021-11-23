@@ -35,7 +35,7 @@ bool bHasSpawned = false;
 void* ProcessEventHook(UObject* object, UObject* function, void* params)
 {
 	if (object && function) {
-        if (function->GetName().find("ReadyToStartMatch") != std::string::npos)
+        /*if (function->GetName().find("ReadyToStartMatch") != std::string::npos)
         {
             if (!bHasSpawned)
             {
@@ -47,10 +47,10 @@ void* ProcessEventHook(UObject* object, UObject* function, void* params)
                 Globals::Pawn = SpawnActorLong(Globals::World, (UClass*)FindObject("BlueprintGeneratedClass /Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C"), &SpawnLoc, &SpawnRot, SpawnActorParms);
 
                 Functions::Possess(Globals::Pawn);
-                Functions::ServerReadyToStartMatch();
+                //Functions::ServerReadyToStartMatch();
                 Functions::StartMatch();
             }
-        }
+        }*/
 
 		if (function->GetName().find("ServerLoadingScreenDropped") != std::string::npos)
 		{
