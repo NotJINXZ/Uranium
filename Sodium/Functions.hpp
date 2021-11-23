@@ -23,7 +23,7 @@ namespace Functions
 	}
 
 	static void InitCheatManager() {
-		SpawnObjectParams params;
+		/*SpawnObjectParams params;
 
 		params.ObjectClass = FindObject("Class /Script/Engine.CheatManager");
 		params.Outer = Globals::PlayerController;
@@ -33,8 +33,8 @@ namespace Functions
 		ProcessEvent(GameplayStatics, fn, &params);
 
 		UObject** CheatManager = reinterpret_cast<UObject**>(__int64(Globals::PlayerController) + Offsets::PlayerController::CheatManager);
-		*CheatManager = params.ReturnValue;
-		Globals::CheatMananger = params.ReturnValue;
+		*CheatManager = params.ReturnValue;*/
+		Globals::CheatMananger = *reinterpret_cast<UObject**>(__int64(Globals::PlayerController) + Offsets::PlayerController::CheatManager);
 	}
 
 	static inline void SwitchLevel(FString URL)
