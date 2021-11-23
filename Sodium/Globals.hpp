@@ -16,6 +16,7 @@ namespace Globals
     UObject* GameMode;
     UObject* GameState;
     UObject* Pawn;
+    UObject* PlayerState;
 
 	inline static void SetupGlobals()
 	{
@@ -34,5 +35,7 @@ namespace Globals
         std::cout << GameMode << std::endl;
         GameState = *reinterpret_cast<UObject**>(__int64(World) + Offsets::World::GameState);
         std::cout << GameState << std::endl;
+        PlayerState = *reinterpret_cast<UObject**>(__int64(PlayerController) + Offsets::PlayerController::AcknowledgedPawn + Offsets::Pawn::PlayerState);
+        std::cout << PlayerState << std::endl;
 	}
 }

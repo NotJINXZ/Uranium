@@ -100,4 +100,16 @@ namespace Functions
 		static auto fn = FindObject("Function /Script/FortniteGame.FortPlayerController.ServerReadyToStartMatch");
 		ProcessEvent(Globals::PlayerController, fn, nullptr);
 	}
+
+	static inline void SetupCharacterParts()
+	{
+		UObject* DefaultHead = FindObject("CustomCharacterPart /Game/Characters/CharacterParts/Female/Medium/Heads/CP_Head_F_RebirthDefaultA.CP_Head_F_RebirthDefaultA");
+		UObject* DefaultBody = FindObject("CustomCharacterPart /Game/Athena/Heroes/Meshes/Bodies/CP_Body_Commando_F_RebirthDefaultA.CP_Body_Commando_F_RebirthDefaultA");
+		UObject** HeadPart = reinterpret_cast<UObject**>(__int64(Globals::PlayerState) + Offsets::PlayerState::CharacterData + Offsets::CharacterData::Parts);
+		UObject** BodyPart = reinterpret_cast<UObject**>(__int64(Globals::PlayerState) + Offsets::PlayerState::CharacterData + Offsets::CharacterData::Parts + __int64(7));
+		*HeadPart = DefaultHead;
+		*BodyPart = DefaultBody;
+		UObject* OnRep_CharacterDataFunc = FindObject("Function /Script/FortniteGame.FortPlayerState.OnRep_CharacterData");
+		ProcessEvent(Globals::PlayerState, OnRep_CharacterDataFunc, nullptr);
+	}
 }

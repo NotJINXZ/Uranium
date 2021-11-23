@@ -32,6 +32,7 @@ namespace Offsets
 		inline __int64 Pawn = 0x250;
 		inline __int64 CheatManager = 0x338;
 		inline __int64 PlayerState = 0x228;
+		inline __int64 AcknowledgedPawn = 0x2A0;
 	}
 
 	namespace World
@@ -40,5 +41,20 @@ namespace Offsets
 		inline __int64 GameState = 0x128;
 		inline __int64 AuthorityGameMode = 0x120;
 		inline __int64 OwningGameInstance = 0x188;
+	}
+
+	namespace PlayerState
+	{
+		inline __int64 CharacterData = 0x4F8;
+	}
+
+	namespace CharacterData
+	{
+		inline __int64 Parts = 0x08;
+	}
+
+	namespace Pawn
+	{
+		inline __int64 PlayerState = 0x240;
 	}
 }

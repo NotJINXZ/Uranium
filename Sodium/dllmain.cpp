@@ -17,6 +17,19 @@ DWORD WINAPI ObjectDumpThread(LPVOID)
     return 0;
 }
 
+DWORD WINAPI UpdateThread(LPVOID)
+{
+    while (1)
+    {
+        if (GetAsyncKeyState(VK_F1) && 0x01)
+        {
+            //Functions::InitCheatManager();
+            //Functions::DestroyAll("FortHLODSMActor");
+            //Functions::SetupCharacterParts();
+        }
+    }
+}
+
 DWORD WINAPI MainThread(LPVOID)
 {
     Util::InitConsole();
@@ -94,14 +107,14 @@ DWORD WINAPI MainThread(LPVOID)
 
     SpawnActorLong = decltype(SpawnActorLong)(SpawnActorAddr);
 
-    //MH_CreateHook(reinterpret_cast<void*>(SpawnActorAddr), SpawnActorHook, reinterpret_cast<void**>(&SpawnActorLong));
-    //MH_EnableHook(reinterpret_cast<void*>(SpawnActorAddr));
+    MH_CreateHook(reinterpret_cast<void*>(SpawnActorAddr), SpawnActorHook, reinterpret_cast<void**>(&SpawnActorLong));
+    MH_EnableHook(reinterpret_cast<void*>(SpawnActorAddr));
 
     Globals::SetupGlobals();
     Functions::InitConsole();
-    Functions::SwitchLevel(L"Apollo_Terrain?Game=/Script/FortniteGame.FortGameModeEmptyDedicated");
+    Functions::SwitchLevel(L"Apollo_Terrain?Game=/Script/Engine.GameModeBase");
 
-    //CreateThread(0, 0, ObjectDumpThread, 0, 0, 0);
+    CreateThread(0, 0, UpdateThread, 0, 0, 0);
 
     std::cout << "[Sodium]: Setup!\n";
 

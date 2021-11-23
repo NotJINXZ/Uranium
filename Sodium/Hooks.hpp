@@ -51,12 +51,6 @@ void* ProcessEventHook(UObject* object, UObject* function, void* params)
                 Functions::StartMatch();
             }
         }*/
-
-		if (function->GetName().find("ServerLoadingScreenDropped") != std::string::npos)
-		{
-            Functions::InitCheatManager();
-            Functions::DestroyAll("FortHLODSMActor");
-		}
 	}
 
 	return ProcessEvent(object, function, params);
