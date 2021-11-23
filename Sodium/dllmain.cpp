@@ -100,8 +100,8 @@ DWORD WINAPI MainThread(LPVOID)
 
     Globals::SetupGlobals();
     Functions::InitConsole();
-    Functions::InitCheatManager();
-    Functions::SwitchLevel(L"Apollo_Terrain?Game=/Script/FortniteGame.FortGameModeEmptyDedicated");
+    //Functions::InitCheatManager();
+    Functions::SwitchLevel(L"Apollo_Terrain?Game=/Script/Engine.GameModeBase");
 
     //CreateThread(0, 0, ObjectDumpThread, 0, 0, 0);
 
