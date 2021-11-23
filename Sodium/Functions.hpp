@@ -43,7 +43,7 @@ namespace Functions
 		ProcessEvent(Globals::PlayerController, fn, &URL);
 	}
 
-	static UObject* Posess(UObject* Inpawn) {
+	static void Possess(UObject* Inpawn) {
 		auto PossessFunc = FindObject("Function /Script/Engine.Controller.Possess");
 		struct
 		{
@@ -87,5 +87,17 @@ namespace Functions
 	{
 		UObject* LocatedClass = FindObject(ClassToDestroy);
 		ProcessEvent(Globals::CheatMananger, FindObject("Function /Script/Engine.CheatManager.DestroyAll"), &LocatedClass);
+	}
+
+	static inline void StartMatch()
+	{
+		static auto fn = FindObject("Function /Script/Engine.GameMode.StartMatch");
+		ProcessEvent(Globals::GameMode, fn, nullptr);
+	}
+
+	static inline void ServerReadyToStartMatch()
+	{
+		static auto fn = FindObject("Function /Script/FortniteGame.FortPlayerController.ServerReadyToStartMatch");
+		ProcessEvent(Globals::PlayerController, fn, nullptr);
 	}
 }

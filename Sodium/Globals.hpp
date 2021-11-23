@@ -13,6 +13,9 @@ namespace Globals
     UObject* PlayerController;
     UObject* CheatMananger;
     UObject* World;
+    UObject* GameMode;
+    UObject* GameState;
+    UObject* Pawn;
 
 	inline static void SetupGlobals()
 	{
@@ -27,5 +30,9 @@ namespace Globals
         std::cout << PlayerController << std::endl;
         World = *reinterpret_cast<UObject**>(__int64(GameViewport) + Offsets::GameViewportClient::World);
         std::cout << World << std::endl;
+        GameMode = *reinterpret_cast<UObject**>(__int64(World) + Offsets::World::AuthorityGameMode);
+        std::cout << GameMode << std::endl;
+        GameState = *reinterpret_cast<UObject**>(__int64(World) + Offsets::World::GameState);
+        std::cout << GameState << std::endl;
 	}
 }

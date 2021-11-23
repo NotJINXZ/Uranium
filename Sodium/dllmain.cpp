@@ -34,7 +34,7 @@ DWORD WINAPI MainThread(LPVOID)
     GObjectsAddr = GObjectsAdded;
 
     GObjects = decltype(GObjects)(GObjectsAdded);
-    std::cout << "GObjects: " << GObjects << std::endl; //Testing
+    //std::cout << "GObjects: " << GObjects << std::endl; //Testing
     std::cout << "[Sodium]: GObjects Done!\n";
 
     FreeMemoryAddr = (uintptr_t)Util::FindPattern("\x48\x85\xC9\x0F\x84\x00\x00\x00\x00\x53\x48\x83\xEC\x20", "xxxxx????xxxxx");
@@ -46,7 +46,7 @@ DWORD WINAPI MainThread(LPVOID)
 
     FreeMemory = decltype(FreeMemory)(FreeMemoryAddr);
 
-    std::cout << "FreeMemory: " << FreeMemory << std::endl;
+    //std::cout << "FreeMemory: " << FreeMemory << std::endl;
     std::cout << "[Sodium]: FreeMemory Done!\n";
 
     FNameToStringAddr = (uintptr_t)Util::FindPattern("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x55\x57\x41\x56\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x85\x00\x00\x00\x00\x45\x33\xF6\x48\x8B\xF2\x44\x39\x71\x04\x0F\x85\x00\x00\x00\x00\x8B\x19\x0F\xB7\xFB\xE8\x00\x00\x00\x00\x8B\xCB\x48\x8D\x54\x24\x00\x48\xC1\xE9\x10\x8D\x1C\x3F\x48\x03\x5C\xC8\x00\x48\x8B\xCB\xF6\x03\x01\x0F\x85\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x0F\xB7\x1B\xC1\xEB\x06\x4C\x89\x36\x4C\x89\x76\x08\x85\xDB\x74\x48\x44\x38\x74\x24\x00\x74\x41\x8D\x53\x01\x48\x8B\xCE\xE8\x00\x00\x00\x00\x8B\x4E\x08\xFF\xC1\x03\xCB\x89\x4E\x08\x3B\x4E\x0C\x7E\x08\x48\x8B\xCE\xE8\x00\x00\x00\x00", "xxxx?xxxx?xxxxxxxx????xxx????xxx????xxxxxx????xxxxxxxxxxxx????xxxxxx????xxxxxx?xxxxxxxxxxx?xxxxxxxx????x????xxxxxxxxxxxxxxxxxxxxx?xxxxxxxxx????xxxxxxxxxxxxxxxxxxx????");
@@ -57,7 +57,7 @@ DWORD WINAPI MainThread(LPVOID)
     }
 
     FNameToString = decltype(FNameToString)(FNameToStringAddr);
-    std::cout << "FNameToString: " << FNameToString << std::endl; //Testing
+    //std::cout << "FNameToString: " << FNameToString << std::endl; //Testing
     std::cout << "[Sodium]: FNameToString Done!\n";
 
     FortEngine = FindObject("FortEngine_");
@@ -72,7 +72,7 @@ DWORD WINAPI MainThread(LPVOID)
 
     ProcessEvent = decltype(ProcessEvent)(ProcessEventAddr);
 
-    std::cout << "ProcessEvent: " << ProcessEvent << std::endl; //Testing
+    //std::cout << "ProcessEvent: " << ProcessEvent << std::endl; //Testing
 
     if (MH_Initialize() != MH_OK)
     {
@@ -85,7 +85,6 @@ DWORD WINAPI MainThread(LPVOID)
 
     std::cout << "[Sodium]: ProcessEvent Done!\n";
 
-
     auto SpawnActorAddr = (uintptr_t)Util::FindPattern("\x48\x8B\xC4\x55\x53\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xA8\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x0F\x29\x70\xA8\x0F\x29\x78\x98\x44\x0F\x29\x40\x00\x44\x0F\x29\x88\x00\x00\x00\x00\x44\x0F\x29\x90\x00\x00\x00\x00\x44\x0F\x29\x98\x00\x00\x00\x00\x44\x0F\x29\xA0\x00\x00\x00\x00\x44\x0F\x29\xA8\x00\x00\x00\x00\x44\x0F\x29\xB0\x00\x00\x00\x00\x44\x0F\x29\xB8\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x45\x50\x45\x33\xED", "xxxxxxxxxxxxxxxxxx????xxx????xxxxxxxxxxxx?xxxx????xxxx????xxxx????xxxx????xxxx????xxxx????xxxx????xxx????xxxxxxxxxx");
     if (!SpawnActorAddr)
     {
@@ -95,8 +94,8 @@ DWORD WINAPI MainThread(LPVOID)
 
     SpawnActorLong = decltype(SpawnActorLong)(SpawnActorAddr);
 
-    MH_CreateHook(reinterpret_cast<void*>(SpawnActorAddr), SpawnActorHook, reinterpret_cast<void**>(&SpawnActorLong));
-    MH_EnableHook(reinterpret_cast<void*>(SpawnActorAddr));
+    //MH_CreateHook(reinterpret_cast<void*>(SpawnActorAddr), SpawnActorHook, reinterpret_cast<void**>(&SpawnActorLong));
+    //MH_EnableHook(reinterpret_cast<void*>(SpawnActorAddr));
 
     Globals::SetupGlobals();
     Functions::InitConsole();
