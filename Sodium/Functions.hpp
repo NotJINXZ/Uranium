@@ -25,7 +25,7 @@ namespace Functions
 	static void InitCheatManager() {
 		SpawnObjectParams params;
 
-		params.ObjectClass = FindObject("");
+		params.ObjectClass = FindObject("Class /Script/Engine.CheatManager");
 		params.Outer = Globals::PlayerController;
 
 		auto GameplayStatics = FindObject("Default__GameplayStatics");
