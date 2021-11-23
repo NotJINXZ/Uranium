@@ -68,4 +68,12 @@ namespace Offsets
 		inline __int64 ReplicatedEntries = 0x108;
 		inline __int64 ItemInstances = 0x168;
 	}
+
+	namespace FortItemEntry
+	{
+		inline __int64 Count = 0xC;
+		inline __int64 ItemGuid = 0x68;
+		inline __int64 ItemDefinition = 0x18;
+		inline __int64 LoadedAmmo = 0x2C;
+	}
 }
