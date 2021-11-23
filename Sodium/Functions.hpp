@@ -8,19 +8,25 @@
 
 namespace Functions
 {
-
-
 	static void InitConsole() {
-		SpawnObjectParams params{ (UClass*)(Offsets::Engine::ConsoleClass), (UObject*)(Offsets::Engine::GameViewport) };
-		UObject** ViewportConsole = reinterpret_cast<UObject**>(reinterpret_cast<__int64>(Offsets::Engine::GameViewport)+ 0x40);
+		SpawnObjectParams params;
+
+		params.ObjectClass = FindObject("Class /Script/FortniteGame.FortConsole");
+		params.Outer = Globals::GameViewport;
+
+		auto GameplayStatics = FindObject("Default__GameplayStatics");
+		static auto fn = FindObject("Function /Script/Engine.GameplayStatics.SpawnObject");
+		ProcessEvent(GameplayStatics, fn, &params);
+
+		UObject** ViewportConsole = reinterpret_cast<UObject**>(__int64(Globals::GameViewport) + Offsets::GameViewportClient::ViewportConsole);
 		*ViewportConsole = params.ReturnValue;
 	}
+
 	static inline void SwitchLevel(FString URL)
 	{
 		static auto fn = FindObject("Function /Script/Engine.PlayerController.SwitchLevel");
 		ProcessEvent(Globals::PlayerController, fn, &URL);
 	}
-
 
 	static UObject* Posess(UObject* Inpawn) {
 		auto PossessFunc = FindObject("Function /Script/Engine.Controller.Possess");
@@ -31,8 +37,6 @@ namespace Functions
 		possesparams.InPawn = Inpawn;
 		ProcessEvent(Globals::PlayerController, PossessFunc, &possesparams);
 	}
-
-
 
 	static inline UObject* SpawnActor(UObject* ActorClass, FVector loc) {
 		auto spawnfunction1 = FindObject("Function /Script/Engine.GameplayStatics.BeginDeferredActorSpawnFromClass");
@@ -46,7 +50,7 @@ namespace Functions
 		bdasfc.SpawnTransform.Rotation = FQuat{ 0,0,0,0 };
 		bdasfc.SpawnTransform.Scale3D = FVector{ 1,1,1 };
 		bdasfc.SpawnTransform.Translation = loc;
-		bdasfc.WorldContextObject = (UObject*)Offsets::GameViewportClient::World;
+		bdasfc.WorldContextObject = Globals::World;
 		bdasfc.Owner = nullptr;
 
 		auto GameplayStatics = FindObject("Default__GameplayStatics");

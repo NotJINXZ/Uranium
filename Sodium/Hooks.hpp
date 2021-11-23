@@ -5,8 +5,6 @@
 #include <fstream>
 #include <iostream>
 
-
-
 static UObject* SpawnActorHook(UObject* InWorld, UClass* Class, FVector* Location, FRotator* Rotation, FActorSpawnParameters& SpawnParameters)
 {
     // Scuff Way To get ingame this is a NEED TO FIX!!!

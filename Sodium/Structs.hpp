@@ -3,6 +3,7 @@
 #include <string>
 #include <Windows.h>
 #include <locale>
+#include "enums.hpp"
 
 struct UObject;
 
@@ -488,6 +489,7 @@ struct FLinearColor
 		ESpawnActorCollisionHandlingMethod_MAX = 5
 	};
 };
+
 struct UGameplayStatics_BeginDeferredActorSpawnFromClass_Params
 {
 	class UObject* WorldContextObject;                                       // (ConstParm, Parm, ZeroConstructor, IsPlainOldData)
@@ -504,6 +506,7 @@ struct UGameplayStatics_FinishSpawningActor_Params
 	struct FTransform                                  SpawnTransform;                                           // (ConstParm, Parm, OutParm, ReferenceParm, IsPlainOldData)
 	class AActor* ReturnValue;                                              // (Parm, OutParm, ZeroConstructor, ReturnParm, IsPlainOldData)
 };
+
 struct FActorSpawnParameters
 {
 	unsigned char Unk00[0x40];
@@ -511,7 +514,7 @@ struct FActorSpawnParameters
 
 struct SpawnObjectParams
 {
-	UClass* ObjectClass;
+	UObject* ObjectClass;
 	UObject* Outer;
 	UObject* ReturnValue;
 };
