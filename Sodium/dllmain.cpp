@@ -111,6 +111,15 @@ DWORD WINAPI MainThread(LPVOID)
     MH_CreateHook(reinterpret_cast<void*>(SpawnActorAddr), SpawnActorHook, reinterpret_cast<void**>(&SpawnActorLong));
     MH_EnableHook(reinterpret_cast<void*>(SpawnActorAddr));
 
+    auto AthenaGameModeCrashAddr = Util::FindPattern("\x48\x8B\x05\x00\x00\x00\x00\x48\x8B\xDA\x48\x8B\xF9\x48\x85\xC0\x0F\x84\x00\x00\x00\x00", "xxx????xxxxxxxxxxx????");
+    if (!AthenaGameModeCrashAddr)
+    {
+        std::cout << "[Sodium]: Failed to find AthenaGameModeCrash address\n";
+        return 0;
+    }
+
+    *(char*)(AthenaGameModeCrashAddr + 0x11) = 0x85;
+
     Globals::SetupGlobals();
     Functions::InitConsole();
     //Functions::InitCheatManager();
