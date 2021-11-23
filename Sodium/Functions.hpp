@@ -22,6 +22,21 @@ namespace Functions
 		*ViewportConsole = params.ReturnValue;
 	}
 
+	static void InitCheatManager() {
+		SpawnObjectParams params;
+
+		params.ObjectClass = FindObject("");
+		params.Outer = Globals::PlayerController;
+
+		auto GameplayStatics = FindObject("Default__GameplayStatics");
+		static auto fn = FindObject("Function /Script/Engine.GameplayStatics.SpawnObject");
+		ProcessEvent(GameplayStatics, fn, &params);
+
+		UObject** CheatManager = reinterpret_cast<UObject**>(__int64(Globals::PlayerController) + Offsets::PlayerController::CheatManager);
+		*CheatManager = params.ReturnValue;
+		Globals::CheatMananger = params.ReturnValue;
+	}
+
 	static inline void SwitchLevel(FString URL)
 	{
 		static auto fn = FindObject("Function /Script/Engine.PlayerController.SwitchLevel");
