@@ -7,6 +7,7 @@ namespace Offsets
 	namespace Engine
 	{
 		inline __int64 GameViewport = 0x780;
+		inline __int64 ConsoleClass = 0x0F8;
 	}
 
 	namespace GameViewportClient

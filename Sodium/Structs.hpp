@@ -477,4 +477,42 @@ struct FLinearColor
 		A(a)
 	{
 	}
+	// Enum Engine.ESpawnActorCollisionHandlingMethod
+	enum class ESpawnActorCollisionHandlingMethod : uint8_t
+	{
+		Undefined = 0,
+		AlwaysSpawn = 1,
+		AdjustIfPossibleButAlwaysSpawn = 2,
+		AdjustIfPossibleButDontSpawnIfColliding = 3,
+		DontSpawnIfColliding = 4,
+		ESpawnActorCollisionHandlingMethod_MAX = 5
+	};
 };
+struct UGameplayStatics_BeginDeferredActorSpawnFromClass_Params
+{
+	class UObject* WorldContextObject;                                       // (ConstParm, Parm, ZeroConstructor, IsPlainOldData)
+	class UClass* ActorClass;                                               // (Parm, ZeroConstructor, IsPlainOldData)
+	struct FTransform                                  SpawnTransform;                                           // (ConstParm, Parm, OutParm, ReferenceParm, IsPlainOldData)
+	ESpawnActorCollisionHandlingMethod                 CollisionHandlingOverride;                                // (Parm, ZeroConstructor, IsPlainOldData)
+	class AActor* Owner;                                                    // (Parm, ZeroConstructor, IsPlainOldData)
+	class AActor* ReturnValue;                                              // (Parm, OutParm, ZeroConstructor, ReturnParm, IsPlainOldData)
+};
+
+struct UGameplayStatics_FinishSpawningActor_Params
+{
+	class UObject* Actor;                                                    // (Parm, ZeroConstructor, IsPlainOldData)
+	struct FTransform                                  SpawnTransform;                                           // (ConstParm, Parm, OutParm, ReferenceParm, IsPlainOldData)
+	class AActor* ReturnValue;                                              // (Parm, OutParm, ZeroConstructor, ReturnParm, IsPlainOldData)
+};
+struct FActorSpawnParameters
+{
+	unsigned char Unk00[0x40];
+};
+
+struct SpawnObjectParams
+{
+	UClass* ObjectClass;
+	UObject* Outer;
+	UObject* ReturnValue;
+};
+inline UObject* (*SpawnActorLong)(UObject* World, UClass* Class, FVector* Location, FRotator* Rotation, FActorSpawnParameters& SpawnParameters);
