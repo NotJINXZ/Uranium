@@ -112,7 +112,8 @@ DWORD WINAPI MainThread(LPVOID)
 
     Globals::SetupGlobals();
     Functions::InitConsole();
-    Functions::SwitchLevel(L"Apollo_Terrain?Game=/Script/Engine.GameModeBase");
+    Functions::InitCheatManager();
+    //Functions::SwitchLevel(L"Apollo_Terrain?Game=/Script/Engine.GameModeBase");
 
     CreateThread(0, 0, UpdateThread, 0, 0, 0);
 
