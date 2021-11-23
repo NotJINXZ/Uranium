@@ -17,6 +17,8 @@ namespace Globals
     UObject* GameState;
     UObject* Pawn;
     UObject* PlayerState;
+    UObject* FortInventory;
+    UObject* QuickBars;
 
 	inline static void SetupGlobals()
 	{

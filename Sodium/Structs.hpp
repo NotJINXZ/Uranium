@@ -44,11 +44,11 @@ public:
 		return i < Num();
 	}
 
-	int Add(UObject* NewItem)
+	int Add(T* NewItem)
 	{
 		Count = Count + 1;
 		Max = Max + 1;
-		Data = static_cast<UObject**>(malloc(Count * sizeof(UObject*)));
+		Data = static_cast<T**>(malloc(Count * sizeof(T*)));
 		Data[Count - 1] = NewItem;
 		return Count;
 	}
@@ -518,4 +518,11 @@ struct SpawnObjectParams
 	UObject* Outer;
 	UObject* ReturnValue;
 };
-inline UObject* (*SpawnActorLong)(UObject* World, UClass* Class, FVector* Location, FRotator* Rotation, FActorSpawnParameters& SpawnParameters);
+
+struct FGuid
+{
+	int A;
+	int B;
+	int C;
+	int D;
+};

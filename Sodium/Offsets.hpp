@@ -76,4 +76,9 @@ namespace Offsets
 		inline __int64 ItemDefinition = 0x18;
 		inline __int64 LoadedAmmo = 0x2C;
 	}
+
+	namespace FortWorldItem
+	{
+		inline __int64 ItemEntry = 0xE0;
+	}
 }

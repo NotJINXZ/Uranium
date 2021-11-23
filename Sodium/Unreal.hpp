@@ -10,6 +10,7 @@ inline UObject* FortEngine;
 inline uintptr_t FNameToStringAddr;
 inline uintptr_t GObjectsAddr;
 inline uintptr_t FreeMemoryAddr;
+inline UObject* (*SpawnActorLong)(UObject* World, UClass* Class, FVector* Location, FRotator* Rotation, FActorSpawnParameters& SpawnParameters);
 
 static inline UObject* FindObject(std::string name, bool bEqual = false)
 {
