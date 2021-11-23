@@ -11,13 +11,4 @@ namespace Functions
 		static auto fn = FindObject("Function /Script/Engine.PlayerController.SwitchLevel");
 		ProcessEvent(Globals::PlayerController, fn, &URL);
 	}
-
-	static inline void UnlockConsole()
-	{
-
-	}
-
-	static inline void UnlockCheatManager()
-	{
-	}
 }

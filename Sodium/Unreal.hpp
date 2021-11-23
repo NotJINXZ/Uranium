@@ -10,7 +10,6 @@ inline UObject* FortEngine;
 inline uintptr_t FNameToStringAddr;
 inline uintptr_t GObjectsAddr;
 inline uintptr_t FreeMemoryAddr;
-inline uintptr_t StaticConstructObject_InternalAddr;
 
 static inline UObject* FindObject(std::string name, bool bEqual = false)
 {
@@ -52,19 +51,4 @@ static inline void DumpObjects()
 
 	CurrentObjectNum = 0;
 	file.close();
-}
-
-static UObject* StaticConstructObjectInternal(
-	void* Class,
-	void* InOuter,
-	void* Name,
-	int SetFlags,
-	unsigned int InternalSetFlags,
-	void* Template,
-	bool bCopyTransientsFromClassDefaults,
-	void* InstanceGraph,
-	bool bAssumeTemplateIsArchetype)
-{
-	auto fStaticConstructObject_Internal = reinterpret_cast<UObject * (__fastcall*)(void*, void*, void*, int, unsigned int, void*, bool, void*, bool)>(StaticConstructObject_InternalAddr);
-	return fStaticConstructObject_Internal(Class, InOuter, Name, SetFlags, InternalSetFlags, Template, bCopyTransientsFromClassDefaults, InstanceGraph, bAssumeTemplateIsArchetype);
 }
