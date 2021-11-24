@@ -35,6 +35,11 @@ DWORD WINAPI UpdateThread(LPVOID)
 
             CreateThread(0, 0, MovementHook, 0, 0, 0);
         }
+
+        if (GetAsyncKeyState(VK_F3) && 0x01)
+        {
+            Functions::SetupCharacterParts();
+        }
     }
 }
 

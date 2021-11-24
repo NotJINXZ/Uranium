@@ -38,13 +38,21 @@ DWORD WINAPI MovementHook(LPVOID)
     {
         if (GetAsyncKeyState(0x57) /* W */ & 0x8000) {
             Functions::AddMovementInput(Globals::Pawn, Functions::GetActorForwardVector(Globals::Pawn), 1, true);
-        } else if (GetAsyncKeyState(0x53) /* S */ & 0x8000) {
+        }
+
+        if (GetAsyncKeyState(0x53) /* S */ & 0x8000) {
             Functions::AddMovementInput(Globals::Pawn, Functions::GetActorForwardVector(Globals::Pawn), -1, true);
-        } else if (GetAsyncKeyState(0x41) /* A */ & 0x8000) {
+        }
+
+        if (GetAsyncKeyState(0x41) /* A */ & 0x8000) {
             Functions::AddMovementInput(Globals::Pawn, Functions::GetActorRightVector(Globals::Pawn), -1, true);
-        } else if (GetAsyncKeyState(0x44) /* D */ & 0x8000) {
+        }
+        
+        if (GetAsyncKeyState(0x44) /* D */ & 0x8000) {
             Functions::AddMovementInput(Globals::Pawn, Functions::GetActorRightVector(Globals::Pawn), 1, true);
-        } else if (GetAsyncKeyState(VK_SPACE) & 0x8000) {
+        }
+        
+        if (GetAsyncKeyState(VK_SPACE) & 0x01) {
             if (!Functions::bIsJumpProvidingForce(Globals::Pawn)) {
                 Functions::Jump(Globals::Pawn);
             }
