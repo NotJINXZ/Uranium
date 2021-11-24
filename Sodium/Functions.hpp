@@ -112,4 +112,49 @@ namespace Functions
 		UObject* OnRep_CharacterDataFunc = FindObject("Function /Script/FortniteGame.FortPlayerState.OnRep_CharacterData");
 		ProcessEvent(Globals::PlayerState, OnRep_CharacterDataFunc, nullptr);
 	}
+
+	static inline void AddMovementInput(UObject* Pawn, FVector Loc, float ScaleValue, bool bForce)
+	{
+		struct Params
+		{
+			FVector WorldDirection;
+			float ScaleValue;
+			bool bForce;
+		};
+		Params params;
+		params.WorldDirection = Loc;
+		params.ScaleValue = ScaleValue;
+		params.bForce = bForce;
+
+		static auto fn = FindObject("Function /Script/Engine.Pawn.AddMovementInput");
+		ProcessEvent(Pawn, fn, &params);
+	}
+
+	static inline FVector GetActorRightVector(UObject* Actor)
+	{
+		struct Params
+		{
+			FVector ReturnValue;
+		};
+		Params params;
+
+		static auto fn = FindObject("Function /Script/Engine.Actor.GetActorRightVector");
+		ProcessEvent(Actor, fn, &params);
+
+		return params.ReturnValue;
+	}
+
+	static inline FVector GetActorForwardVector(UObject* Actor)
+	{
+		struct Params
+		{
+			FVector ReturnValue;
+		};
+		Params params;
+
+		static auto fn = FindObject("Function /Script/Engine.Actor.GetActorForwardVector");
+		ProcessEvent(Actor, fn, &params);
+
+		return params.ReturnValue;
+	}
 }

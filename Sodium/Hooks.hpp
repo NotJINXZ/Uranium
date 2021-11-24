@@ -14,46 +14,47 @@ static UObject* SpawnActorHook(UObject* InWorld, UClass* Class, FVector* Locatio
     if (Class->GetName().find("DefaultPawn") != std::string::npos) {
         Class = (UClass*)FindObject("BlueprintGeneratedClass /Game/Abilities/Player/Pawns/PlayerPawn_Generic.PlayerPawn_Generic_C");
     }
-    if (Class->GetName().find("FortPlayerController") != std::string::npos && !((Class->GetName().find("Frontend") != std::string::npos) || (Class->GetName().find("Zone") != std::string::npos)))
+    /*if (Class->GetName().find("PlayerController") != std::string::npos && !((Class->GetName().find("Frontend") != std::string::npos) || (Class->GetName().find("Zone") != std::string::npos)))
     {
-        Class = (UClass*)FindObject("Class /Script/FortniteGame.FortPlayerControllerZone");
-    }
-    if (Class->GetName().find("FortGameState") != std::string::npos && !((Class->GetName().find("Frontend") != std::string::npos) || (Class->GetName().find("Zone") != std::string::npos)))
+        Class = (UClass*)FindObject("Class /Script/FortniteGame.FortPlayerController");
+    }*/
+    /*if (Class->GetName().find("GameState") != std::string::npos && !((Class->GetName().find("Frontend") != std::string::npos) || (Class->GetName().find("Zone") != std::string::npos)))
     {
         //MessageBox(NULL, L"Gamestate Swapped", L"Gamestate Swapped",0);
         Class = (UClass*)FindObject("Class /Script/FortniteGame.FortGameStateZone");
-    }
-    if (Class->GetName().find("FortPlayerState") != std::string::npos && !(Class->GetName().find("Frontend") != std::string::npos) || (Class->GetName().find("Zone") != std::string::npos))
+    }*/
+    /*if (Class->GetName().find("FortPlayerState") != std::string::npos && !(Class->GetName().find("Frontend") != std::string::npos) || (Class->GetName().find("Zone") != std::string::npos))
     {
         Class = (UClass*)FindObject("Class /Script/FortniteGame.FortPlayerStateZone");
-    }
+    }*/
     return SpawnActorLong(InWorld, Class, Location, Rotation, SpawnParameters);
 }
 
 bool bHasSpawned = false;
 
+DWORD WINAPI WalkingHook(LPVOID)
+{
+    while(Globals::Pawn)
+    {
+        if (GetAsyncKeyState(0x57) /* W */ & 0x8000) {
+            Functions::AddMovementInput(Globals::Pawn, Functions::GetActorForwardVector(Globals::Pawn), 1, true);
+        } else if (GetAsyncKeyState(0x53) /* S */ & 0x8000) {
+            Functions::AddMovementInput(Globals::Pawn, Functions::GetActorRightVector(Globals::Pawn), -1, true);
+        } else if (GetAsyncKeyState(0x41) /* A */ & 0x8000) {
+            Functions::AddMovementInput(Globals::Pawn, Functions::GetActorRightVector(Globals::Pawn), -1, true);
+        } else if (GetAsyncKeyState(0x44) /* D */ & 0x8000) {
+            Functions::AddMovementInput(Globals::Pawn, Functions::GetActorForwardVector(Globals::Pawn), 1, true);
+        }
+
+        Sleep(1000 / 60);
+    }
+
+    return 0;
+}
+
 void* ProcessEventHook(UObject* object, UObject* function, void* params)
 {
 	if (object && function) {
-        /*if (function->GetName().find("ReadyToStartMatch") != std::string::npos)
-        {
-            if (!bHasSpawned)
-            {
-                printf("Called ReadyToStartMatch!\n");
-                Globals::SetupGlobals();
-
-                auto SpawnActorParms = FActorSpawnParameters();
-                auto SpawnLoc = FVector{ 0,0,5000 };
-                auto SpawnRot = FRotator();
-                //Globals::Pawn = SpawnActorLong(Globals::World, (UClass*)FindObject("BlueprintGeneratedClass /Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C"), &SpawnLoc, &SpawnRot, SpawnActorParms);
-
-                //Functions::Possess(Globals::Pawn);
-                Functions::ServerReadyToStartMatch();
-                Functions::StartMatch();
-
-                bHasSpawned = true;
-            }
-        }*/
 	}
 
 	return ProcessEvent(object, function, params);

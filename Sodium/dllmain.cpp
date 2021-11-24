@@ -23,9 +23,18 @@ DWORD WINAPI UpdateThread(LPVOID)
     {
         if (GetAsyncKeyState(VK_F1) && 0x01)
         {
-            Functions::InitCheatManager();
-            Functions::DestroyAll("FortHLODSMActor");
+            Functions::SwitchLevel(L"Apollo_Terrain?Game=/Script/Engine.GameModeBase");
+            //Functions::InitCheatManager();
+            //Functions::DestroyAll("FortHLODSMActor");
             //Functions::SetupCharacterParts();
+        }
+
+        if (GetAsyncKeyState(VK_F2) && 0x01)
+        {
+            Globals::Pawn = *reinterpret_cast<UObject**>(__int64(Globals::PlayerController) + Offsets::PlayerController::AcknowledgedPawn);
+            std::cout << Globals::Pawn << std::endl;
+
+            //CreateThread(0, 0, WalkingHook, 0, 0, 0);
         }
     }
 }
@@ -129,6 +138,7 @@ DWORD WINAPI MainThread(LPVOID)
 
     Globals::SetupGlobals();
     Functions::InitConsole();
+
     //Functions::InitCheatManager();
     //Functions::SwitchLevel(L"Apollo_Terrain?Game=/Script/Engine.GameModeBase");
 
