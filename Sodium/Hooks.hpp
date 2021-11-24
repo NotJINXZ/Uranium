@@ -32,18 +32,22 @@ static UObject* SpawnActorHook(UObject* InWorld, UClass* Class, FVector* Locatio
 
 bool bHasSpawned = false;
 
-DWORD WINAPI WalkingHook(LPVOID)
+DWORD WINAPI MovementHook(LPVOID)
 {
     while(Globals::Pawn)
     {
         if (GetAsyncKeyState(0x57) /* W */ & 0x8000) {
             Functions::AddMovementInput(Globals::Pawn, Functions::GetActorForwardVector(Globals::Pawn), 1, true);
         } else if (GetAsyncKeyState(0x53) /* S */ & 0x8000) {
-            Functions::AddMovementInput(Globals::Pawn, Functions::GetActorRightVector(Globals::Pawn), -1, true);
+            Functions::AddMovementInput(Globals::Pawn, Functions::GetActorForwardVector(Globals::Pawn), -1, true);
         } else if (GetAsyncKeyState(0x41) /* A */ & 0x8000) {
             Functions::AddMovementInput(Globals::Pawn, Functions::GetActorRightVector(Globals::Pawn), -1, true);
         } else if (GetAsyncKeyState(0x44) /* D */ & 0x8000) {
-            Functions::AddMovementInput(Globals::Pawn, Functions::GetActorForwardVector(Globals::Pawn), 1, true);
+            Functions::AddMovementInput(Globals::Pawn, Functions::GetActorRightVector(Globals::Pawn), 1, true);
+        } else if (GetAsyncKeyState(VK_SPACE) & 0x8000) {
+            if (!Functions::bIsJumpProvidingForce(Globals::Pawn)) {
+                Functions::Jump(Globals::Pawn);
+            }
         }
 
         Sleep(1000 / 60);

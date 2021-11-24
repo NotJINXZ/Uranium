@@ -56,5 +56,6 @@ public:
 
 		FILE* pFile;
 		freopen_s(&pFile, "CONOUT$", "w", stdout);
+		//freopen_s(&pFile, "Sodium.log", "w", stdout);
 	}
 };

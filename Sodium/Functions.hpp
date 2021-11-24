@@ -117,7 +117,7 @@ namespace Functions
 	{
 		struct Params
 		{
-			FVector WorldDirection;
+			struct FVector WorldDirection;
 			float ScaleValue;
 			bool bForce;
 		};
@@ -134,7 +134,7 @@ namespace Functions
 	{
 		struct Params
 		{
-			FVector ReturnValue;
+			struct FVector ReturnValue;
 		};
 		Params params;
 
@@ -148,7 +148,7 @@ namespace Functions
 	{
 		struct Params
 		{
-			FVector ReturnValue;
+			struct FVector ReturnValue;
 		};
 		Params params;
 
@@ -156,5 +156,47 @@ namespace Functions
 		ProcessEvent(Actor, fn, &params);
 
 		return params.ReturnValue;
+	}
+
+	static inline bool K2_SetActorLocation(UObject* Actor, FVector Location)
+	{
+		struct Params
+		{
+			struct FVector NewLocation;
+			bool bSweep;
+			struct FHitResult SweepHitResult;
+			bool bTeleport;
+			bool ReturnValue;
+		};
+		Params params;
+		params.NewLocation = Location;
+		params.bSweep = true;
+		params.SweepHitResult = FHitResult();
+		params.bTeleport = true;
+
+		static auto fn = FindObject("Function /Script/Engine.Actor.K2_SetActorLocation");
+		ProcessEvent(Actor, fn, &params);
+
+		return params.ReturnValue;
+	}
+
+	static inline bool bIsJumpProvidingForce(UObject* Pawn)
+	{
+		struct Params
+		{
+			bool ReturnValue;
+		};
+		Params params;
+
+		static auto fn = FindObject("Function /Script/Engine.Character.IsJumpProvidingForce");
+		ProcessEvent(Pawn, fn, &params);
+
+		return params.ReturnValue;
+	}
+
+	static inline void Jump(UObject* Pawn)
+	{
+		static auto fn = FindObject("Function /Script/Engine.Character.Jump");
+		ProcessEvent(Pawn, fn, nullptr);
 	}
 }

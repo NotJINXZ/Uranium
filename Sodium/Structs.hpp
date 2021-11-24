@@ -526,3 +526,7 @@ struct FGuid
 	int C;
 	int D;
 };
+
+struct FHitResult
+{
+};

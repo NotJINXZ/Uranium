@@ -13,7 +13,6 @@
 
 DWORD WINAPI ObjectDumpThread(LPVOID)
 {
-    DumpObjects();
     return 0;
 }
 
@@ -31,10 +30,10 @@ DWORD WINAPI UpdateThread(LPVOID)
 
         if (GetAsyncKeyState(VK_F2) && 0x01)
         {
-            Globals::Pawn = *reinterpret_cast<UObject**>(__int64(Globals::PlayerController) + Offsets::PlayerController::AcknowledgedPawn);
-            std::cout << Globals::Pawn << std::endl;
+            Globals::Pawn = FindObject("PlayerPawn_Generic_C /Game/Athena/Apollo/Maps/Apollo_Terrain.Apollo_Terrain.PersistentLevel.PlayerPawn_Generic_C_");
+            std::cout << Globals::Pawn->GetFullName() << std::endl;
 
-            //CreateThread(0, 0, WalkingHook, 0, 0, 0);
+            CreateThread(0, 0, MovementHook, 0, 0, 0);
         }
     }
 }
