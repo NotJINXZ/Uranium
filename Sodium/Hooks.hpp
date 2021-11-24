@@ -16,25 +16,26 @@ static UObject* SpawnActorHook(UObject* InWorld, UClass* Class, FVector* Locatio
     }
     /*if (Class->GetName().find("PlayerController") != std::string::npos && !((Class->GetName().find("Frontend") != std::string::npos) || (Class->GetName().find("Zone") != std::string::npos)))
     {
-        Class = (UClass*)FindObject("Class /Script/FortniteGame.FortPlayerController");
+        Class = (UClass*)FindObject("Class /Script/FortniteGame.FortPlayerControllerZone");
     }*/
     /*if (Class->GetName().find("GameState") != std::string::npos && !((Class->GetName().find("Frontend") != std::string::npos) || (Class->GetName().find("Zone") != std::string::npos)))
     {
         //MessageBox(NULL, L"Gamestate Swapped", L"Gamestate Swapped",0);
         Class = (UClass*)FindObject("Class /Script/FortniteGame.FortGameStateZone");
     }*/
-    /*if (Class->GetName().find("FortPlayerState") != std::string::npos && !(Class->GetName().find("Frontend") != std::string::npos) || (Class->GetName().find("Zone") != std::string::npos))
+    if (Class->GetName().find("PlayerState") != std::string::npos && !(Class->GetName().find("Frontend") != std::string::npos) || (Class->GetName().find("Zone") != std::string::npos))
     {
         Class = (UClass*)FindObject("Class /Script/FortniteGame.FortPlayerStateZone");
-    }*/
+    }
     return SpawnActorLong(InWorld, Class, Location, Rotation, SpawnParameters);
 }
 
 bool bHasSpawned = false;
+bool bIsSprinting = false;
 
 DWORD WINAPI MovementHook(LPVOID)
 {
-    while(Globals::Pawn)
+    while (Globals::Pawn)
     {
         if (GetAsyncKeyState(0x57) /* W */ & 0x8000) {
             Functions::AddMovementInput(Globals::Pawn, Functions::GetActorForwardVector(Globals::Pawn), 1, true);
@@ -47,11 +48,11 @@ DWORD WINAPI MovementHook(LPVOID)
         if (GetAsyncKeyState(0x41) /* A */ & 0x8000) {
             Functions::AddMovementInput(Globals::Pawn, Functions::GetActorRightVector(Globals::Pawn), -1, true);
         }
-        
+
         if (GetAsyncKeyState(0x44) /* D */ & 0x8000) {
             Functions::AddMovementInput(Globals::Pawn, Functions::GetActorRightVector(Globals::Pawn), 1, true);
         }
-        
+
         if (GetAsyncKeyState(VK_SPACE) & 0x01) {
             if (!Functions::bIsJumpProvidingForce(Globals::Pawn)) {
                 Functions::Jump(Globals::Pawn);

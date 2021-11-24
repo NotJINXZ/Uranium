@@ -33,6 +33,7 @@ namespace Offsets
 		inline __int64 CheatManager = 0x338;
 		inline __int64 PlayerState = 0x228;
 		inline __int64 AcknowledgedPawn = 0x2A0;
+		inline __int64 PlayerInput = 0x348;
 	}
 
 	namespace World
@@ -80,5 +81,23 @@ namespace Offsets
 	namespace FortWorldItem
 	{
 		inline __int64 ItemEntry = 0xE0;
+	}
+
+	namespace FortHero
+	{
+		inline __int64 CharacterParts = 0x238;
+	}
+
+	namespace FortPawn
+	{
+		inline __int64 CurrentMovementStyle = 0x563;
+	}
+
+	namespace FortPlayerState
+	{
+		inline __int64 CurrentHealth = 0xD34;
+		inline __int64 MaxHealth = 0xD38;
+		inline __int64 CurrentSheild = 0xD3C;
+		inline __int64 MaxSheild = 0xD40;
 	}
 }

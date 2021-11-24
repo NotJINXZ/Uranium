@@ -33,6 +33,8 @@ DWORD WINAPI UpdateThread(LPVOID)
             Globals::Pawn = FindObject("PlayerPawn_Generic_C /Game/Athena/Apollo/Maps/Apollo_Terrain.Apollo_Terrain.PersistentLevel.PlayerPawn_Generic_C_");
             std::cout << Globals::Pawn->GetFullName() << std::endl;
 
+            Globals::SetupGlobals();
+
             CreateThread(0, 0, MovementHook, 0, 0, 0);
         }
 
@@ -40,6 +42,11 @@ DWORD WINAPI UpdateThread(LPVOID)
         {
             Functions::SetupCharacterParts();
         }
+
+        /*if (GetAsyncKeyState(VK_F4) && 0x01)
+        {
+            Functions::SetMaxHealth();
+        }*/
     }
 }
 
