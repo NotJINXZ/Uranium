@@ -113,21 +113,24 @@ DWORD WINAPI MainThread(LPVOID)
 
     std::cout << "[Sodium]: SpawnActor Done!\n";
 
-    auto AthenaGameModeCrashAddr = Util::FindPattern("\x48\x8B\x05\x00\x00\x00\x00\x48\x8B\xDA\x48\x8B\xF9\x48\x85\xC0\x0F\x84\x00\x00\x00\x00", "xxx????xxxxxxxxxxx????");
+    auto AthenaGameModeCrashAddr = Util::FindPattern("\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x20\x48\x8B\x05\x00\x00\x00\x00\x48\x8B\xDA\x48\x8B\xF9\x48\x85\xC0\x0F\x84\x00\x00\x00\x00", "xxxx?xxxxxxxx????xxxxxxxxxxx????");
     if (!AthenaGameModeCrashAddr)
     {
         std::cout << "[Sodium]: Failed to find AthenaGameModeCrash address\n";
         return 0;
     }
 
-    //*(char*)(AthenaGameModeCrashAddr + 0x11) = 0x85;
+    //AthenaGameModeCrash = decltype(AthenaGameModeCrash)(AthenaGameModeCrashAddr);
+
+    //MH_CreateHook((void*)AthenaGameModeCrashAddr, AthenaGameModeCrashHook, (void**)(&AthenaGameModeCrash));
+    //MH_EnableHook((void*)AthenaGameModeCrashAddr);
 
     std::cout << "[Sodium]: AthenaGameModeCrash Done!\n";
 
     Globals::SetupGlobals();
     Functions::InitConsole();
     //Functions::InitCheatManager();
-    Functions::SwitchLevel(L"Apollo_Terrain");
+    //Functions::SwitchLevel(L"Apollo_Terrain?Game=/Script/Engine.GameModeBase");
 
     CreateThread(0, 0, UpdateThread, 0, 0, 0);
 
