@@ -114,36 +114,6 @@ namespace Functions
 		*MaxSheild = 100;
 	}
 
-	static inline void SetupCharacterParts()
-	{
-		UObject* DefaultHead = FindObject("CustomCharacterPart /Game/Athena/Heroes/Meshes/Heads/Dev_TestAsset_Head_M_XL.Dev_TestAsset_Head_M_XL");
-		UObject* DefaultBody = FindObject("CustomCharacterPart /Game/Athena/Heroes/Meshes/Bodies/Dev_TestAsset_Body_M_XL.Dev_TestAsset_Body_M_XL");
-		UObject* FortHero = FindObject("FortHero /Engine/Transient.FortHero_");
-		UObject* PlayerState = *reinterpret_cast<UObject**>(__int64(Globals::Pawn) + Offsets::Pawn::PlayerState);
-
-		auto CharacterParts = reinterpret_cast<TArray<UObject*>*>(__int64(FortHero) + Offsets::FortHero::CharacterParts);
-
-		CharacterParts->operator[](0) = DefaultBody;
-		CharacterParts->operator[](1) = DefaultHead;
-
-		struct Params
-		{
-			UObject* WorldContextObject;
-			TArray<UObject*> CharacterParts;
-			UObject* PlayerState;
-			bool bSuccess;
-		};
-		Params params;
-		params.WorldContextObject = Globals::World;
-		params.CharacterParts = *CharacterParts;
-		params.PlayerState = PlayerState;
-
-		static auto KismetLib = FindObject("FortKismetLibrary /Script/FortniteGame.Default__FortKismetLibrary");
-		static auto fn = FindObject("Function /Script/FortniteGame.FortKismetLibrary.ApplyCharacterCosmetics");
-
-		ProcessEvent(KismetLib, fn, &params);
-	}
-
 	static inline void AddMovementInput(UObject* Pawn, FVector Loc, float ScaleValue, bool bForce)
 	{
 		struct Params
@@ -229,5 +199,21 @@ namespace Functions
 	{
 		static auto fn = FindObject("Function /Script/Engine.Character.Jump");
 		ProcessEvent(Pawn, fn, nullptr);
+	}
+
+	static void ServerChoosePart(UObject* Target, TEnumAsByte<EFortCustomPartType> Type, UObject* ChosenCharacterPart)
+	{
+		static UObject* ServerChoosePart = FindObject("Function /Script/FortniteGame.FortPlayerPawn.ServerChoosePart");
+
+		struct
+		{
+			TEnumAsByte<EFortCustomPartType> Type;
+			UObject* ChosenCharacterPart;
+		} Params;
+
+		Params.Type = Type;
+		Params.ChosenCharacterPart = ChosenCharacterPart;
+
+		ProcessEvent(Target, ServerChoosePart, &Params);
 	}
 }

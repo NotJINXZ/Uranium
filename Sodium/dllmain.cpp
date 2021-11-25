@@ -40,13 +40,12 @@ DWORD WINAPI UpdateThread(LPVOID)
 
         if (GetAsyncKeyState(VK_F3) && 0x01)
         {
-            Functions::SetupCharacterParts();
         }
 
-        /*if (GetAsyncKeyState(VK_F4) && 0x01)
+        if (GetAsyncKeyState(VK_F4) && 0x01)
         {
-            Functions::SetMaxHealth();
-        }*/
+            DumpObjects();
+        }
     }
 }
 

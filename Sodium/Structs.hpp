@@ -542,3 +542,21 @@ enum class EFortMovementStyle : uint8_t
 	Tethered = 6,
 	EFortMovementStyle_MAX = 7
 };
+
+enum class EFortCustomPartType : uint8_t
+{
+	Head = 0,
+	Body = 1,
+	Hat = 2,
+	Backpack = 3,
+	Charm = 4,
+	Face = 5,
+	NumTypes = 6,
+	EFortCustomPartType_MAX = 7
+};
+
+struct USkinnedMeshComponent_SetSkeletalMesh_Params
+{
+	UObject* NewMesh;
+	bool bReinitPose;
+};

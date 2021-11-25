@@ -100,4 +100,9 @@ namespace Offsets
 		inline __int64 CurrentSheild = 0xD3C;
 		inline __int64 MaxSheild = 0xD40;
 	}
+
+	namespace Character
+	{
+		inline __int64 Mesh = 0x280;
+	}
 }
