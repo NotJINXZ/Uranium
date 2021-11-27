@@ -217,5 +217,38 @@ namespace Functions
 		ProcessEvent(Target, ServerChoosePart, &Params);
 	}
 
+	static void SetOwner(UObject* TargetActor, UObject* NewOwner)
+	{
+		static UObject* SetOwner = FindObject("Function /Script/Engine.Actor.SetOwner");
+		ProcessEvent(TargetActor, SetOwner, &NewOwner);
+	}
 
+	struct QuickbarSlot
+	{
+		TArray<struct FGuid> Items;
+		bool bEnabled;
+		char Unk00[0x7];
+	};
+
+	struct InventoryPointer
+	{
+		UObject* Inventory;
+	};
+
+	struct QuickBarPointer
+	{
+		UObject* QuickBar;
+	};
+
+	UObject* QuickBars;
+	UObject* Inventory;
+
+	static void SetupInventory(UObject* Controller)
+	{
+		QuickBars = (UObject*)(SpawnActor(FindObject("Class /Script/FortniteGame.FortQuickBars"), FVector{ 0,0,38923 }));
+		reinterpret_cast<QuickBarPointer*>(Controller)->QuickBar = QuickBars;
+		SetOwner(QuickBars, Controller);
+
+
+	}
 }
