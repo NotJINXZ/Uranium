@@ -172,6 +172,11 @@ struct FName
 	}
 };
 
+struct FActorSpawnParameters
+{
+	unsigned char Unk00[0x40];
+};
+
 struct UObject
 {
 	void** VFT;

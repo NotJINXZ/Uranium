@@ -23,16 +23,20 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             }
 
             if (GetAsyncKeyState(VK_F2) & 0x01) {
-                auto Playlist = FindObject("FortPlaylistAthena /Game/Athena/Playlists/Omaha/Playlist_Omaha.Playlist_Omaha");
-                Functions::SetPlaylist(Playlist);
+                //auto Playlist = FindObject("FortPlaylistAthena /Game/Athena/Playlists/Omaha/Playlist_Omaha.Playlist_Omaha");
+                //Functions::SetPlaylist(Playlist);
 
-                Functions::SpawnPlayer();
-                Functions::Possess(Pawn);
+                //Functions::SpawnPlayer();
+                printf("1\n");
+                //Functions::Possess(Pawn);
+                printf("2\n");
 
-                Functions::EnableCheatManager();
+                //Functions::EnableCheatManager();
 
                 Functions::ServerReadyToStartMatch();
+                printf("3\n");
                 Functions::StartMatch();
+                printf("4\n");
             }
         }
     }
@@ -78,7 +82,7 @@ DWORD WINAPI MainThread(LPVOID)
 
     InitHooks();
 
-    Functions::UnlockConsole();
+    //Functions::UnlockConsole();
 
     std::cout << "Setup!\n";
 

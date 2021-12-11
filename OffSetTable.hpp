@@ -22,4 +22,9 @@ namespace Offsets
 	{
 		inline __int64 CheatManager = 0x340;
 	}
+
+	namespace CurrentPlaylistInfo
+	{
+		inline __int64 BasePlaylist = 0x120;
+	}
 }
