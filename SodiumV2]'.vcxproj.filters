@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Util.h" />
+    <ClInclude Include="UE5.h">
+      <Filter>Unreal</Filter>
+    </ClInclude>
+    <ClInclude Include="Functions.h">
+      <Filter>Unreal</Filter>
+    </ClInclude>
+    <ClInclude Include="Hooks.h" />
+    <ClInclude Include="OffSetTable.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Unreal">
+      <UniqueIdentifier>{db414cc6-f3da-418f-b8bc-d864d6a3c9f5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+</Project>
