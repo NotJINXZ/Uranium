@@ -84,11 +84,6 @@ DWORD WINAPI MainThread(LPVOID)
 
     Functions::UnlockConsole();
 
-    // DumpObjects();
-
-    auto FortGameViewportClient = FindObject("FortGameViewportClient /Engine/Transient.FortEngine_2147482585.FortGameViewportClient_2147482425");
-    std::cout << "FortGameViewportClient: " << FortGameViewportClient->GetFullName() << std::endl;
-
     std::cout << "Setup!\n";
 
     return NULL;
