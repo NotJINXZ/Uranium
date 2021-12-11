@@ -4,7 +4,6 @@
 #include <cstdio>
 #include <vector>
 #include <libloaderapi.h>
-#include <detours.h>
 #include <Psapi.h>
 
 #define ShowMessage(message) MessageBoxA(NULL, message, "SodiumV2", MB_OK)

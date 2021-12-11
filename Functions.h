@@ -110,21 +110,32 @@ namespace Functions
 		ProcessEvent(Controller, fn, &Pawn);
 	}
 
+
 	static void UnlockConsole()
 	{
-		auto FortGameViewportClient = FindObject("/Engine/Transient.FortEngine.FortGameViewportClient");
+		auto FortGameViewportClient = FindObject("FortGameViewportClient /Engine/Transient.FortEngine_2147482585.FortGameViewportClient_2147482425");
 		auto fn = FindObject("Function /Script/Engine.GameplayStatics.SpawnObject");
 		auto statics = FindObject("GameplayStatics /Script/Engine.Default__GameplayStatics");
 		auto ConsoleClass = FindObject("/Script/Engine.Console");
-		auto ViewportConsole = reinterpret_cast<UObject**>((uintptr_t)FortGameViewportClient + Offsets::GameViewportClient::ViewportConsole);
+		auto ViewportConsole = reinterpret_cast<UObject**>((uintptr_t)FortGameViewportClient + 0x40);
+
+		std::cout << "FortGameViewportClient: " << FortGameViewportClient << std::endl;
+		std::cout << "SpawnObject: " << fn << std::endl;
+		std::cout << "Gameplay Statics: " << statics << std::endl;
+		std::cout << "Console Class: " << ConsoleClass << std::endl;
+		std::cout << "ViewportConsole: " << ViewportConsole << std::endl;
 
 		SpawnObjectParams params;
 		params.ObjectClass = ConsoleClass;
 		params.Outer = FortGameViewportClient;
 
+		std::cout << "Before PE" << std::endl;
 		ProcessEvent(statics, fn, &params);
+		std::cout << "After PE" << std::endl;
 
+		//std::cout << "Return Value: " << params.ReturnValue;
 		*ViewportConsole = params.ReturnValue;
+
 	}
 
 	static void EnableCheatManager()
