@@ -5,67 +5,65 @@
 #include <string>
 #include <locale>
 #include <iostream>
+#include <fstream>
+#include <Psapi.h>
+#include <winscard.h>
+#include "skCryptor.h"
 
 struct UObject;
 
-inline UObject* (*StaticConstructObject)(
-	UObject* Class,
-	UObject* InOuter,
-	void* Name,
-	int SetFlags,
-	unsigned int InternalSetFlags,
-	UObject* Template,
-	bool bCopyTransientsFromClassDefaults,
-	void* InstanceGraph,
-	bool bAssumeTemplateIsArchetype
-	);
 
-template <class T>
+static UObject* StaticLoadObject(UObject* Class, UObject* InOuter, const TCHAR* Name, const TCHAR* FileName = nullptr, uint32_t LoadFlags = 0, void* Sandbox = nullptr, bool bAllowObjectReconciliation = false, void* InstancingContext = nullptr)
+{
+	auto staticloadobjectaddr = Util::FindPattern(crypt("48 8B C4 48 89 58 08 4C 89 48 20 4C 89 40 18 48 89 50 10 55 56 57 41 54 41 55 41 56 41 57 48 8B EC 48 83 EC 70 33 FF 48 8D 05 ? ? ? ? 40 38 3D ? ? ? ? 4C 8B E1 49 8B D0 48 8D 4D E0 48 0F 45 C7 49 8B D8 48 89 45 D8 E8 ? ? ? ? 48 8D 15 ? ? ? ? 48 8B CB 8B F7 FF 15 ? ? ? ? 44 8B 7D 60 48 8D 55 E0 48 8B 7D 78 48 8D 4D 48 48 85 C0 48 89 7C 24 ? 41 8B C7 41 B1 01 41 0F 95 C5 45 8A C1 25 ? ? ? ? 89 44 24 20 E8 ? ? ? ? 48 8B 4D 48 4C 8D 35 ? ? ? ? 48 85 C9 0F 84 ? ? ? ? 33 DB 38 5D 70 0F 84 ? ? ? ? 45 84 ED 0F 84 ? ? ? ? 39 5D E8 44 8D 46 01 49 8B D6 48 8D 4D D0 48 0F 45 55 ? E8 ? ? ? ? 48 8B 55 48 45 33 C9 89 5C 24 30 49 8B CC 89 5C 24 28 4C 8B 00 88 5C 24 20"));
+	auto fStaticLoadObject = reinterpret_cast<UObject * (__fastcall*)(UObject*, UObject*, const TCHAR*, const TCHAR*, uint32_t, void*, bool, void*)>(staticloadobjectaddr);
+	return fStaticLoadObject(Class, InOuter, Name, FileName, LoadFlags, Sandbox, bAllowObjectReconciliation, InstancingContext);
+}
+
+template<class T>
 struct TArray
 {
-	friend struct FString;
+	friend class FString;
 
 public:
-
-	T* Data;
-	int32_t Count;
-	int32_t Max;
-
-	TArray()
+	inline TArray()
 	{
-		Data = nullptr;
+		Data = NULL;
 		Count = Max = 0;
 	};
 
-	int Num() const
+	inline INT Num() const
 	{
 		return Count;
 	};
 
-	T& operator[](int i)
+	inline T& operator[](int i)
 	{
 		return Data[i];
 	};
 
-	const T& operator[](int i) const
+	inline T& operator[](int i) const
 	{
 		return Data[i];
 	};
 
-	bool IsValidIndex(int i) const
+	inline BOOL IsValidIndex(int i) const
 	{
 		return i < Num();
 	}
 
-	int Add(T NewItem)
+	inline void Add(T InputData)
 	{
-		Count = Count + 1;
-		Max = Max + 1;
-		Data = static_cast<T**>(malloc(Count * sizeof(T*)));
-		Data[Count - 1] = NewItem;
-		return Count;
-	}
+		Data = (T*)realloc(Data, sizeof(T) * (Count + 1));
+		Data[Count++] = InputData;
+		Max = Count;
+	};
+
+	T* Data;
+	INT32 Count;
+	INT32 Max;
 };
+
 
 struct FString : private TArray<wchar_t>
 {
@@ -432,6 +430,28 @@ struct SpawnObjectParams
 	UObject* ReturnValue;
 };
 
+static void DumpObjects()
+{
+	std::ofstream log(crypt("Dump.txt"));
+
+	auto TotalObjects = GObjects->NumElements;
+
+	for (int i = 0; i < TotalObjects; ++i)
+	{
+		auto CurrentObject = GObjects->GetByIndex(i);
+
+		if (CurrentObject)
+		{
+			auto name = CurrentObject->GetFullName();
+			std::string str(name.begin(), name.end());
+
+			log << str + "\n";
+		}
+	}
+	return;
+}
+
+
 static UObject* FindObject(std::string name)
 {
 	for (int32_t i = 0; i < GObjects->NumElements; i++)
@@ -442,44 +462,12 @@ static UObject* FindObject(std::string name)
 			continue;
 
 		if (object->GetFullName().find(name) != std::string::npos) {
-			std::cout << "Found Object: " << object->GetFullName() << std::endl;
+			//std::cout << "Found Object: " << object->GetFullName() << std::endl;
 			return object;
 		}
 	}
 
 	return nullptr;
-}
-
-static UObject* FindObjectEnding(std::string name)
-{
-	for (int32_t i = 0; i < GObjects->NumElements; i++)
-	{
-		auto object = GObjects->GetByIndex(i);
-
-		if (object == nullptr)
-			continue;
-
-		if (object->GetFullName().ends_with(name)) {
-			std::cout << "Found Object Ending: " << object->GetFullName() << std::endl;
-			return object;
-		}
-	}
-}
-
-static UObject* FindObjectStarting(std::string name)
-{
-	for (int32_t i = 0; i < GObjects->NumElements; i++)
-	{
-		auto object = GObjects->GetByIndex(i);
-
-		if (object == nullptr)
-			continue;
-
-		if (object->GetFullName().starts_with(name)) {
-			std::cout << "Found Object Starting: " << object->GetFullName() << std::endl;
-			return object;
-		}
-	}
 }
 
 inline bool ProcessEvent(UObject* pObject, UObject* pFunction, void* pParams) {

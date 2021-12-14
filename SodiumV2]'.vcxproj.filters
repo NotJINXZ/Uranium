@@ -13,6 +13,8 @@
     </ClInclude>
     <ClInclude Include="Hooks.h" />
     <ClInclude Include="OffSetTable.hpp" />
+    <ClInclude Include="stringutils.h" />
+    <ClInclude Include="skCryptor.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Unreal">

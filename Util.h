@@ -6,7 +6,7 @@
 #include <libloaderapi.h>
 #include <Psapi.h>
 
-#define ShowMessage(message) MessageBoxA(NULL, message, "SodiumV2", MB_OK)
+#define ShowMessage(message) MessageBoxA(NULL, message, crypt("SodiumV2"), MB_OK)
 #define CHECKSIG(sig, error) if (!sig) { ShowMessage(error); }
 
 #define DetoursEasy(address, hook) \
