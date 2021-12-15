@@ -227,7 +227,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
         if (pFunction->GetName().find("Tick") != std::string::npos)
         {
             if (GetAsyncKeyState(VK_F1) & 0x01) {
-               Functions::SwitchLevel(L"Artemis_terrain?game=/Script/FortniteGame.FortGameModeEmptyDedicated");
+               Functions::SwitchLevel(L"Artemis_terrain?game=/Script/FortniteGame.FortGameModeAthena");
                 bIsReady = true;
             }
             /*

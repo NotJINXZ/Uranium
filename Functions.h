@@ -36,28 +36,8 @@ namespace Functions
 		if (!PlayerController) printf("PlayerController");
 		return PlayerController;
 	}
+	PVOID PawnFinder() {LocalPawn = ReadPointer(ControllerFinder(), 0x2A8);if (!LocalPawn) printf("LocalPawn");return LocalPawn;}
 
-
-	PVOID PawnFinder() {
-		auto dWorld = Util::FindPattern("48 8B 05 ? ? ? ? 4D 8B C1", true, 3);
-		CHECKSIG(dWorld, "Failed to find UWorld address!");
-		auto Worldd = *reinterpret_cast<UObject**>(dWorld);
-		auto GInstance = ReadPointer(Worldd, 0x190);
-		if (!GInstance) printf("GameInstance");
-
-		auto Players = ReadPointer(GInstance, 0x038);
-		if (!Players) printf("Players");
-
-		auto Player = ReadPointer(Players, 0x0); // Gets the first user in the array (LocalPlayers[0]).
-		if (!Player) printf("Player");
-
-		auto PlayerController = ReadPointer(Player, 0x30);
-		if (!PlayerController) printf("PlayerController");
-
-		LocalPawn = ReadPointer(PlayerController, 0x2A8); // Gets the user LocalPawn (Only if in-game).
-		if (!LocalPawn) printf("LocalPawn");
-		return LocalPawn;
-	}
 	static FVector GetActorLocation(UObject* Actor)
 	{
 		static auto fn = FindObject(crypt("Function /Script/Engine.Actor.K2_GetActorLocation"));
@@ -80,28 +60,7 @@ namespace Functions
 		{
 			UObject* PlayerState;
 		};
-
-		auto dWorld = Util::FindPattern("48 8B 05 ? ? ? ? 4D 8B C1", true, 3);
-		CHECKSIG(dWorld, "Failed to find UWorld address!");
-		auto Worldd = *reinterpret_cast<UObject**>(dWorld);
-
-
-		auto GInstance = ReadPointer(Worldd, 0x190);
-		if (!GInstance) printf("GameInstance");
-
-		auto Players = ReadPointer(GInstance, 0x038);
-		if (!Players) printf("Players");
-
-		auto Player = ReadPointer(Players, 0x0); // Gets the first user in the array (LocalPlayers[0]).
-		if (!Player) printf("Player");
-
-		auto PlayerController = ReadPointer(Player, 0x30);
-		if (!PlayerController) printf("PlayerController");
-
-		 LocalPawn = ReadPointer(PlayerController, 0x2A8); // Gets the user LocalPawn (Only if in-game).
-		if (!LocalPawn) printf("LocalPawn");
-
-		auto PlayerState = ReadPointer(LocalPawn, 0x238);
+		auto PlayerState = ReadPointer(Functions::PawnFinder(), 0x238);
 		auto KismetLib = FindObject(crypt("FortKismetLibrary /Script/FortniteGame.Default__FortKismetLibrary"));
 		static auto fn = FindObject(crypt("Function /Script/FortniteGame.FortKismetLibrary.UpdatePlayerCustomCharacterPartsVisualization"));
 
@@ -297,30 +256,14 @@ namespace Functions
 
 	static void EnableCheatManager()
 	{
-		auto dWorld = Util::FindPattern("48 8B 05 ? ? ? ? 4D 8B C1", true, 3);
-		CHECKSIG(dWorld, "Failed to find UWorld address!");
-		auto Worldd = *reinterpret_cast<UObject**>(dWorld);
-		auto GInstance = ReadPointer(Worldd, 0x190);
-		if (!GInstance) printf("GameInstance");
-
-		auto Players = ReadPointer(GInstance, 0x038);
-		if (!Players) printf("Players");
-
-		auto Player = ReadPointer(Players, 0x0); // Gets the first user in the array (LocalPlayers[0]).
-		if (!Player) printf("Player");
-
-		auto PlayerController = ReadPointer(Player, 0x30);
-		if (!PlayerController) printf("PlayerController");
-
-
 		auto fn = FindObject(crypt("Function /Script/Engine.GameplayStatics.SpawnObject"));
 		auto statics = FindObject(crypt("GameplayStatics /Script/Engine.Default__GameplayStatics"));
-		auto CheatManager = reinterpret_cast<UObject**>((uintptr_t)PlayerController + Offsets::PlayerController::CheatManager);
+		auto CheatManager = reinterpret_cast<UObject**>((uintptr_t)ControllerFinder() + Offsets::PlayerController::CheatManager);
 		auto CheatManagerClass = FindObject(crypt("/Script/Engine.CheatManager"));
 
 		SpawnObjectParams params;
 		params.ObjectClass = CheatManagerClass;
-		params.Outer = (UObject*)PlayerController;
+		params.Outer = (UObject*)ControllerFinder();
 
 		ProcessEvent(statics, fn, &params);
 
