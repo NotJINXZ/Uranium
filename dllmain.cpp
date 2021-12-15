@@ -282,6 +282,7 @@ DWORD WINAPI MainThread(LPVOID)
     auto pWorld = Util::FindPattern("48 8B 05 ? ? ? ? 4D 8B C1", true, 3);
     CHECKSIG(pWorld, "Failed to find UWorld address!");
     World = *reinterpret_cast<UObject**>(pWorld);
+
     auto FortEngine = FindObject("FortEngine /Engine/Transient.FortEngine");
     auto FEVFT = *reinterpret_cast<void***>(FortEngine);
     auto PEAddr = FEVFT[0x4B];
