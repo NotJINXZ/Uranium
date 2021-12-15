@@ -388,7 +388,34 @@ struct FTransform
 	FVector Scale3D;
 	char UnknownData_2C[0x4];
 };
-
+enum class EAthenaGamePhase
+{
+	None = 0,
+	Setup = 1,
+	Warmup = 2,
+	Aircraft = 3,
+	SafeZones = 4,
+	EndGame = 5,
+	Count = 6,
+	EAthenaGamePhase_MAX = 7
+};
+struct GetAllActorsOfClass_Params
+{
+	UObject* WorldContextObject;
+	UObject* ActorClass; //AActor
+	TArray<UObject*> OutActors; //AActor
+};
+struct RBitField
+{
+	unsigned char A : 1;
+	unsigned char B : 1;
+	unsigned char C : 1;
+	unsigned char D : 1;
+	unsigned char E : 1;
+	unsigned char F : 1;
+	unsigned char G : 1;
+	unsigned char H : 1;
+};
 struct FPlaylistPropertyArray
 {
 	unsigned char padding_180[0x68];//0x180 (0x68)

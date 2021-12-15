@@ -145,12 +145,6 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 
             if (strings[0] == "weapon") {
 
-                auto weapon = strings[1];
-                Functions::EquipWeapon(weapon);
-            }
-
-            if (strings[0] == "weapon") {
-
 
                 std::string converted(strings[1].begin(), strings[1].end());
                 auto WeaponToEquip = FindObject(converted);
@@ -169,14 +163,14 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 NewGUID.D = rand() % 1000;
                 EquipWeaponDefinitionParams.ItemEntryGuid = NewGUID;
                 auto EquiptWeaponFunc = FindObject("Function /Script/FortniteGame.FortPawn.EquipWeaponDefinition");
-                ProcessEvent((UObject*)LocalPawn, EquiptWeaponFunc, &EquipWeaponDefinitionParams);
+                ProcessEvent((UObject*)Functions::PawnFinder(), EquiptWeaponFunc, &EquipWeaponDefinitionParams);
             }
 
             if (strings[0] == "loadbp") {
                 auto BP = strings[1];
                 StaticLoadObject(FindObject(crypt("Class /Script/Engine.BlueprintGeneratedClass")), nullptr, (std::wstring(BP.begin(), BP.end()).c_str()));
-                //Functions::SpawnActorEasy(BP);
             }
+
 
 
             if (strings[0] == crypt("jonl")) {
@@ -230,7 +224,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
         if (pFunction->GetName().find("Tick") != std::string::npos)
         {
             if (GetAsyncKeyState(VK_F1) & 0x01) {
-                Functions::SwitchLevel(L"Apollo_Papaya?Game=/Script/FortniteGame.FortGameModeEmptyDedicated");
+                Functions::SwitchLevel(L"Artemis_terrain?Game=/Script/FortniteGame.FortGameModeEmptyDedicated");
                 bIsReady = true;
             }
         }
@@ -240,13 +234,20 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             Functions::UpdatePlayerController();
             Functions::ShowSkin();
             Functions::EnableCheatManager();
+            Functions::DestroyAll(FindObject("Class /Script/FortniteGame.FortHLODSMActor"));
 
             auto Pawn = FindObject("PersistentLevel.PlayerPawn_Athena_C_");
             if (Pawn->GetFullName().starts_with("PlayerPawn_Athena_C ")) {
                 std::cout << "Pawn: " << Pawn->GetFullName() << std::endl;
 
+
+
                 Functions::GrantGameplayAbility(Pawn, FindObject(crypt("Class /Script/FortniteGame.FortGameplayAbility_Sprint")));
                 Functions::GrantGameplayAbility(Pawn, FindObject(crypt("Class /Script/FortniteGame.FortGameplayAbility_Jump")));
+                Functions::GrantGameplayAbility(Pawn, FindObject(crypt("Class /Script/FortniteGame.FortGameplayAbility_Crouch")));
+                Functions::GrantGameplayAbility(Pawn, FindObject(crypt("Class /Script/FortniteGame.FortGameplayAbility_RangedWeapon")));
+                Functions::GrantGameplayAbility(Pawn, FindObject(crypt("Class /Script/FortniteGame.FortGameplayAbility_Reload")));
+                Functions::GrantGameplayAbility(Pawn, FindObject(crypt("/Game/Abilities/Player/Sliding/GA_Athena_Player_Slide.GA_Athena_Player_Slide_C")));
                 Functions::GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Abilities/Player/Generic/Traits/DefaultPlayer/GA_DefaultPlayer_InteractSearch.GA_DefaultPlayer_InteractSearch_C")));
                 Functions::GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Abilities/Player/Generic/Traits/DefaultPlayer/GA_DefaultPlayer_InteractUse.GA_DefaultPlayer_InteractUse_C")));
                 Functions::GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Athena/DrivableVehicles/GA_AthenaEnterVehicle.GA_AthenaEnterVehicle_C")));
@@ -277,7 +278,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Items/Ammo/AmmoDataBulletsMedium.AmmoDataBulletsMedium")), 999);
                 Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Items/Ammo/AmmoDataBulletsLight.AmmoDataBulletsLight")), 999);
                 Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Items/Ammo/AmmoDataBulletsHeavy.AmmoDataBulletsHeavy")), 999);
-
+                Functions::SetInfiniteAmmo(Controller);
             }
         }
     }

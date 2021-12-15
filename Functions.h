@@ -54,6 +54,7 @@ namespace Functions
 	}
 
 
+
 	static void ShowSkin() {
 
 		struct UFortKismetLibrary_UpdatePlayerCustomCharacterPartsVisualization_Params
@@ -142,6 +143,12 @@ namespace Functions
 		ProcessEvent(Controller, fn, &URL);
 	}
 
+	static void SetInfiniteAmmo(UObject* InController)
+	{
+		RBitField* BitField = reinterpret_cast<RBitField*>(__int64(InController) + 0x218c);
+		BitField->C = 1;
+	}
+
 	static UObject* GetGameState()
 	{
 		auto GameState = *reinterpret_cast<UObject**>((uintptr_t)World + Offsets::World::GameState);
@@ -184,8 +191,8 @@ namespace Functions
 	static void SpawnPlayer()
 	{
 		auto PawnClass = FindObject(crypt("BlueprintGeneratedClass /Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C"));
-		//auto PawnSpawned = SpawnActor(PawnClass, FVector(0, 0, 0));
-	//	Pawn = PawnSpawned;
+		auto PawnSpawned = SpawnActor(PawnClass, FVector(0, 0, 0), FRotator(0,0,0));
+		Pawn = PawnSpawned;
 	}
 
 	static void StartFireWorks() {
@@ -298,6 +305,50 @@ namespace Functions
 			GameplayEffectClass = FindObject(crypt("BlueprintGeneratedClass /Game/Athena/Items/Consumables/PurpleStuff/GE_Athena_PurpleStuff_Health.GE_Athena_PurpleStuff_Health_C"));
 		}
 		BP_ApplyGameplayEffectToSelf(*AbilitySystemComponent, GameplayEffectClass);
+
+		std::cout << "Granted Ability: " << GameplayAbilityClass->GetFullName() << std::endl;
+	}
+
+	static void SetGamePhase(EAthenaGamePhase NewPhase, EAthenaGamePhase OldPhase)
+	{
+		EAthenaGamePhase* CurrentGamePhase = reinterpret_cast<EAthenaGamePhase*>(__int64(GetGameState()) + 0x1EB0);
+		*CurrentGamePhase = NewPhase;
+
+		static UObject* OnRep_GamePhase = FindObject(crypt("Function /Script/FortniteGame.FortGameStateAthena.OnRep_GamePhase"));
+		ProcessEvent(GetGameState(), OnRep_GamePhase, &OldPhase);
+	}
+
+
+	inline void DestroyActor(UObject* actor)
+	{
+		const auto fn = FindObject("Function /Script/Engine.Actor.K2_DestroyActor");
+
+		ProcessEvent(actor, fn, nullptr);
+	}
+
+	inline void DestroyAll(UObject* Class)
+	{
+		auto dWorld = Util::FindPattern("48 8B 05 ? ? ? ? 4D 8B C1", true, 3);
+		CHECKSIG(dWorld, "Failed to find UWorld address!");
+		auto Worldd = *reinterpret_cast<UObject**>(dWorld);
+
+		auto GameplayStatics = FindObject("GameplayStatics /Script/Engine.Default__GameplayStatics");
+		auto GetAllActorsOfClass = FindObject("Function /Script/Engine.GameplayStatics.GetAllActorsOfClass");
+
+		GetAllActorsOfClass_Params params;
+		params.ActorClass = Class;
+		params.WorldContextObject = Worldd;
+
+		ProcessEvent(GameplayStatics, GetAllActorsOfClass, &params);
+
+		auto Actors = params.OutActors;
+
+		const auto K2_DestroyActor = FindObject("Function /Script/Engine.Actor.K2_DestroyActor");
+
+		for (auto i = 0; i < Actors.Num(); i++)
+		{
+			DestroyActor(Actors[i]);
+		}
 	}
 
 	static void UpdateInventory()

@@ -38,7 +38,7 @@ static UObject* SpawnActorHook(UObject* InWorld, UObject* Class, FVector* Locati
     if (Class->GetFullName().find("FortGameState") != std::string::npos && !((Class->GetFullName().find("Frontend") != std::string::npos) || (Class->GetFullName().find("Zone") != std::string::npos)))
     {
         //MessageBox(NULL, L"Gamestate Swapped", L"Gamestate Swapped",0);
-        Class = FindObject("Class /Script/FortniteGame.FortGameStateZone");
+        Class = FindObject("Class /Script/FortniteGame.FortGameStateAthena");
     }
     if (Class->GetFullName().find("FortPlayerState") != std::string::npos && !((Class->GetFullName().find("Frontend") != std::string::npos) || (Class->GetFullName().find("Zone") != std::string::npos)))
     {
