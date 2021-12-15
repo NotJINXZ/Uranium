@@ -29,19 +29,23 @@ static UObject* SpawnActorHook(UObject* InWorld, UObject* Class, FVector* Locati
     //gSpawnParams = &SpawnParameters;
     //gSpawnActorWorld = InWorld;
     if (Class->GetFullName().find("DefaultPawn") != std::string::npos) {
+        printf("Replaced Pawn!\n");
         Class = FindObject("BlueprintGeneratedClass /Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C");
     }
     if (Class->GetFullName().find("FortPlayerController") != std::string::npos && !((Class->GetFullName().find("Frontend") != std::string::npos) || (Class->GetFullName().find("Zone") != std::string::npos)))
     {
+        printf("Replaced PC!\n");
         Class = FindObject("Class /Script/FortniteGame.FortPlayerControllerZone");
     }
     if (Class->GetFullName().find("FortGameState") != std::string::npos && !((Class->GetFullName().find("Frontend") != std::string::npos) || (Class->GetFullName().find("Zone") != std::string::npos)))
     {
+        printf("Replaced GameState!\n");
         //MessageBox(NULL, L"Gamestate Swapped", L"Gamestate Swapped",0);
         Class = FindObject("Class /Script/FortniteGame.FortGameStateAthena");
     }
     if (Class->GetFullName().find("FortPlayerState") != std::string::npos && !((Class->GetFullName().find("Frontend") != std::string::npos) || (Class->GetFullName().find("Zone") != std::string::npos)))
     {
+        printf("Replaced PlayerState!\n");
         Class = FindObject("Class /Script/FortniteGame.FortPlayerStateAthena");
     }
     return SpawnActorLong(InWorld, Class, Location, Rotation, SpawnParameters);
