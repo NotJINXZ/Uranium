@@ -244,6 +244,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                // Functions::CustomSkin("/game/Characters/CharacterParts/Male/Medium/Heads/CP_Head_Med_Soldier_M_BananaWinter","/Game/Athena/Heroes/Meshes/Bodies/CP_Athena_Body_M_BananaWinter");
               // Functions::EnableCheatManager();
 
+<<<<<<< Updated upstream
          //       Functions::SpawnPlayer();
                 printf("1\n");
            //     Functions::Possess(Pawn);
@@ -254,6 +255,18 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 printf("3\n");
              //   Functions::StartMatch();
                 printf("4\n");
+=======
+          //       Functions::SpawnPlayer();
+                //printf("1\n");
+                //     Functions::Possess(Pawn);
+                //printf("2\n");
+                Functions::EnableCheatManager();
+
+                //   Functions::ServerReadyToStartMatch();
+                //printf("3\n");
+                //   Functions::StartMatch();
+                //printf("4\n");
+>>>>>>> Stashed changes
             }
         }
     }
