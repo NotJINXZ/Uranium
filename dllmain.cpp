@@ -32,7 +32,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
         if ((pFunction->GetFullName().find("BP_OnDeactivated") != std::string::npos && pObject->GetFullName().find("PickerOverlay_EmoteWheel") != std::string::npos))
         {
             auto LastEmotePlayed = *reinterpret_cast<UObject**>((uintptr_t)Functions::ControllerFinder() + 0x1e78);
-            auto Mesh = *reinterpret_cast<UObject**>((uintptr_t)Functions::PawnFinder() + 0x188);
+            auto Mesh = *reinterpret_cast<UObject**>((uintptr_t)Functions::PawnFinder() + 0x280);
             static auto GetAnimInstanceFN = FindObject("Function /Script/Engine.SkeletalMeshComponent.GetAnimInstance");
 
             struct GetAnimInstanceParams
@@ -97,33 +97,36 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                     float ReturnValue;
                 };
 
-                UFortMontageItemDefinitionBase_GetAnimationHardReference_Params GetAnimationHardReference_Params;
-                GetAnimationHardReference_Params.BodyType = EFortCustomBodyType::All;
-                GetAnimationHardReference_Params.Gender = EFortCustomGender::Both;
-                GetAnimationHardReference_Params.PawnContext = (UObject*)Functions::PawnFinder();
+                auto Pawn = FindObject("PersistentLevel.PlayerPawn_Athena_C_");
+                if (Pawn->GetFullName().starts_with("PlayerPawn_Athena_C ")) {
+                    UFortMontageItemDefinitionBase_GetAnimationHardReference_Params GetAnimationHardReference_Params;
+                    GetAnimationHardReference_Params.BodyType = EFortCustomBodyType::All;
+                    GetAnimationHardReference_Params.Gender = EFortCustomGender::Both;
+                    GetAnimationHardReference_Params.PawnContext = Pawn;
 
-                ProcessEvent(LastEmotePlayed, GetAnimationHardReferenceFN, &GetAnimationHardReference_Params);
+                    ProcessEvent(LastEmotePlayed, GetAnimationHardReferenceFN, &GetAnimationHardReference_Params);
 
-                auto Animation = GetAnimationHardReference_Params.ReturnValue;
+                    auto Animation = GetAnimationHardReference_Params.ReturnValue;
 
-                auto CurrentEmote = Animation;
+                    auto CurrentEmote = Animation;
 
-                if (Animation == CurrentEmote)
-                {
-                    return NULL;
+                    if (Animation == CurrentEmote)
+                    {
+                        return NULL;
+                    }
+
+
+                    UAnimInstance_Montage_Play_Params params;
+                    params.MontageToPlay = Animation;
+                    params.InPlayRate = 1;
+                    params.ReturnValueType = EMontagePlayReturnType::Duration;
+                    params.InTimeToStartMontageAt = 0;
+                    params.bStopAllMontages = true;
+
+                    ProcessEvent(AnimInstance, MontagePlayFN, &params);
+
+                    auto LastEmoteLoc = Functions::GetActorLocation(Pawn);
                 }
-
-
-                UAnimInstance_Montage_Play_Params params;
-                params.MontageToPlay = Animation;
-                params.InPlayRate = 1;
-                params.ReturnValueType = EMontagePlayReturnType::Duration;
-                params.InTimeToStartMontageAt = 0;
-                params.bStopAllMontages = true;
-
-                ProcessEvent(AnimInstance, MontagePlayFN, &params);
-
-                auto LastEmoteLoc = Functions::GetActorLocation((UObject*)Functions::PawnFinder());
             }
         }
 
