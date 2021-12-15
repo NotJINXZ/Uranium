@@ -237,7 +237,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             Functions::EnableCheatManager();
             Functions::DestroyAll(FindObject("Class /Script/FortniteGame.FortHLODSMActor"));
 
-            auto Pawn = FindObject("PersistentLevel.PlayerPawn_Athena_C_");
+            Pawn = FindObject("PersistentLevel.PlayerPawn_Athena_C_");
             if (Pawn->GetFullName().starts_with("PlayerPawn_Athena_C ")) {
                 std::cout << "Pawn: " << Pawn->GetFullName() << std::endl;
 
@@ -278,6 +278,16 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Items/Ammo/AmmoDataBulletsLight.AmmoDataBulletsLight")), 999);
                 Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Items/Ammo/AmmoDataBulletsHeavy.AmmoDataBulletsHeavy")), 999);
                 Functions::SetInfiniteAmmo(Controller);
+
+                auto PlayerState = *reinterpret_cast<UObject**>((uintptr_t)Pawn + 0x238);
+                auto MaxHealth = reinterpret_cast<float*>((uintptr_t)PlayerState + 0xd38);
+                *MaxHealth = 100;
+                auto CurrentHealth = reinterpret_cast<float*>((uintptr_t)PlayerState + 0xd34);
+                *CurrentHealth = 100;
+                auto MaxSheild = reinterpret_cast<float*>((uintptr_t)PlayerState + 0xd40);
+                *MaxSheild = 100;
+                auto CurrentSheild = reinterpret_cast<float*>((uintptr_t)PlayerState + 0xd3c);
+                *CurrentSheild = 100;
             }
         }
     }

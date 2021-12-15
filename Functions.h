@@ -406,6 +406,13 @@ namespace Functions
 		return TemporaryItemInstance;
 	}
 
+	static void OnRep_QuickbarEquippedItems()
+	{
+		auto PlayerState = *reinterpret_cast<UObject**>((uintptr_t)Pawn + 0x238);
+		auto Fn = FindObject("Function /Script/FortniteGame.FortPlayerStateZone.OnRep_QuickbarEquippedItems");
+		ProcessEvent(PlayerState, Fn, nullptr);
+	}
+
 	static void AddItemToInventory(UObject* ItemDef, int Count)
 	{
 		if (ItemDef)
@@ -422,6 +429,7 @@ namespace Functions
 			}
 
 			UpdateInventory();
+			OnRep_QuickbarEquippedItems();
 		}
 	}
 }
