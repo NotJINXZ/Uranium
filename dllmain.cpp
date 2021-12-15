@@ -225,8 +225,15 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
         if (pFunction->GetName().find("Tick") != std::string::npos)
         {
             if (GetAsyncKeyState(VK_F1) & 0x01) {
-                Functions::SwitchLevel(L"Artemis_terrain?Game=/Script/FortniteGame.FortGameModeEmptyDedicated");
+                Functions::SwitchLevel(L"Apollo_Papaya?Game=/Script/FortniteGame.FortGameModeEmptyDedicated");
                 bIsReady = true;
+            }
+
+            if (GetAsyncKeyState(VK_F2) & 0x01) {
+                Functions::UpdatePlayerController();
+                Functions::ServerReadyToStartMatch();
+                //Functions::StartMatch();
+                //Functions::StartPlay();
             }
         }
 

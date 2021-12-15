@@ -161,7 +161,7 @@ namespace Functions
 		return GameMode;
 	}
 
-		static void SetPlaylist(UObject* Playlist)
+	static void SetPlaylist(UObject* Playlist)
 	{
 		auto CurrentPlaylistInfo = reinterpret_cast<FPlaylistPropertyArray*>((uintptr_t)GetGameState() + 0x2068);
 		CurrentPlaylistInfo->BasePlaylist = Playlist;
@@ -170,7 +170,6 @@ namespace Functions
 		auto fn = FindObject(crypt("Function /Script/FortniteGame.FortGameStateAthena.OnRep_CurrentPlaylistInfo"));
 		ProcessEvent(GetGameState(), fn, nullptr);
 	}
-
 
 	static UObject* SpawnActor(UObject* ClassToSpawn, FVector loc, FRotator rot)
 	{
@@ -431,5 +430,11 @@ namespace Functions
 			UpdateInventory();
 			OnRep_QuickbarEquippedItems();
 		}
+	}
+
+	static void StartPlay()
+	{
+		static auto fn = FindObject(crypt("Function /Script/Engine.GameModeBase.StartPlay"));
+		ProcessEvent(GetGameMode(), fn, nullptr);
 	}
 }
