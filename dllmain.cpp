@@ -29,6 +29,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
         {
             return NULL;
         }
+
         if ((pFunction->GetFullName().find("BP_OnDeactivated") != std::string::npos && pObject->GetFullName().find("PickerOverlay_EmoteWheel") != std::string::npos))
         {
             auto LastEmotePlayed = *reinterpret_cast<UObject**>((uintptr_t)Functions::ControllerFinder() + 0x1e78);
@@ -123,7 +124,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 
                 ProcessEvent(AnimInstance, MontagePlayFN, &params);
 
-               auto LastEmoteLoc = Functions::GetActorLocation((UObject*)Functions::PawnFinder());
+                auto LastEmoteLoc = Functions::GetActorLocation((UObject*)Functions::PawnFinder());
             }
         }
 
@@ -176,58 +177,58 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             }
 
 
-                if (strings[0] == crypt("jonl")) {
+            if (strings[0] == crypt("jonl")) {
 
-                    struct JonLHack_GetAllObjectsOfClassFromPathParams
-                    {
-                        struct FString Path;
-                        class UClass* Class;
-                        TArray<class UObject*> ReturnValue;
-                    };
-                    auto JonLHack = FindObject(crypt("Function /Script/FortniteGame.FortKismetLibrary.JonLHack_GetAllObjectsOfClassFromPath"));
-                    auto path = strings[1]; // folder path
-                    auto classPath = strings[2]; // class path
-                    auto kismet = FindObject(crypt("FortKismetLibrary /Script/FortniteGame.Default__FortKismetLibrary")); // find kismet
-                    UClass* classInstance = reinterpret_cast<UClass*>(FindObject(std::string(classPath.begin(), classPath.end()))); // find the class from clasPath parameter
-
-                    JonLHack_GetAllObjectsOfClassFromPathParams Params{ std::wstring(path.begin(), path.end()).c_str(), classInstance }; // set up parameters
-                    ProcessEvent(kismet, JonLHack, &Params);
-                }
-
-                if (strings[0] == ("granteffect"))
+                struct JonLHack_GetAllObjectsOfClassFromPathParams
                 {
-                    auto Effect = strings[1];
+                    struct FString Path;
+                    class UClass* Class;
+                    TArray<class UObject*> ReturnValue;
+                };
+                auto JonLHack = FindObject(crypt("Function /Script/FortniteGame.FortKismetLibrary.JonLHack_GetAllObjectsOfClassFromPath"));
+                auto path = strings[1]; // folder path
+                auto classPath = strings[2]; // class path
+                auto kismet = FindObject(crypt("FortKismetLibrary /Script/FortniteGame.Default__FortKismetLibrary")); // find kismet
+                UClass* classInstance = reinterpret_cast<UClass*>(FindObject(std::string(classPath.begin(), classPath.end()))); // find the class from clasPath parameter
 
-                    UObject** AbilitySystemComponent = reinterpret_cast<UObject**>(__int64(reinterpret_cast<UObject**>((uintptr_t)Controller + Offsets::PlayerController::AcknowledgedPawn)) + 0x3c0);
-
-                    auto EffectObject = FindObject("BlueprintGeneratedClass " + std::string(Effect.begin(), Effect.end()));
-                    if (EffectObject == nullptr)
-                    {
-                        std::cout << "Could Not Find Effect \n";
-                        return NULL;
-                    }
-                  //  Functions::BP_ApplyGameplayEffectToSelf(*AbilitySystemComponent, EffectObject);
-                }
-
-                if (strings[0] == "play")
-                {
-                    auto func = FindObject("Function /Script/MovieScene.MovieSceneSequencePlayer.Play");
-                    auto obj = FindObject(std::string(strings[1].begin(), strings[1].end()));
-
-                    if (!obj)
-                    {
-                        std::cout << "Failed To Find Sequence" << std::endl;
-                        return NULL;
-                    }
-
-                    ProcessEvent(obj, func, nullptr);
-                }
+                JonLHack_GetAllObjectsOfClassFromPathParams Params{ std::wstring(path.begin(), path.end()).c_str(), classInstance }; // set up parameters
+                ProcessEvent(kismet, JonLHack, &Params);
             }
+
+            if (strings[0] == ("granteffect"))
+            {
+                auto Effect = strings[1];
+
+                UObject** AbilitySystemComponent = reinterpret_cast<UObject**>(__int64(reinterpret_cast<UObject**>((uintptr_t)Controller + Offsets::PlayerController::AcknowledgedPawn)) + 0x3c0);
+
+                auto EffectObject = FindObject("BlueprintGeneratedClass " + std::string(Effect.begin(), Effect.end()));
+                if (EffectObject == nullptr)
+                {
+                    std::cout << "Could Not Find Effect \n";
+                    return NULL;
+                }
+                //  Functions::BP_ApplyGameplayEffectToSelf(*AbilitySystemComponent, EffectObject);
+            }
+
+            if (strings[0] == "play")
+            {
+                auto func = FindObject("Function /Script/MovieScene.MovieSceneSequencePlayer.Play");
+                auto obj = FindObject(std::string(strings[1].begin(), strings[1].end()));
+
+                if (!obj)
+                {
+                    std::cout << "Failed To Find Sequence" << std::endl;
+                    return NULL;
+                }
+
+                ProcessEvent(obj, func, nullptr);
+            }
+        }
 
         if (pFunction->GetName().find("Tick") != std::string::npos)
         {
             if (GetAsyncKeyState(VK_F1) & 0x01) {
-               Functions::SwitchLevel(L"Artemis_terrain?game=/Script/FortniteGame.FortGameModeEmptyDedicated");
+                Functions::SwitchLevel(L"Apollo_Papaya?Game=/Script/FortniteGame.FortGameModeEmptyDedicated");
                 bIsReady = true;
             }
             /*
@@ -239,20 +240,20 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             */
             if (GetAsyncKeyState(VK_F2) & 0x01) {
                 auto Playlist = FindObject("FortPlaylistAthena /Game/Athena/Playlists/Omaha/Playlist_Omaha.Playlist_Omaha");
-              //  Functions::SetPlaylist(Playlist);
-               Functions::ShowSkin();
-               // Functions::CustomSkin("/game/Characters/CharacterParts/Male/Medium/Heads/CP_Head_Med_Soldier_M_BananaWinter","/Game/Athena/Heroes/Meshes/Bodies/CP_Athena_Body_M_BananaWinter");
-              // Functions::EnableCheatManager();
+                //  Functions::SetPlaylist(Playlist);
+                Functions::ShowSkin();
+                // Functions::CustomSkin("/game/Characters/CharacterParts/Male/Medium/Heads/CP_Head_Med_Soldier_M_BananaWinter","/Game/Athena/Heroes/Meshes/Bodies/CP_Athena_Body_M_BananaWinter");
+               // Functions::EnableCheatManager();
 
-         //       Functions::SpawnPlayer();
+          //       Functions::SpawnPlayer();
                 printf("1\n");
-           //     Functions::Possess(Pawn);
+                //     Functions::Possess(Pawn);
                 printf("2\n");
                 Functions::EnableCheatManager();
 
-             //   Functions::ServerReadyToStartMatch();
+                //   Functions::ServerReadyToStartMatch();
                 printf("3\n");
-             //   Functions::StartMatch();
+                //   Functions::StartMatch();
                 printf("4\n");
             }
         }
@@ -292,7 +293,7 @@ DWORD WINAPI MainThread(LPVOID)
     MH_EnableHook((void*)PEAddr);
 
     InitHooks();
-
+    
     Functions::UnlockConsole();
     Functions::UpdatePlayerController();
   //  Functions::EnableCheatManager();
