@@ -123,7 +123,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 
                 ProcessEvent(AnimInstance, MontagePlayFN, &params);
 
-               auto LastEmoteLoc = Functions::GetActorLocation((UObject*)Functions::PawnFinder());
+                auto LastEmoteLoc = Functions::GetActorLocation((UObject*)Functions::PawnFinder());
             }
         }
 
@@ -176,97 +176,105 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             }
 
 
-                if (strings[0] == crypt("jonl")) {
+            if (strings[0] == crypt("jonl")) {
 
-                    struct JonLHack_GetAllObjectsOfClassFromPathParams
-                    {
-                        struct FString Path;
-                        class UClass* Class;
-                        TArray<class UObject*> ReturnValue;
-                    };
-                    auto JonLHack = FindObject(crypt("Function /Script/FortniteGame.FortKismetLibrary.JonLHack_GetAllObjectsOfClassFromPath"));
-                    auto path = strings[1]; // folder path
-                    auto classPath = strings[2]; // class path
-                    auto kismet = FindObject(crypt("FortKismetLibrary /Script/FortniteGame.Default__FortKismetLibrary")); // find kismet
-                    UClass* classInstance = reinterpret_cast<UClass*>(FindObject(std::string(classPath.begin(), classPath.end()))); // find the class from clasPath parameter
-
-                    JonLHack_GetAllObjectsOfClassFromPathParams Params{ std::wstring(path.begin(), path.end()).c_str(), classInstance }; // set up parameters
-                    ProcessEvent(kismet, JonLHack, &Params);
-                }
-
-                if (strings[0] == ("granteffect"))
+                struct JonLHack_GetAllObjectsOfClassFromPathParams
                 {
-                    auto Effect = strings[1];
+                    struct FString Path;
+                    class UClass* Class;
+                    TArray<class UObject*> ReturnValue;
+                };
+                auto JonLHack = FindObject(crypt("Function /Script/FortniteGame.FortKismetLibrary.JonLHack_GetAllObjectsOfClassFromPath"));
+                auto path = strings[1]; // folder path
+                auto classPath = strings[2]; // class path
+                auto kismet = FindObject(crypt("FortKismetLibrary /Script/FortniteGame.Default__FortKismetLibrary")); // find kismet
+                UClass* classInstance = reinterpret_cast<UClass*>(FindObject(std::string(classPath.begin(), classPath.end()))); // find the class from clasPath parameter
 
-                    UObject** AbilitySystemComponent = reinterpret_cast<UObject**>(__int64(reinterpret_cast<UObject**>((uintptr_t)Controller + Offsets::PlayerController::AcknowledgedPawn)) + 0x3c0);
-
-                    auto EffectObject = FindObject("BlueprintGeneratedClass " + std::string(Effect.begin(), Effect.end()));
-                    if (EffectObject == nullptr)
-                    {
-                        std::cout << "Could Not Find Effect \n";
-                        return NULL;
-                    }
-                  //  Functions::BP_ApplyGameplayEffectToSelf(*AbilitySystemComponent, EffectObject);
-                }
-
-                if (strings[0] == "play")
-                {
-                    auto func = FindObject("Function /Script/MovieScene.MovieSceneSequencePlayer.Play");
-                    auto obj = FindObject(std::string(strings[1].begin(), strings[1].end()));
-
-                    if (!obj)
-                    {
-                        std::cout << "Failed To Find Sequence" << std::endl;
-                        return NULL;
-                    }
-
-                    ProcessEvent(obj, func, nullptr);
-                }
+                JonLHack_GetAllObjectsOfClassFromPathParams Params{ std::wstring(path.begin(), path.end()).c_str(), classInstance }; // set up parameters
+                ProcessEvent(kismet, JonLHack, &Params);
             }
+
+            if (strings[0] == ("granteffect"))
+            {
+                auto Effect = strings[1];
+
+                UObject** AbilitySystemComponent = reinterpret_cast<UObject**>(__int64(reinterpret_cast<UObject**>((uintptr_t)Controller + Offsets::PlayerController::AcknowledgedPawn)) + 0x3c0);
+
+                auto EffectObject = FindObject("BlueprintGeneratedClass " + std::string(Effect.begin(), Effect.end()));
+                if (EffectObject == nullptr)
+                {
+                    std::cout << "Could Not Find Effect \n";
+                    return NULL;
+                }
+                //  Functions::BP_ApplyGameplayEffectToSelf(*AbilitySystemComponent, EffectObject);
+            }
+
+            if (strings[0] == "play")
+            {
+                auto func = FindObject("Function /Script/MovieScene.MovieSceneSequencePlayer.Play");
+                auto obj = FindObject(std::string(strings[1].begin(), strings[1].end()));
+
+                if (!obj)
+                {
+                    std::cout << "Failed To Find Sequence" << std::endl;
+                    return NULL;
+                }
+
+                ProcessEvent(obj, func, nullptr);
+            }
+        }
 
         if (pFunction->GetName().find("Tick") != std::string::npos)
         {
             if (GetAsyncKeyState(VK_F1) & 0x01) {
-               Functions::SwitchLevel(L"Artemis_terrain?game=/Script/FortniteGame.FortGameModeAthena");
+                Functions::SwitchLevel(L"Apollo_Papaya?Game=/Script/FortniteGame.FortGameModeEmptyDedicated");
                 bIsReady = true;
             }
-            /*
-            if (GetAsyncKeyState(VK_SPACE) & 0x01) {
-                static auto fn = FindObject("Function /Script/Engine.Character.Jump");
+        }
 
-                ProcessEvent((UObject*)Functions::PawnFinder(), fn, nullptr);
-            }
-            */
-            if (GetAsyncKeyState(VK_F2) & 0x01) {
-                auto Playlist = FindObject("FortPlaylistAthena /Game/Athena/Playlists/Omaha/Playlist_Omaha.Playlist_Omaha");
-              //  Functions::SetPlaylist(Playlist);
-               Functions::ShowSkin();
-               // Functions::CustomSkin("/game/Characters/CharacterParts/Male/Medium/Heads/CP_Head_Med_Soldier_M_BananaWinter","/Game/Athena/Heroes/Meshes/Bodies/CP_Athena_Body_M_BananaWinter");
-              // Functions::EnableCheatManager();
+        if (pFunction->GetName().find("ServerLoadingScreenDropped") != std::string::npos)
+        {
+            Functions::UpdatePlayerController();
+            Functions::ShowSkin();
+            Functions::EnableCheatManager();
 
-<<<<<<< Updated upstream
-         //       Functions::SpawnPlayer();
-                printf("1\n");
-           //     Functions::Possess(Pawn);
-                printf("2\n");
-                Functions::EnableCheatManager();
+            auto Pawn = FindObject("PersistentLevel.PlayerPawn_Athena_C_");
+            if (Pawn->GetFullName().starts_with("PlayerPawn_Athena_C ")) {
+                std::cout << "Pawn: " << Pawn->GetFullName() << std::endl;
 
-             //   Functions::ServerReadyToStartMatch();
-                printf("3\n");
-             //   Functions::StartMatch();
-                printf("4\n");
-=======
-          //       Functions::SpawnPlayer();
-                //printf("1\n");
-                //     Functions::Possess(Pawn);
-                //printf("2\n");
-                Functions::EnableCheatManager();
+                Functions::GrantGameplayAbility(Pawn, FindObject(crypt("Class /Script/FortniteGame.FortGameplayAbility_Sprint")));
+                Functions::GrantGameplayAbility(Pawn, FindObject(crypt("Class /Script/FortniteGame.FortGameplayAbility_Jump")));
+                Functions::GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Abilities/Player/Generic/Traits/DefaultPlayer/GA_DefaultPlayer_InteractSearch.GA_DefaultPlayer_InteractSearch_C")));
+                Functions::GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Abilities/Player/Generic/Traits/DefaultPlayer/GA_DefaultPlayer_InteractUse.GA_DefaultPlayer_InteractUse_C")));
+                Functions::GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Athena/DrivableVehicles/GA_AthenaEnterVehicle.GA_AthenaEnterVehicle_C")));
+                Functions::GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Athena/DrivableVehicles/GA_AthenaExitVehicle.GA_AthenaExitVehicle_C")));
+                Functions::GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Athena/DrivableVehicles/GA_AthenaInVehicle.GA_AthenaInVehicle_C")));
+                Functions::GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Athena/Items/EnvironmentalItems/HidingProps/GA_Athena_HidingProp_JumpOut.GA_Athena_HidingProp_JumpOut_C")));
+                Functions::GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Athena/Items/EnvironmentalItems/HidingProps/GA_Athena_HidingProp_Hide.GA_Athena_HidingProp_Hide_C")));
+                Functions::GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Abilities/Player/Generic/Traits/DefaultPlayer/GA_DefaultPlayer_InteractUse.GA_DefaultPlayer_InteractUse_C")));
 
-                //   Functions::ServerReadyToStartMatch();
-                //printf("3\n");
-                //   Functions::StartMatch();
-                //printf("4\n");
->>>>>>> Stashed changes
+                //auto Controller = *reinterpret_cast<UObject**>((uintptr_t)Functions::ControllerFinder());
+                FortInventory = reinterpret_cast<InventoryPointer*>((uintptr_t)Controller + 0x1ab0)->Inventory;
+                //QuickBar = reinterpret_cast<QuickBarPointer*>((uintptr_t)Controller + 0x17f8)->QuickBar;
+
+                std::cout << "FortInventory: " << FortInventory->GetFullName() << std::endl;
+                //std::cout << "QuickBar: " << QuickBar->GetFullName() << std::endl;
+
+                Functions::AddItemToInventory(FindObject(crypt("FortWeaponMeleeItemDefinition /Game/Athena/Items/Weapons/WID_Harvest_Pickaxe_Athena_C_T01.WID_Harvest_Pickaxe_Athena_C_T01")), 1);
+                Functions::AddItemToInventory(FindObject(crypt("FortBuildingItemDefinition /Game/Items/Weapons/BuildingTools/BuildingItemData_Wall.BuildingItemData_Wall")), 1);
+                Functions::AddItemToInventory(FindObject(crypt("FortBuildingItemDefinition /Game/Items/Weapons/BuildingTools/BuildingItemData_Floor.BuildingItemData_Floor")), 1);
+                Functions::AddItemToInventory(FindObject(crypt("FortBuildingItemDefinition /Game/Items/Weapons/BuildingTools/BuildingItemData_Stair_W.BuildingItemData_Stair_W")), 1);
+                Functions::AddItemToInventory(FindObject(crypt("FortBuildingItemDefinition /Game/Items/Weapons/BuildingTools/BuildingItemData_RoofS.BuildingItemData_RoofS")), 1);
+                Functions::AddItemToInventory(FindObject(crypt("FortResourceItemDefinition /Game/Items/ResourcePickups/WoodItemData.WoodItemData")), 999);
+                Functions::AddItemToInventory(FindObject(crypt("FortResourceItemDefinition /Game/Items/ResourcePickups/StoneItemData.StoneItemData")), 999);
+                Functions::AddItemToInventory(FindObject(crypt("FortResourceItemDefinition /Game/Items/ResourcePickups/MetalItemData.MetalItemData")), 999);
+                Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Items/Ammo/AmmoDataEnergyCell.AmmoDataEnergyCell")), 999);
+                Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Items/Ammo/AmmoDataExplosive.AmmoDataExplosive")), 999);
+                Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Items/Ammo/AmmoDataShells.AmmoDataShells")), 999);
+                Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Items/Ammo/AmmoDataBulletsMedium.AmmoDataBulletsMedium")), 999);
+                Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Items/Ammo/AmmoDataBulletsLight.AmmoDataBulletsLight")), 999);
+                Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Items/Ammo/AmmoDataBulletsHeavy.AmmoDataBulletsHeavy")), 999);
+
             }
         }
     }

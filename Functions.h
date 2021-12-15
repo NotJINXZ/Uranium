@@ -69,35 +69,22 @@ namespace Functions
 		ProcessEvent(KismetLib, fn, &params);
 	}
 
-
-
 	static UObject* SpawnActorFromLong(UObject* Class, FTransform UserTransformPtr)
 	{
 		auto spawnParms = FActorSpawnParameters();
 		SpawnActorLong = decltype(SpawnActorLong)(Util::FindPattern(crypt("48 8B C4 55 53 56 57 41 54 41 55 41 56 41 57 48 8D A8 ? ? ? ? 48 81 EC ? ? ? ? 0F 29 70 A8 0F 29 78 98 44 0F 29 40 ? 44 0F 29 88 ? ? ? ? 44 0F 29 90 ? ? ? ? 44 0F 29 98 ? ? ? ? 44 0F 29 A0 ? ? ? ? 44 0F 29 A8 ? ? ? ? 44 0F 29 B0 ? ? ? ? 44 0F 29 B8 ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 45 60 45 33 ED 48 89 4D 90 44 89 6D 80 48 8D 05 ? ? ? ? 44 38 2D ? ? ? ? 4C 8B F2 48 8B D9 48 8D 15 ? ? ? ? 49 0F 45 C5 48 8D 4D B8 48 89 45 B0 49 8B F1 4D 8B E0 E8 ? ? ? ? 4C 8B 7B 30 4C 89 7C 24 ? 4D 85 F6 0F 84 ? ? ? ? 41 8B 86 ? ? ? ? 0F BA E0 19 0F 82 ? ? ? ? A8 01 0F 85 ? ? ? ? E8 ? ? ? ? 48 8B D0 49 8B CE E8 ? ? ? ? 84 C0 0F 84 ? ? ? ? 48 8B 46 08 48 8D 3D ? ? ? ? 48 85 C0 74 0A")));
 		return SpawnActorLong(World, Class, &UserTransformPtr, spawnParms);
 	}
+
 	static UObject* UpdatePlayerController()
 	{
-		auto statics = FindObject(crypt("GameplayStatics /Script/Engine.Default__GameplayStatics"));
-		auto fn = FindObject(crypt("Function /Script/Engine.GameplayStatics.GetPlayerController"));
-
-		struct Params
-		{
-			UObject* WorldContextObject;
-			int PlayerIndex;
-			UObject* ReturnValue;
-		};
-		Params params;
-		params.WorldContextObject = World;
-		params.PlayerIndex = 0;
-
-		ProcessEvent(statics, fn, &params);
-
-		Controller = params.ReturnValue;
-		std::cout << crypt("PlayerController: ") << Controller << std::endl;
-
-		return params.ReturnValue;
+		auto FortEngine = FindObject(crypt("FortEngine /Engine/Transient.FortEngine"));
+		auto GameInstance = *reinterpret_cast<UObject**>((uintptr_t)FortEngine + 0xd78);
+		auto LocalPlayers = *reinterpret_cast<TArray<UObject*>*>((uintptr_t)GameInstance + 0x38);
+		auto LocalPlayer = LocalPlayers[0];
+		auto PlayerController = *reinterpret_cast<UObject**>((uintptr_t)LocalPlayer + 0x30);
+		Controller = PlayerController;
+		return PlayerController;
 	}
 
 	void EquipWeapon(std::string Weapon) {
@@ -269,5 +256,121 @@ namespace Functions
 
 		std::cout << crypt("CheatManager: ") << params.ReturnValue << std::endl;
 		*CheatManager = params.ReturnValue;
+	}
+
+	static void BP_ApplyGameplayEffectToSelf(UObject* AbilitySystemComponent, UObject* GameplayEffectClass)
+	{
+		static UObject* BP_ApplyGameplayEffectToSelf = FindObject(crypt("Function /Script/GameplayAbilities.AbilitySystemComponent.BP_ApplyGameplayEffectToSelf"));
+
+		struct
+		{
+			UObject* GameplayEffectClass;
+			float Level;
+			FGameplayEffectContextHandle EffectContext;
+			FActiveGameplayEffectHandle ret;
+		} Params;
+
+		Params.EffectContext = FGameplayEffectContextHandle();
+		Params.GameplayEffectClass = GameplayEffectClass;
+		Params.Level = 1.0;
+
+		ProcessEvent(AbilitySystemComponent, BP_ApplyGameplayEffectToSelf, &Params);
+	}
+
+	static void GrantGameplayAbility(UObject* TargetPawn, UObject* GameplayAbilityClass)
+	{
+		UObject** AbilitySystemComponent = reinterpret_cast<UObject**>(__int64(TargetPawn) + 0xD48);
+		static UObject* DefaultGameplayEffect = FindObject(crypt("GE_Athena_PurpleStuff_C /Game/Athena/Items/Consumables/PurpleStuff/GE_Athena_PurpleStuff.Default__GE_Athena_PurpleStuff_C"));
+		if (!DefaultGameplayEffect)
+		{
+			DefaultGameplayEffect = FindObject(crypt("GE_Athena_PurpleStuff_Health_C /Game/Athena/Items/Consumables/PurpleStuff/GE_Athena_PurpleStuff_Health.Default__GE_Athena_PurpleStuff_Health_C"));
+		}
+
+		TArray<struct FGameplayAbilitySpecDef>* GrantedAbilities = reinterpret_cast<TArray<struct FGameplayAbilitySpecDef>*>(__int64(DefaultGameplayEffect) + 0x7F0);
+
+		GrantedAbilities->operator[](0).Ability = GameplayAbilityClass;
+
+		*reinterpret_cast<EGameplayEffectDurationType*>(__int64(DefaultGameplayEffect) + 0x30) = EGameplayEffectDurationType::Infinite;
+
+		static auto GameplayEffectClass = FindObject(crypt("BlueprintGeneratedClass /Game/Athena/Items/Consumables/PurpleStuff/GE_Athena_PurpleStuff.GE_Athena_PurpleStuff_C"));
+		if (!GameplayEffectClass)
+		{
+			GameplayEffectClass = FindObject(crypt("BlueprintGeneratedClass /Game/Athena/Items/Consumables/PurpleStuff/GE_Athena_PurpleStuff_Health.GE_Athena_PurpleStuff_Health_C"));
+		}
+		BP_ApplyGameplayEffectToSelf(*AbilitySystemComponent, GameplayEffectClass);
+	}
+
+	static void UpdateInventory()
+	{
+		static auto HandleWorldInventoryLocalUpdate = FindObject(crypt("Function /Script/FortniteGame.FortPlayerController.HandleWorldInventoryLocalUpdate"));
+		static auto HandleInventoryLocalUpdate = FindObject(crypt("Function /Script/FortniteGame.FortInventory.HandleInventoryLocalUpdate"));
+		static auto ClientForceUpdateQuickbar = FindObject(crypt("Function /Script/FortniteGame.FortPlayerController.ClientForceUpdateQuickbar"));
+
+		ProcessEvent(FortInventory, HandleInventoryLocalUpdate, nullptr);
+		ProcessEvent(Controller, HandleWorldInventoryLocalUpdate, nullptr);
+
+		auto PrimaryQuickbar = EFortQuickBars::Primary;
+		auto SecondaryQuickbar = EFortQuickBars::Secondary;
+		ProcessEvent(Controller, ClientForceUpdateQuickbar, &PrimaryQuickbar);
+		ProcessEvent(Controller, ClientForceUpdateQuickbar, &SecondaryQuickbar);
+	}
+
+	static void SetOwningControllerForTemporaryItem(UObject* Item, UObject* Controller)
+	{
+		static UObject* SetOwningControllerForTemporaryItem = FindObject(crypt("Function /Script/FortniteGame.FortItem.SetOwningControllerForTemporaryItem"));
+		ProcessEvent(Item, SetOwningControllerForTemporaryItem, &Controller);
+	}
+
+	static UObject* CreateTemporaryItemInstanceBP(UObject* ItemDefinition, int Count, int Level)
+	{
+		static UObject* CreateTemporaryItemInstanceBP = FindObject(crypt("Function /Script/FortniteGame.FortItemDefinition.CreateTemporaryItemInstanceBP"));
+
+		struct
+		{
+			int Count;
+			int Level;
+			UObject* ReturnValue;
+		} Params;
+
+		Params.Count = Count;
+		Params.Level = Level;
+
+		ProcessEvent(ItemDefinition, CreateTemporaryItemInstanceBP, &Params);
+
+		return Params.ReturnValue;
+	}
+
+	static UObject* CreateItem(UObject* ItemDefinition, int Count)
+	{
+		UObject* TemporaryItemInstance = CreateTemporaryItemInstanceBP(ItemDefinition, Count, 1);
+
+		if (TemporaryItemInstance)
+		{
+			SetOwningControllerForTemporaryItem(TemporaryItemInstance, Controller);
+		}
+
+		int* CurrentCount = reinterpret_cast<int*>(__int64(TemporaryItemInstance) + static_cast<__int64>(0xE0) + static_cast<__int64>(0xC));
+		*CurrentCount = Count;
+
+		return TemporaryItemInstance;
+	}
+
+	static void AddItemToInventory(UObject* ItemDef, int Count)
+	{
+		if (ItemDef)
+		{
+			UObject* ItemInstance = CreateItem(ItemDef, Count);
+
+			if (ItemInstance)
+			{
+				auto ItemEntry = reinterpret_cast<FFortItemEntry*>(reinterpret_cast<uintptr_t>(ItemInstance) + 0xE0);
+				reinterpret_cast<TArray<FFortItemEntry>*>(__int64(FortInventory) + static_cast<__int64>(0x228) + static_cast<__int64>(0x108))->Add(*ItemEntry);
+
+				//return reinterpret_cast<FGuid*>((uintptr_t)ItemEntry + 0x68);
+				//reinterpret_cast<TArray<UObject*>*>(__int64(Globals::FortInventory) + static_cast<__int64>(0x230) + static_cast<__int64>(0x168))->Add(ItemInstance);
+			}
+
+			UpdateInventory();
+		}
 	}
 }

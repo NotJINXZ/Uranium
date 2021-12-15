@@ -26,8 +26,8 @@ static void* RequestExitWithStatusAddress;
 static UObject* SpawnActorHook(UObject* InWorld, UObject* Class, FVector* Location, FRotator* Rotation, FActorSpawnParameters& SpawnParameters)
 {
     // Remember RBX Instruction
-    //Globals::gSpawnParams = &SpawnParameters;
-    //Globals::gSpawnActorWorld = InWorld;
+    //gSpawnParams = &SpawnParameters;
+    //gSpawnActorWorld = InWorld;
     if (Class->GetFullName().find("DefaultPawn") != std::string::npos) {
         Class = FindObject("BlueprintGeneratedClass /Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C");
     }
@@ -42,7 +42,7 @@ static UObject* SpawnActorHook(UObject* InWorld, UObject* Class, FVector* Locati
     }
     if (Class->GetFullName().find("FortPlayerState") != std::string::npos && !((Class->GetFullName().find("Frontend") != std::string::npos) || (Class->GetFullName().find("Zone") != std::string::npos)))
     {
-        Class = FindObject("Class /Script/FortniteGame.FortPlayerStateZone");
+        Class = FindObject("Class /Script/FortniteGame.FortPlayerStateAthena");
     }
     return SpawnActorLong(InWorld, Class, Location, Rotation, SpawnParameters);
 }

@@ -430,6 +430,46 @@ struct SpawnObjectParams
 	UObject* ReturnValue;
 };
 
+struct FFortGiftingInfo {};
+struct FGameplayAbilitySpecHandle {};
+struct FFastArraySerializer {};
+
+struct FGameplayAbilitySpecDef
+{
+	UObject* Ability;
+	unsigned char Unk00[0x90];
+};
+
+struct FActiveGameplayEffectHandle
+{
+	int Handle; // 0x00(0x04)
+	bool bPassedFiltersAndWasExecuted; // 0x04(0x01)
+	char UnknownData_5[0x3]; // 0x05(0x03)
+};
+
+struct FGameplayEffectContextHandle
+{
+	char UnknownData_0[0x30]; // 0x00(0x18)
+};
+
+//Inventory Structs Below
+struct QuickbarSlot
+{
+	TArray<struct FGuid> Items;
+	bool bEnabled;
+	char Unk00[0x7];
+};
+
+struct InventoryPointer
+{
+	UObject* Inventory;
+};
+
+struct QuickBarPointer
+{
+	UObject* QuickBar;
+};
+
 static void DumpObjects()
 {
 	std::ofstream log(crypt("Dump.txt"));
@@ -450,7 +490,6 @@ static void DumpObjects()
 	}
 	return;
 }
-
 
 static UObject* FindObject(std::string name)
 {
@@ -476,3 +515,24 @@ inline bool ProcessEvent(UObject* pObject, UObject* pFunction, void* pParams) {
 	ProcesseventVtable(pObject, pFunction, pParams);
 	return true;
 }
+
+enum class EGameplayEffectDurationType : uint8_t
+{
+	Instant,
+	Infinite,
+	HasDuration,
+	EGameplayEffectDurationType_MAX
+};
+
+struct FFortItemEntry
+{
+	unsigned char Unk00[0x1A0];
+};
+
+enum class EFortQuickBars : uint8_t
+{
+	Primary,
+	Secondary,
+	Max_None,
+	EFortQuickBars_MAX
+};
