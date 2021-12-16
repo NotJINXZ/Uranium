@@ -153,10 +153,10 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 
                 if (Pawn) {
                     std::cout << "Pawn: " << Pawn->GetFullName() << std::endl;
-
+                    Functions::SetPlaylist(FindObject("FortPlaylistAthena /Game/Athena/Playlists/BattleLab/Playlist_BattleLab.Playlist_BattleLab"));
                     Functions::Possess(Pawn);
                     Functions::StartMatch();
-                    Functions::ServerReadyToStartMatch();
+                  //  Functions::ServerReadyToStartMatch();
                 }
             }
         }

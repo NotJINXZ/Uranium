@@ -292,28 +292,51 @@ namespace Functions
 
 	static UObject* FindAthenaGameMode()
 	{
-		auto gamemodeObject = FindObject("PersistentLevel.Athena_GameMode_C_");
-		if (gamemodeObject->GetFullName().starts_with("Athena_GameMode_C ")) {
-			std::cout << "GameMode: " << gamemodeObject->GetFullName() << std::endl;
-			return gamemodeObject;
-		}
+		auto GameplayStatics = FindObject("GameplayStatics /Script/Engine.Default__GameplayStatics");
+		auto getgamemode = FindObject("Function /Script/Engine.GameplayStatics.GetGameMode");
+		struct UGameplayStatics_GetGameMode_Params
+		{
+			class UObject* WorldContextObject;                                       // (ConstParm, Parm, ZeroConstructor, IsPlainOldData)
+			class UObject* ReturnValue;                                              // (Parm, OutParm, ZeroConstructor, ReturnParm, IsPlainOldData)
+		};
 
-		return nullptr;
+		UGameplayStatics_GetGameMode_Params ggmparams;
+		ggmparams.WorldContextObject = Controller;
+
+		ProcessEvent(GameplayStatics, getgamemode, &ggmparams);
+
+		std::cout << "Gamemode Return Value: " << ggmparams.ReturnValue << std::endl;
+		return ggmparams.ReturnValue;
 	}
 
 	static UObject* FindAthenaGameState()
 	{
-		auto gamestateObject = FindObject("PersistentLevel.Athena_GameState_C_");
-		if (gamestateObject->GetFullName().starts_with("Athena_GameState_C ")) {
-			std::cout << "GameState: " << gamestateObject->GetFullName() << std::endl;
-			return gamestateObject;
-		}
+		auto dWorld = Util::FindPattern("48 8B 05 ? ? ? ? 4D 8B C1", true, 3);
+		CHECKSIG(dWorld, "Failed to find UWorld address!");
+		auto Worldd = *reinterpret_cast<UObject**>(dWorld);
 
-		return nullptr;
+		struct UGameplayStatics_GetGameState_Params
+		{
+			class UObject* WorldContextObject;
+			class UObject* ReturnValue;
+		};
+
+		auto GameplayStatics = FindObject("GameplayStatics /Script/Engine.Default__GameplayStatics");
+		auto GetGameState = FindObject("Function /Script/Engine.GameplayStatics.GetGameMode");
+
+
+		UGameplayStatics_GetGameState_Params ggsparams;
+		ggsparams.WorldContextObject = Worldd;
+
+		ProcessEvent(GameplayStatics, GetGameState, &ggsparams);
+
+		std::cout << "GameState Return Value: " << ggsparams.ReturnValue << std::endl;
+		return ggsparams.ReturnValue;
 	}
 
 	static void SetPlaylist(UObject* Playlist)
 	{
+		auto Gamestate = FindAthenaGameState();
 		auto CurrentPlaylistInfo = reinterpret_cast<FPlaylistPropertyArray*>((uintptr_t)FindAthenaGameState() + 0x2068);
 		CurrentPlaylistInfo->BasePlaylist = Playlist;
 		CurrentPlaylistInfo->OverridePlaylist = Playlist;

@@ -93,6 +93,6 @@ static void InitHooks()
     MH_CreateHook(static_cast<LPVOID>((LPVOID)FNCrashHookAddress), CrashHook, reinterpret_cast<LPVOID*>(&CrashBypass));
     MH_CreateHook(static_cast<LPVOID>((LPVOID)NotificationHookAddress), ExitBypassHook, reinterpret_cast<LPVOID*>(&NotiBypass));
     MH_EnableHook(static_cast<LPVOID>((LPVOID)NotificationHookAddress));
-    MH_CreateHook(static_cast<LPVOID>((LPVOID)Spawnactoraddress), SpawnActorHook, reinterpret_cast<LPVOID*>(&SpawnActorLong));
-    MH_EnableHook(static_cast<LPVOID>((LPVOID)Spawnactoraddress));
+  //  MH_CreateHook(static_cast<LPVOID>((LPVOID)Spawnactoraddress), SpawnActorHook, reinterpret_cast<LPVOID*>(&SpawnActorLong));
+    //MH_EnableHook(static_cast<LPVOID>((LPVOID)Spawnactoraddress));
 }
