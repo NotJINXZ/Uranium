@@ -229,12 +229,12 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 bIsReady = true;
             }
 
-            if (GetAsyncKeyState(VK_F2) & 0x01) {
+            /*if (GetAsyncKeyState(VK_F2) & 0x01) {
                 Functions::UpdatePlayerController();
                 Functions::ServerReadyToStartMatch();
                 //Functions::StartMatch();
                 //Functions::StartPlay();
-            }
+            }*/
         }
 
         if (pFunction->GetName().find("ServerLoadingScreenDropped") != std::string::npos)
@@ -265,12 +265,14 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 
                 //auto Controller = *reinterpret_cast<UObject**>((uintptr_t)Functions::ControllerFinder());
                 FortInventory = reinterpret_cast<InventoryPointer*>((uintptr_t)Controller + 0x1ab0)->Inventory;
-                //QuickBar = reinterpret_cast<QuickBarPointer*>((uintptr_t)Controller + 0x17f8)->QuickBar;
+                QuickBar = *reinterpret_cast<UObject**>((uintptr_t)Controller + 0x17f8);
 
                 std::cout << "FortInventory: " << FortInventory->GetFullName() << std::endl;
-                //std::cout << "QuickBar: " << QuickBar->GetFullName() << std::endl;
+                std::cout << "QuickBar: " << QuickBar << std::endl;
 
-                Functions::AddItemToInventory(FindObject(crypt("FortWeaponMeleeItemDefinition /Game/Athena/Items/Weapons/WID_Harvest_Pickaxe_Athena_C_T01.WID_Harvest_Pickaxe_Athena_C_T01")), 1);
+                Functions::SetOwner(Controller, QuickBar);
+
+                Functions::AddItemToInventory(FindObject(crypt("FortWeaponMeleeItemDefinition /Game/Athena/Items/Weapons/WID_Harvest_Pickaxe_Athena_C_T01.WID_Harvest_Pickaxe_Athena_C_T01")), 1, true, EFortQuickBars::Primary, 0);
                 Functions::AddItemToInventory(FindObject(crypt("FortBuildingItemDefinition /Game/Items/Weapons/BuildingTools/BuildingItemData_Wall.BuildingItemData_Wall")), 1);
                 Functions::AddItemToInventory(FindObject(crypt("FortBuildingItemDefinition /Game/Items/Weapons/BuildingTools/BuildingItemData_Floor.BuildingItemData_Floor")), 1);
                 Functions::AddItemToInventory(FindObject(crypt("FortBuildingItemDefinition /Game/Items/Weapons/BuildingTools/BuildingItemData_Stair_W.BuildingItemData_Stair_W")), 1);

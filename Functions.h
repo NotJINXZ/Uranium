@@ -412,7 +412,24 @@ namespace Functions
 		ProcessEvent(PlayerState, Fn, nullptr);
 	}
 
-	static void AddItemToInventory(UObject* ItemDef, int Count)
+	static void AddItemToQuickBars(UObject* ItemDef, EFortQuickBars QuickBarType, int32_t slot)
+	{
+		struct Params
+		{
+			UObject* ItemDefinition;
+			EFortQuickBars QuickBarType;
+			int32_t Slot;
+		};
+		Params params;
+		params.ItemDefinition = ItemDef;
+		params.QuickBarType = QuickBarType;
+		params.Slot = slot;
+
+		auto fn = FindObject(crypt("Function /Script/FortniteGame.FortPlayerController.AddItemToQuickBars"));
+		ProcessEvent(Controller, fn, &params);
+	}
+
+	static void AddItemToInventory(UObject* ItemDef, int Count, bool bAddToQuickBars = false, EFortQuickBars QuickBarType = EFortQuickBars::Max_None, int32_t slot = 0)
 	{
 		if (ItemDef)
 		{
@@ -427,6 +444,10 @@ namespace Functions
 				//reinterpret_cast<TArray<UObject*>*>(__int64(Globals::FortInventory) + static_cast<__int64>(0x230) + static_cast<__int64>(0x168))->Add(ItemInstance);
 			}
 
+			if (bAddToQuickBars) {
+				AddItemToQuickBars(ItemDef, QuickBarType, slot);
+			}
+
 			UpdateInventory();
 			OnRep_QuickbarEquippedItems();
 		}
@@ -436,5 +457,11 @@ namespace Functions
 	{
 		static auto fn = FindObject(crypt("Function /Script/Engine.GameModeBase.StartPlay"));
 		ProcessEvent(GetGameMode(), fn, nullptr);
+	}
+
+	static void SetOwner(UObject* TargetActor, UObject* NewOwner)
+	{
+		static UObject* SetOwner = FindObject(crypt("Function /Script/Engine.Actor.SetOwner"));
+		ProcessEvent(TargetActor, SetOwner, &NewOwner);
 	}
 }
