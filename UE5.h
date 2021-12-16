@@ -536,6 +536,22 @@ static UObject* FindObject(std::string name)
 	return nullptr;
 }
 
+static UObject* FindObjectStart(std::string name)
+{
+	for (int32_t i = 0; i < GObjects->NumElements; i++)
+	{
+		auto object = GObjects->GetByIndex(i);
+		
+		if (object == nullptr)
+			continue;
+
+		if (object->GetFullName().starts_with(name))
+			return object;
+	}
+
+	return nullptr;
+}
+
 inline bool ProcessEvent(UObject* pObject, UObject* pFunction, void* pParams) {
 	auto vtable = *reinterpret_cast<void***>(pObject);
 	auto ProcesseventVtable = static_cast<void(*)(void*, void*, void*)>(vtable[0x4B]); if (!ProcesseventVtable) return false;

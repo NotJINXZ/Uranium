@@ -30,108 +30,6 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             return NULL;
         }
 
-        if ((pFunction->GetFullName().find("BP_OnDeactivated") != std::string::npos && pObject->GetFullName().find("PickerOverlay_EmoteWheel") != std::string::npos))
-        {
-            auto LastEmotePlayed = *reinterpret_cast<UObject**>((uintptr_t)Functions::ControllerFinder() + 0x1e78);
-            auto Mesh = *reinterpret_cast<UObject**>((uintptr_t)Functions::PawnFinder() + 0x280);
-            static auto GetAnimInstanceFN = FindObject("Function /Script/Engine.SkeletalMeshComponent.GetAnimInstance");
-
-            struct GetAnimInstanceParams
-            {
-                UObject* ReturnValue;
-            };
-            GetAnimInstanceParams gaiparams;
-
-            ProcessEvent(Mesh, GetAnimInstanceFN, &gaiparams);
-            auto AnimInstance = gaiparams.ReturnValue;
-
-            if (LastEmotePlayed)
-            {
-                std::cout << "NewEmote: " << LastEmotePlayed->GetFullName() << std::endl;
-
-                auto GetAnimationHardReferenceFN = FindObject("Function /Script/FortniteGame.FortMontageItemDefinitionBase.GetAnimationHardReference");
-                auto MontagePlayFN = FindObject("Function /Script/Engine.AnimInstance.Montage_Play");
-                enum class EFortCustomBodyType : uint8_t
-                {
-                    NONE = 0,
-                    Small = 1,
-                    Medium = 2,
-                    MediumAndSmall = 3,
-                    Large = 4,
-                    LargeAndSmall = 5,
-                    LargeAndMedium = 6,
-                    All = 7,
-                    Deprecated = 8,
-                    EFortCustomBodyType_MAX = 9
-                };
-                enum class EFortCustomGender : uint8_t
-                {
-                    Invalid = 0,
-                    Male = 1,
-                    Female = 2,
-                    Both = 3,
-                    EFortCustomGender_MAX = 4
-                };
-
-                enum class EMontagePlayReturnType : uint8_t
-                {
-                    MontageLength = 0,
-                    Duration = 1,
-                    EMontagePlayReturnType_MAX = 2
-                };
-
-                struct UFortMontageItemDefinitionBase_GetAnimationHardReference_Params
-                {
-                    TEnumAsByte<EFortCustomBodyType> BodyType;
-                    TEnumAsByte<EFortCustomGender> Gender;
-                    UObject* PawnContext;
-                    UObject* ReturnValue;
-                };
-
-                struct UAnimInstance_Montage_Play_Params
-                {
-                    UObject* MontageToPlay;
-                    float InPlayRate;
-                    EMontagePlayReturnType ReturnValueType;
-                    float InTimeToStartMontageAt;
-                    bool bStopAllMontages;
-                    float ReturnValue;
-                };
-
-                auto Pawn = FindObject("PersistentLevel.PlayerPawn_Athena_C_");
-                if (Pawn->GetFullName().starts_with("PlayerPawn_Athena_C ")) {
-                    UFortMontageItemDefinitionBase_GetAnimationHardReference_Params GetAnimationHardReference_Params;
-                    GetAnimationHardReference_Params.BodyType = EFortCustomBodyType::All;
-                    GetAnimationHardReference_Params.Gender = EFortCustomGender::Both;
-                    GetAnimationHardReference_Params.PawnContext = Pawn;
-
-                    ProcessEvent(LastEmotePlayed, GetAnimationHardReferenceFN, &GetAnimationHardReference_Params);
-
-                    auto Animation = GetAnimationHardReference_Params.ReturnValue;
-
-                    auto CurrentEmote = Animation;
-
-                    if (Animation == CurrentEmote)
-                    {
-                        return NULL;
-                    }
-
-
-                    UAnimInstance_Montage_Play_Params params;
-                    params.MontageToPlay = Animation;
-                    params.InPlayRate = 1;
-                    params.ReturnValueType = EMontagePlayReturnType::Duration;
-                    params.InTimeToStartMontageAt = 0;
-                    params.bStopAllMontages = true;
-
-                    ProcessEvent(AnimInstance, MontagePlayFN, &params);
-
-                    auto LastEmoteLoc = Functions::GetActorLocation(Pawn);
-                }
-            }
-        }
-
-
         if (pFunction->GetName().find("CheatScript") != std::string::npos) {
 
             struct CheatScriptParams { struct FString ScriptName; UObject* ReturnValue; };
@@ -225,16 +123,42 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
         if (pFunction->GetName().find("Tick") != std::string::npos)
         {
             if (GetAsyncKeyState(VK_F1) & 0x01) {
-                Functions::SwitchLevel(L"Apollo_Papaya?Game=/Script/FortniteGame.FortGameModeEmptyDedicated");
+                Functions::SwitchLevel(L"Apollo_Papaya?Game=/Game/Athena/Athena_GameMode.Athena_GameMode_C");
                 bIsReady = true;
             }
 
-            /*if (GetAsyncKeyState(VK_F2) & 0x01) {
+            if (GetAsyncKeyState(VK_F2) & 0x01) {
+                //CreateThread(0, 0, DumpObjectThread, 0, 0, 0);
+
                 Functions::UpdatePlayerController();
-                Functions::ServerReadyToStartMatch();
-                //Functions::StartMatch();
-                //Functions::StartPlay();
-            }*/
+                Functions::EnableCheatManager();
+
+                Functions::Summon(L"PlayerPawn_Athena_C");
+
+                for (int i = 0; i < GObjects->NumElements; i++)
+                {
+                    auto object = GObjects->GetByIndex(i);
+
+                    if (object == nullptr)
+                        continue;
+
+                    if (object->GetFullName() == "PlayerPawn_Athena_C /Game/Athena/PlayerPawn_Athena.Default__PlayerPawn_Athena_C")
+                        continue;
+
+                    if (object->GetFullName().starts_with("PlayerPawn_Athena_C ")) {
+                        Pawn = object;
+                        break;
+                    }
+                }
+
+                if (Pawn) {
+                    std::cout << "Pawn: " << Pawn->GetFullName() << std::endl;
+
+                    Functions::Possess(Pawn);
+                    Functions::StartMatch();
+                    Functions::ServerReadyToStartMatch();
+                }
+            }
         }
 
         if (pFunction->GetName().find("ServerLoadingScreenDropped") != std::string::npos)

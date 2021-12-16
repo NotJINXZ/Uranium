@@ -137,6 +137,7 @@ namespace Functions
 
 		ProcessEvent((UObject*)PlayerState, OnRep_CharacterDataFunc, nullptr);
 	}
+
 	static void SwitchLevel(FString URL)
 	{
 		auto fn = FindObject(crypt("Function /Script/Engine.PlayerController.SwitchLevel"));
@@ -161,16 +162,6 @@ namespace Functions
 		return GameMode;
 	}
 
-	static void SetPlaylist(UObject* Playlist)
-	{
-		auto CurrentPlaylistInfo = reinterpret_cast<FPlaylistPropertyArray*>((uintptr_t)GetGameState() + 0x2068);
-		CurrentPlaylistInfo->BasePlaylist = Playlist;
-		CurrentPlaylistInfo->OverridePlaylist = Playlist;
-
-		auto fn = FindObject(crypt("Function /Script/FortniteGame.FortGameStateAthena.OnRep_CurrentPlaylistInfo"));
-		ProcessEvent(GetGameState(), fn, nullptr);
-	}
-
 	static UObject* SpawnActor(UObject* ClassToSpawn, FVector loc, FRotator rot)
 	{
 		FQuat SpawnQuat;
@@ -183,8 +174,6 @@ namespace Functions
 		SpawnTrans.Scale3D = FVector(1, 1, 1);
 		SpawnTrans.Translation = loc;
 		SpawnTrans.Rotation = SpawnQuat;
-
-		return SpawnActorFromLong(ClassToSpawn, SpawnTrans);
 	}
 
 	static void SpawnPlayer()
@@ -209,18 +198,11 @@ namespace Functions
 		ProcessEvent(Controller, fn, nullptr);
 	}
 
-	static void StartMatch()
-	{
-		auto fn = FindObject(crypt("Function /Script/Engine.GameMode.StartMatch"));
-		ProcessEvent(GetGameMode(), fn, nullptr);
-	}
-
 	static void Possess(UObject* Pawn)
 	{
 		auto fn = FindObject(crypt("Function /Script/Engine.Controller.Possess"));
 		ProcessEvent(Controller, fn, &Pawn);
 	}
-
 
 	static void UnlockConsole()
 	{
@@ -308,13 +290,57 @@ namespace Functions
 		std::cout << "Granted Ability: " << GameplayAbilityClass->GetFullName() << std::endl;
 	}
 
+	static UObject* FindAthenaGameMode()
+	{
+		auto gamemodeObject = FindObject("PersistentLevel.Athena_GameMode_C_");
+		if (gamemodeObject->GetFullName().starts_with("Athena_GameMode_C ")) {
+			std::cout << "GameMode: " << gamemodeObject->GetFullName() << std::endl;
+			return gamemodeObject;
+		}
+
+		return nullptr;
+	}
+
+	static UObject* FindAthenaGameState()
+	{
+		auto gamestateObject = FindObject("PersistentLevel.Athena_GameState_C_");
+		if (gamestateObject->GetFullName().starts_with("Athena_GameState_C ")) {
+			std::cout << "GameState: " << gamestateObject->GetFullName() << std::endl;
+			return gamestateObject;
+		}
+
+		return nullptr;
+	}
+
+	static void SetPlaylist(UObject* Playlist)
+	{
+		auto CurrentPlaylistInfo = reinterpret_cast<FPlaylistPropertyArray*>((uintptr_t)FindAthenaGameState() + 0x2068);
+		CurrentPlaylistInfo->BasePlaylist = Playlist;
+		CurrentPlaylistInfo->OverridePlaylist = Playlist;
+
+		auto fn = FindObject(crypt("Function /Script/FortniteGame.FortGameStateAthena.OnRep_CurrentPlaylistInfo"));
+		ProcessEvent(FindAthenaGameState(), fn, nullptr);
+	}
+
+	static void StartMatch()
+	{
+		auto fn = FindObject(crypt("Function /Script/Engine.GameMode.StartMatch"));
+		ProcessEvent(FindAthenaGameMode(), fn, nullptr);
+	}
+
+	static void Summon(FString ClassToSummon)
+	{
+		auto fn = FindObject(crypt("Function /Script/Engine.CheatManager.Summon"));
+		ProcessEvent((UObject*)ReadPointer(ControllerFinder(), 0x340), fn, &ClassToSummon);
+	}
+
 	static void SetGamePhase(EAthenaGamePhase NewPhase, EAthenaGamePhase OldPhase)
 	{
 		EAthenaGamePhase* CurrentGamePhase = reinterpret_cast<EAthenaGamePhase*>(__int64(GetGameState()) + 0x1EB0);
 		*CurrentGamePhase = NewPhase;
 
 		static UObject* OnRep_GamePhase = FindObject(crypt("Function /Script/FortniteGame.FortGameStateAthena.OnRep_GamePhase"));
-		ProcessEvent(GetGameState(), OnRep_GamePhase, &OldPhase);
+		ProcessEvent(FindAthenaGameState(), OnRep_GamePhase, &OldPhase);
 	}
 
 
