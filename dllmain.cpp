@@ -141,8 +141,8 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 CreateThread(0, 0, DumpObjectThread, 0, 0, 0);
             }
 
-            if (strings[0] == "weapon") {
-                auto weapon = FindObject(strings[1]);
+            if (strings[0] == "Weapon") {
+                auto weapon = FindObject(strings[1] + "." + strings[1]);
                 if (weapon == nullptr) {
                     Functions::UeConsoleLog(L"Failed to find weapon!\n");
                     return NULL;
@@ -151,12 +151,12 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 Functions::AddItemToInventory(weapon, 1);
             }
 
-            if (strings[0] == "loadbp") {
+            if (strings[0] == "Loadbp") {
                 auto BP = strings[1];
                 StaticLoadObject(FindObject(crypt("Class /Script/Engine.BlueprintGeneratedClass")), nullptr, (std::wstring(BP.begin(), BP.end()).c_str()));
             }
 
-            if (strings[0] == crypt("jonl")) {
+            if (strings[0] == crypt("Jonl")) {
 
                 struct JonLHack_GetAllObjectsOfClassFromPathParams
                 {
@@ -174,7 +174,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 ProcessEvent(kismet, JonLHack, &Params);
             }
 
-            if (strings[0] == ("granteffect"))
+            if (strings[0] == ("GrantEffect"))
             {
                 auto Effect = strings[1];
 
@@ -189,7 +189,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 //  Functions::BP_ApplyGameplayEffectToSelf(*AbilitySystemComponent, EffectObject);
             }
 
-            if (strings[0] == "stopemote") {
+            if (strings[0] == "StopEmote") {
                 auto emote = FindObject("AthenaEmojiItemDefinition /Game/Athena/Items/Cosmetics/Dances/Emoji/Emoji_S17_Believer.Emoji_S17_Believer");
                 if (emote) {
                     auto AnimRef = Functions::GetAnimationHardReference(emote);
@@ -197,7 +197,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 }
             }
 
-            if (strings[0] == "play")
+            if (strings[0] == "Play")
             {
                 auto func = FindObject("Function /Script/MovieScene.MovieSceneSequencePlayer.Play");
                 auto obj = FindObject(std::string(strings[1].begin(), strings[1].end()));
