@@ -132,13 +132,13 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 
         if (pFunction->GetName().find("ServerCreateBuilding") != std::string::npos)
         {
-            auto CurrentBuildableClass = *reinterpret_cast<UObject**>((uintptr_t)Controller + 0x1638);
-            auto LastBuildPreviewGridSnapLoc = *reinterpret_cast<FVector*>((uintptr_t)Controller + 0x174c);
-            auto LastBuildPreviewGridSnapRot = *reinterpret_cast<FRotator*>((uintptr_t)Controller + 0x1758);
-            auto BuildingActor = Functions::SpawnActor(CurrentBuildableClass, LastBuildPreviewGridSnapLoc, LastBuildPreviewGridSnapRot);
+            //auto CurrentBuildableClass = *reinterpret_cast<UObject**>((uintptr_t)Controller + 0x1638);
+            //auto LastBuildPreviewGridSnapLoc = *reinterpret_cast<FVector*>((uintptr_t)Controller + 0x174c);
+            //auto LastBuildPreviewGridSnapRot = *reinterpret_cast<FRotator*>((uintptr_t)Controller + 0x1758);
+            //auto BuildingActor = Functions::SpawnActor(CurrentBuildableClass, LastBuildPreviewGridSnapLoc, LastBuildPreviewGridSnapRot);
             //Functions::K2_SetActorLocation(BuildingActor, LastBuildPreviewGridSnapLoc);
-            Functions::InitializeBuildingActor(BuildingActor);
-           // Functions::K2_SetActorRotation(BuildingActor, LastBuildPreviewGridSnapRot);
+            //Functions::InitializeBuildingActor(BuildingActor);
+            //Functions::K2_SetActorRotation(BuildingActor, LastBuildPreviewGridSnapRot);
         }
 
         if (pFunction->GetName().find("CheatScript") != std::string::npos) {
