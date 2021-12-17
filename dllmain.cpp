@@ -257,7 +257,6 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
         {
             Functions::UpdatePlayerController();
             Functions::ShowSkin();
-            Functions::ShowSkin();
             Functions::EnableCheatManager();
             Functions::DestroyAll(FindObject("Class /Script/FortniteGame.FortHLODSMActor"));
 

@@ -713,26 +713,7 @@ namespace Functions
 
 		UObject* BuildingActor = nullptr;
 
-		if (Name.find("PBWA_W1_StairW_C") != std::string::npos)
-		{
-			BuildingActor = FindObjectWithSkip(CurrentBuildableClass);
-		}
-
-		if (Name.find("PBWA_W1_RoofC_C") != std::string::npos)
-		{
-			BuildingActor = FindObjectWithSkip(CurrentBuildableClass);
-		}
-
-		if (Name.find("PBWA_W1_Floor_C") != std::string::npos)
-		{
-			BuildingActor = FindObjectWithSkip(CurrentBuildableClass);
-		}
-
-
-		if (Name.find("PBWA_W1_Solid_C") != std::string::npos)
-		{
-			BuildingActor = FindObjectWithSkip(CurrentBuildableClass);
-		}
+		BuildingActor = FindObjectWithSkip(CurrentBuildableClass);
 
 		if (BuildingActor)
 		{
@@ -745,6 +726,8 @@ namespace Functions
 		{
 			std::cout << "Null Building Actor" << std::endl;
 		}
+
+		return 0;
 	}
 
 	static void InitMatch()
@@ -772,9 +755,8 @@ namespace Functions
 
 		if (Pawn) {
 			std::cout << "Pawn: " << Pawn->GetFullName() << std::endl;
-			Functions::SetPlaylist(FindObject("FortPlaylistAthena /Game/Athena/Playlists/BattleLab/Playlist_BattleLab.Playlist_BattleLab"));
+			Functions::SetPlaylist(FindObject("/Game/Athena/Playlists/BattleLab/Playlist_BattleLab.Playlist_BattleLab"));
 			Functions::Possess(Pawn);
-			//Functions::SetGodMode();
 			Functions::StartMatch();
 			Functions::ServerReadyToStartMatch();
 			Functions::ShowSkin();
@@ -803,11 +785,8 @@ namespace Functions
 
 		if (Pawn) {
 			std::cout << "Pawn: " << Pawn->GetFullName() << std::endl;
-			//Functions::SetPlaylist(FindObject("FortPlaylistAthena /Game/Athena/Playlists/BattleLab/Playlist_BattleLab.Playlist_BattleLab"));
 			Functions::Possess(Pawn);
 			Functions::SetGodMode();
-			//Functions::StartMatch();
-			//Functions::ServerReadyToStartMatch();
 			Functions::ShowSkin();
 		}
 	}
