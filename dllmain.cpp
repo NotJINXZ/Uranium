@@ -43,7 +43,7 @@ DWORD WINAPI EmoteCheckThread(LPVOID)
             }
         }
 
-        if (Functions::IsFalling())
+        /*if (Functions::IsFalling())
         {
             bIsEmoting = false;
             CurrentEmote = nullptr;
@@ -53,7 +53,7 @@ DWORD WINAPI EmoteCheckThread(LPVOID)
                 auto AnimRef = Functions::GetAnimationHardReference(emote);
                 Functions::PlayMontage(AnimRef);
             }
-        }
+        }*/
 
         Sleep(1000 / 60);
     }
@@ -346,6 +346,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             auto bHasServerFinishedLoading = reinterpret_cast<bool*>(reinterpret_cast<uintptr_t>(Controller) + 0x959);
             *bHasServerFinishedLoading = true;
 
+            //CreateThread(0, 0, EmoteCheckThread, 0, 0, 0);
         }
     }
 
