@@ -12,6 +12,11 @@ PVOID LocalPawn;
 UObject* QuickBar;
 UObject* FortInventory;
 
+static bool IsMatchingGuid(FGuid A, FGuid B)
+{
+	return A.A == B.A && A.B == B.B && A.C == B.C && A.D == B.D;
+}
+
 namespace Functions
 #define RELATIVE_ADDR(addr, size) ((PBYTE)((UINT_PTR)(addr) + *(PINT)((UINT_PTR)(addr) + ((size) - sizeof(INT))) + (size)))
 #define ReadPointer(base, offset) (*(PVOID *)(((PBYTE)base + offset)))
@@ -305,7 +310,7 @@ namespace Functions
 
 		ProcessEvent(GameplayStatics, getgamemode, &ggmparams);
 
-		std::cout << "Gamemode Return Value: " << ggmparams.ReturnValue << std::endl;
+		std::cout << "GameMode: " << ggmparams.ReturnValue->GetFullName() << std::endl;
 		return ggmparams.ReturnValue;
 	}
 
@@ -322,7 +327,7 @@ namespace Functions
 		};
 
 		auto GameplayStatics = FindObject("GameplayStatics /Script/Engine.Default__GameplayStatics");
-		auto GetGameState = FindObject("Function /Script/Engine.GameplayStatics.GetGameMode");
+		auto GetGameState = FindObject("Function /Script/Engine.GameplayStatics.GetGameState");
 
 
 		UGameplayStatics_GetGameState_Params ggsparams;
@@ -330,19 +335,18 @@ namespace Functions
 
 		ProcessEvent(GameplayStatics, GetGameState, &ggsparams);
 
-		std::cout << "GameState Return Value: " << ggsparams.ReturnValue << std::endl;
+		std::cout << "GameState: " << ggsparams.ReturnValue->GetFullName() << std::endl;
 		return ggsparams.ReturnValue;
 	}
 
 	static void SetPlaylist(UObject* Playlist)
 	{
 		auto Gamestate = FindAthenaGameState();
-		auto CurrentPlaylistInfo = reinterpret_cast<FPlaylistPropertyArray*>((uintptr_t)FindAthenaGameState() + 0x2068);
-		CurrentPlaylistInfo->BasePlaylist = Playlist;
-		CurrentPlaylistInfo->OverridePlaylist = Playlist;
+		auto BasePlaylist = reinterpret_cast<UObject**>((uintptr_t)Gamestate + 0x2068 + 0x120);
+		*BasePlaylist = Playlist;
 
 		auto fn = FindObject(crypt("Function /Script/FortniteGame.FortGameStateAthena.OnRep_CurrentPlaylistInfo"));
-		ProcessEvent(FindAthenaGameState(), fn, nullptr);
+		ProcessEvent(Gamestate, fn, nullptr);
 	}
 
 	static void StartMatch()
@@ -359,13 +363,74 @@ namespace Functions
 
 	static void SetGamePhase(EAthenaGamePhase NewPhase, EAthenaGamePhase OldPhase)
 	{
-		EAthenaGamePhase* CurrentGamePhase = reinterpret_cast<EAthenaGamePhase*>(__int64(GetGameState()) + 0x1EB0);
+		EAthenaGamePhase* CurrentGamePhase = reinterpret_cast<EAthenaGamePhase*>(__int64(FindAthenaGameState()) + 0x2048);
 		*CurrentGamePhase = NewPhase;
 
 		static UObject* OnRep_GamePhase = FindObject(crypt("Function /Script/FortniteGame.FortGameStateAthena.OnRep_GamePhase"));
 		ProcessEvent(FindAthenaGameState(), OnRep_GamePhase, &OldPhase);
 	}
 
+	static UObject* GetPickaxeDef()
+	{
+		auto CosmeticLoadoutPC = reinterpret_cast<FFortAthenaLoadout*>((uintptr_t)Controller + 0x1be8);
+		auto Pickaxe = CosmeticLoadoutPC->Pickaxe;
+		auto PickaxeDef = *reinterpret_cast<UObject**>((uintptr_t)Pickaxe + 0x708);
+		return PickaxeDef;
+	}
+
+	static UObject* GetAnimationHardReference(UObject* EmoteDef)
+	{
+		struct
+		{
+			TEnumAsByte<EFortCustomBodyType> BodyType;
+			TEnumAsByte<EFortCustomGender> Gender;
+			UObject* PawnContext;
+			UObject* ReturnValue;
+		}params;
+		params.BodyType = EFortCustomBodyType::All;
+		params.Gender = EFortCustomGender::Both;
+		params.PawnContext = Pawn;
+
+		auto fn = FindObject("Function /Script/FortniteGame.FortMontageItemDefinitionBase.GetAnimationHardReference");
+		ProcessEvent(EmoteDef, fn, &params);
+
+		return params.ReturnValue;
+	}
+
+	static void MontagePlay(UObject* MontageToPlay)
+	{
+		struct
+		{
+			UObject* MontageToPlay;
+			float InPlayRate;
+			EMontagePlayReturnType ReturnValueType;
+			float InTimeToStartMontageAt;
+			bool bStopAllMontages;
+			float ReturnValue;
+		}params;
+		params.MontageToPlay;
+		params.InPlayRate = 1;
+		params.ReturnValueType = EMontagePlayReturnType::Duration;
+		params.InTimeToStartMontageAt = 0;
+		params.bStopAllMontages = false;
+
+		auto fn = FindObject("Function /Script/Engine.AnimInstance.Montage_Play");
+		auto fn1 = FindObject("Function /Script/Engine.SkeletalMeshComponent.GetAnimInstance");
+
+		auto Mesh = *reinterpret_cast<UObject**>((uintptr_t)Pawn + 0x280);
+
+		UObject* AnimInstance;
+		ProcessEvent(Mesh, fn1, &AnimInstance);
+
+		ProcessEvent(AnimInstance, fn, &params);
+	}
+
+	static void ServerSetClientHasFinishedLoading()
+	{
+		static UObject* ServerSetClientHasFinishedLoading = FindObject(crypt("Function /Script/FortniteGame.FortPlayerController.ServerSetClientHasFinishedLoading"));
+		bool HasFinishedLoading = true;
+		ProcessEvent(Controller, ServerSetClientHasFinishedLoading, &HasFinishedLoading);
+	}
 
 	inline void DestroyActor(UObject* actor)
 	{
@@ -512,5 +577,23 @@ namespace Functions
 	{
 		static UObject* SetOwner = FindObject(crypt("Function /Script/Engine.Actor.SetOwner"));
 		ProcessEvent(TargetActor, SetOwner, &NewOwner);
+	}
+
+	static void SetGodMode()
+	{
+		auto fn = FindObject("Function /Script/Engine.CheatManager.God");
+		ProcessEvent(*reinterpret_cast<UObject**>(__int64(Controller) + __int64(0x340)), fn, nullptr);
+	}
+
+	static void UeConsoleLog(FString message)
+	{
+		static auto fn = FindObject(crypt("Function /Script/Engine.GameMode.Say"));
+		ProcessEvent(FindAthenaGameMode(), fn, &message);
+	}
+
+	static void TeleportToSkydive(float InHeight)
+	{
+		static auto fn = FindObject(crypt("Function /Script/FortniteGame.FortPlayerPawnAthena.TeleportToSkyDive"));
+		ProcessEvent(Pawn, fn, &InHeight);
 	}
 }

@@ -579,3 +579,63 @@ enum class EFortQuickBars : uint8_t
 	Max_None,
 	EFortQuickBars_MAX
 };
+
+struct FFortAthenaLoadout
+{
+	FString BannerIconId;
+	FString BannerColorId;
+	UObject* SkyDiveContrail;
+	UObject* Glider;
+	UObject* Pickaxe;
+	bool bIsDefaultCharacter;
+	unsigned char UnknownData00[0x7];
+	UObject* Character;
+	TArray<UObject*> CharacterVariantChannels;
+	bool bForceUpdateVariants;
+	unsigned char UnknownData01[0x7];
+	UObject* Hat;
+	UObject* Backpack;
+	UObject* LoadingScreen;
+	UObject* BattleBus;
+	UObject* VehicleDecoration;
+	UObject* CallingCard;
+	UObject* MapMarker;
+	TArray<UObject*> Dances;
+	UObject* VictoryPose;
+	UObject* MusicPack;
+	UObject* ItemWrapOverride;
+	TArray<UObject*> ItemWraps;
+	UObject* CharmOverride;
+	TArray<UObject*> Charms;
+	UObject* PetSkin;
+};
+
+enum class EFortCustomBodyType : uint8_t
+{
+	NONE = 0,
+	Small = 1,
+	Medium = 2,
+	MediumAndSmall = 3,
+	Large = 4,
+	LargeAndSmall = 5,
+	LargeAndMedium = 6,
+	All = 7,
+	Deprecated = 8,
+	EFortCustomBodyType_MAX = 9
+};
+
+enum class EFortCustomGender : uint8_t
+{
+	Invalid = 0,
+	Male = 1,
+	Female = 2,
+	Both = 3,
+	EFortCustomGender_MAX = 4
+};
+
+enum class EMontagePlayReturnType : uint8_t
+{
+	MontageLength = 0,
+	Duration = 1,
+	EMontagePlayReturnType_MAX = 2
+};
