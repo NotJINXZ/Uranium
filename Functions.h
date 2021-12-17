@@ -21,8 +21,8 @@ namespace Functions
 #define RELATIVE_ADDR(addr, size) ((PBYTE)((UINT_PTR)(addr) + *(PINT)((UINT_PTR)(addr) + ((size) - sizeof(INT))) + (size)))
 #define ReadPointer(base, offset) (*(PVOID *)(((PBYTE)base + offset)))
 {
-	inline UObject* (*SpawnActorLong)(UObject* UWorld, UObject* Class, FTransform const* UserTransformPtr, const FActorSpawnParameters& SpawnParameters);
-
+	inline UObject* (*SpawnActorLong)(UObject* UWorld, UObject* Class, FTransform const* UserTransformPtr,
+		const FActorSpawnParameters& SpawnParameters);
 
 	PVOID ControllerFinder() {
 		auto dWorld = Util::FindPattern("48 8B 05 ? ? ? ? 4D 8B C1", true, 3);
@@ -41,6 +41,7 @@ namespace Functions
 		if (!PlayerController) printf("PlayerController");
 		return PlayerController;
 	}
+
 	PVOID PawnFinder() {LocalPawn = ReadPointer(ControllerFinder(), 0x2A8);if (!LocalPawn) printf("LocalPawn");return LocalPawn;}
 
 	static FVector GetActorLocation(UObject* Actor)
@@ -58,8 +59,6 @@ namespace Functions
 		return params.ReturnValue;
 	}
 
-
-
 	static void ShowSkin() {
 
 		struct UFortKismetLibrary_UpdatePlayerCustomCharacterPartsVisualization_Params
@@ -75,11 +74,11 @@ namespace Functions
 		ProcessEvent(KismetLib, fn, &params);
 	}
 
-	static UObject* SpawnActorFromLong(UObject* Class, FTransform UserTransformPtr)
+	static UObject* SpawnActorFromLong(UObject* Class, FTransform trans)
 	{
 		auto spawnParms = FActorSpawnParameters();
-		SpawnActorLong = decltype(SpawnActorLong)(Util::FindPattern(crypt("48 8B C4 55 53 56 57 41 54 41 55 41 56 41 57 48 8D A8 ? ? ? ? 48 81 EC ? ? ? ? 0F 29 70 A8 0F 29 78 98 44 0F 29 40 ? 44 0F 29 88 ? ? ? ? 44 0F 29 90 ? ? ? ? 44 0F 29 98 ? ? ? ? 44 0F 29 A0 ? ? ? ? 44 0F 29 A8 ? ? ? ? 44 0F 29 B0 ? ? ? ? 44 0F 29 B8 ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 45 60 45 33 ED 48 89 4D 90 44 89 6D 80 48 8D 05 ? ? ? ? 44 38 2D ? ? ? ? 4C 8B F2 48 8B D9 48 8D 15 ? ? ? ? 49 0F 45 C5 48 8D 4D B8 48 89 45 B0 49 8B F1 4D 8B E0 E8 ? ? ? ? 4C 8B 7B 30 4C 89 7C 24 ? 4D 85 F6 0F 84 ? ? ? ? 41 8B 86 ? ? ? ? 0F BA E0 19 0F 82 ? ? ? ? A8 01 0F 85 ? ? ? ? E8 ? ? ? ? 48 8B D0 49 8B CE E8 ? ? ? ? 84 C0 0F 84 ? ? ? ? 48 8B 46 08 48 8D 3D ? ? ? ? 48 85 C0 74 0A")));
-		return SpawnActorLong(World, Class, &UserTransformPtr, spawnParms);
+		SpawnActorLong = decltype(SpawnActorLong)(Util::FindPattern(crypt("48 8b C4 55 53 56 57 41 54 41 55 41 56 41 57 48 8d A8 ? ? ? ? 48 81 EC ? ? ? ? 0F 29 70 ? 0F 29 78 ? 44 0F 29 40 ? 44 0F 29 88 ? ? ? ? 44 0F 29 90 ? ? ? ? 44 0f 29 98 ? ? ? ? 44 0f 29 a0 ? ? ? ? 44 0f 29 a8 ? ? ? ? 44 0f 29 b0 ? ? ? ? 44 0f 29 b8 ? ? ? ? 48 8b 05 ? ? ? ? 48 33 c4 48 89 45 ? 45 33 ed")));
+		return SpawnActorLong(World, Class, &trans, spawnParms);
 	}
 
 	static UObject* UpdatePlayerController()
@@ -179,6 +178,8 @@ namespace Functions
 		SpawnTrans.Scale3D = FVector(1, 1, 1);
 		SpawnTrans.Translation = loc;
 		SpawnTrans.Rotation = SpawnQuat;
+
+		return SpawnActorFromLong(ClassToSpawn, SpawnTrans);
 	}
 
 	static void SpawnPlayer()
@@ -632,5 +633,62 @@ namespace Functions
 		bool HasFinishedLoading = true;
 
 		ProcessEvent(Target, ServerSetClientHasFinishedLoading, &HasFinishedLoading);
+	}
+
+	static void InitializeBuildingActor(UObject* BuildingActor)
+	{
+		auto InitializeKismetSpawnedBuildingActor = FindObject(crypt("Function /Script/FortniteGame.BuildingActor.InitializeKismetSpawnedBuildingActor"));
+
+		struct Params
+		{
+			UObject* BuildingOwner;
+			UObject* SpawningController;
+		};
+
+		Params params;
+		params.BuildingOwner = BuildingActor;
+		params.SpawningController = Controller;
+
+		ProcessEvent(BuildingActor, InitializeKismetSpawnedBuildingActor, &params);
+	}
+
+	static auto K2_SetActorLocation(UObject* Actor, FVector Location)
+	{
+		static auto Fn = FindObject("Function /Script/Engine.Actor.K2_SetActorLocation");
+
+		struct
+		{
+			FVector NewLocation;
+			bool bSweep;
+			char SweepHitResult[0x9c];
+			bool bTeleport;
+			bool ReturnValue;
+		}params;
+		params.NewLocation = Location;
+		params.bSweep = false;
+		params.bTeleport = true;
+
+		ProcessEvent(Actor, Fn, &params);
+
+		return params.ReturnValue;
+	}
+
+	static auto K2_SetActorRotation(UObject* Target, FRotator NewRotation)
+	{
+		static auto K2_SetActorRotation = FindObject("Function /Script/Engine.Actor.K2_SetActorRotation");
+
+		struct
+		{
+			FRotator NewRotation;
+			bool bTeleportPhysics;
+			bool ret;
+		} Params;
+
+		Params.NewRotation = NewRotation;
+		Params.bTeleportPhysics = false;
+
+		ProcessEvent(Target, K2_SetActorRotation, &Params);
+
+		return Params.ret;
 	}
 }
