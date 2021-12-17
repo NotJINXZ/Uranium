@@ -346,8 +346,6 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 
             auto bHasServerFinishedLoading = reinterpret_cast<bool*>(reinterpret_cast<uintptr_t>(Controller) + 0x959);
             *bHasServerFinishedLoading = true;
-
-            CreateThread(0, 0, EmoteCheckThread, 0, 0, 0);
         }
     }
 
