@@ -34,10 +34,13 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
         {
             if (Pawn) {
                 UObject* LastEmotePlayed = *reinterpret_cast<UObject**>(__int64(Controller) + __int64(0x1e78));
-                std::cout << "NewEmote: " << LastEmotePlayed->GetFullName() << std::endl;
 
-                auto AnimRef = Functions::GetAnimationHardReference(LastEmotePlayed);
-                Functions::MontagePlay(AnimRef);
+                if (LastEmotePlayed) {
+                    std::cout << "NewEmote: " << LastEmotePlayed->GetFullName() << std::endl;
+
+                    auto AnimRef = Functions::GetAnimationHardReference(LastEmotePlayed);
+                    Functions::PlayMontage(AnimRef);
+                }
             }
         }
 
@@ -130,6 +133,14 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 //  Functions::BP_ApplyGameplayEffectToSelf(*AbilitySystemComponent, EffectObject);
             }
 
+            if (strings[0] == "stopemote") {
+                auto emote = FindObject("AthenaEmojiItemDefinition /Game/Athena/Items/Cosmetics/Dances/Emoji/Emoji_S17_Believer.Emoji_S17_Believer");
+                if (emote) {
+                    auto AnimRef = Functions::GetAnimationHardReference(emote);
+                    Functions::PlayMontage(AnimRef);
+                }
+            }
+
             if (strings[0] == "play")
             {
                 auto func = FindObject("Function /Script/MovieScene.MovieSceneSequencePlayer.Play");
@@ -180,7 +191,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                     std::cout << "Pawn: " << Pawn->GetFullName() << std::endl;
                     Functions::SetPlaylist(FindObject("FortPlaylistAthena /Game/Athena/Playlists/BattleLab/Playlist_BattleLab.Playlist_BattleLab"));
                     Functions::Possess(Pawn);
-                    Functions::SetGodMode();
+                    //Functions::SetGodMode();
                     Functions::StartMatch();
                     Functions::ServerReadyToStartMatch();
                     Functions::ShowSkin();
@@ -211,7 +222,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                     std::cout << "Pawn: " << Pawn->GetFullName() << std::endl;
                     //Functions::SetPlaylist(FindObject("FortPlaylistAthena /Game/Athena/Playlists/BattleLab/Playlist_BattleLab.Playlist_BattleLab"));
                     Functions::Possess(Pawn);
-                    //Functions::SetGodMode();
+                    Functions::SetGodMode();
                     //Functions::StartMatch();
                     //Functions::ServerReadyToStartMatch();
                     Functions::ShowSkin();

@@ -378,28 +378,46 @@ namespace Functions
 		return PickaxeDef;
 	}
 
-	static UObject* GetAnimationHardReference(UObject* EmoteDef)
+	static UObject* GetAnimInstance()
 	{
-		struct
+		auto Pawn = *reinterpret_cast<UObject**>((uintptr_t)Controller + 0x2a8);
+		auto Mesh = *reinterpret_cast<UObject**>((uintptr_t)Pawn + 0x280);
+		static auto GetAnimInstanceFN = FindObject(crypt("Function /Script/Engine.SkeletalMeshComponent.GetAnimInstance"));
+
+		struct GetAnimInstanceParams
+		{
+			UObject* ReturnValue;
+		};
+		GetAnimInstanceParams gaiparams;
+
+		ProcessEvent(Mesh, GetAnimInstanceFN, &gaiparams);
+		return gaiparams.ReturnValue;
+	}
+
+	static UObject* GetAnimationHardReference(UObject* FortMontageItemDefinition)
+	{
+		struct Params
 		{
 			TEnumAsByte<EFortCustomBodyType> BodyType;
 			TEnumAsByte<EFortCustomGender> Gender;
 			UObject* PawnContext;
 			UObject* ReturnValue;
-		}params;
+		};
+		Params params;
 		params.BodyType = EFortCustomBodyType::All;
 		params.Gender = EFortCustomGender::Both;
 		params.PawnContext = Pawn;
 
-		auto fn = FindObject("Function /Script/FortniteGame.FortMontageItemDefinitionBase.GetAnimationHardReference");
-		ProcessEvent(EmoteDef, fn, &params);
+		auto fn = FindObject(crypt("Function /Script/FortniteGame.FortMontageItemDefinitionBase.GetAnimationHardReference"));
+
+		ProcessEvent(FortMontageItemDefinition, fn, &params);
 
 		return params.ReturnValue;
 	}
 
-	static void MontagePlay(UObject* MontageToPlay)
+	static void PlayMontage(UObject* Montage)
 	{
-		struct
+		struct Params
 		{
 			UObject* MontageToPlay;
 			float InPlayRate;
@@ -407,22 +425,17 @@ namespace Functions
 			float InTimeToStartMontageAt;
 			bool bStopAllMontages;
 			float ReturnValue;
-		}params;
-		params.MontageToPlay;
-		params.InPlayRate = 1;
+		};
+		Params params;
+		params.MontageToPlay = Montage;
+		params.InPlayRate = 1.0;
 		params.ReturnValueType = EMontagePlayReturnType::Duration;
 		params.InTimeToStartMontageAt = 0;
-		params.bStopAllMontages = false;
+		params.bStopAllMontages = true;
 
-		auto fn = FindObject("Function /Script/Engine.AnimInstance.Montage_Play");
-		auto fn1 = FindObject("Function /Script/Engine.SkeletalMeshComponent.GetAnimInstance");
+		auto fn = FindObject(crypt("Function /Script/Engine.AnimInstance.Montage_Play"));
 
-		auto Mesh = *reinterpret_cast<UObject**>((uintptr_t)Pawn + 0x280);
-
-		UObject* AnimInstance;
-		ProcessEvent(Mesh, fn1, &AnimInstance);
-
-		ProcessEvent(AnimInstance, fn, &params);
+		ProcessEvent(GetAnimInstance(), fn, &params);
 	}
 
 	static void ServerSetClientHasFinishedLoading()
