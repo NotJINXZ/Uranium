@@ -220,6 +220,14 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 bIsReady = true;
             }
 
+            if (GetAsyncKeyState(VK_F4) & 0x01) {
+                auto emote = FindObject("AthenaEmojiItemDefinition /Game/Athena/Items/Cosmetics/Dances/Emoji/Emoji_S17_Believer.Emoji_S17_Believer");
+                if (emote) {
+                    auto AnimRef = Functions::GetAnimationHardReference(emote);
+                    Functions::PlayMontage(AnimRef);
+                }
+            }
+ 
             if (GetAsyncKeyState(VK_F5) & 0x01 && bIsReady) {
                 //CreateThread(0, 0, DumpObjectThread, 0, 0, 0);
 

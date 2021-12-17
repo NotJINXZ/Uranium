@@ -639,3 +639,9 @@ enum class EMontagePlayReturnType : uint8_t
 	Duration = 1,
 	EMontagePlayReturnType_MAX = 2
 };
+
+struct FSlateBrush
+{
+	unsigned char Unk00[0x48];
+	UObject* ObjectResource; // 0x08
+};
