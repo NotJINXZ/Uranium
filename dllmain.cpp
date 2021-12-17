@@ -62,6 +62,11 @@ DWORD WINAPI EmoteCheckThread(LPVOID)
     return 0;
 }
 
+int ConeSkip = 0;
+int WallSkip = 0;
+int FloorSkip = 0;
+int StairSkip = 0;
+
 void* (*PEOG)(void*, void*, void*);
 void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 {
@@ -135,10 +140,64 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             auto CurrentBuildableClass = *reinterpret_cast<UObject**>((uintptr_t)Controller + 0x1638);
             auto LastBuildPreviewGridSnapLoc = *reinterpret_cast<FVector*>((uintptr_t)Controller + 0x174c);
             auto LastBuildPreviewGridSnapRot = *reinterpret_cast<FRotator*>((uintptr_t)Controller + 0x1758);
-            auto BuildingActor = Functions::SpawnActor(CurrentBuildableClass, LastBuildPreviewGridSnapLoc, LastBuildPreviewGridSnapRot);
-            Functions::K2_SetActorLocation(BuildingActor, LastBuildPreviewGridSnapLoc);
-            Functions::InitializeBuildingActor(BuildingActor);
-            Functions::K2_SetActorRotation(BuildingActor, LastBuildPreviewGridSnapRot);
+            auto Name = CurrentBuildableClass->GetName();
+
+            std::cout << "ClassName: " << Name << std::endl;
+
+            Functions::Summon(std::wstring(Name.begin(), Name.end()).c_str());
+
+            UObject* BuildingActor = nullptr;
+
+            if (Name.find("PBWA_W1_StairW_C") != std::string::npos)
+            {
+                StairSkip++;
+                BuildingActor = FindObjectWithSkip(CurrentBuildableClass, StairSkip);
+            }
+
+            if (Name.find("PBWA_W1_RoofC_C") != std::string::npos)
+            {
+                ConeSkip++;
+                BuildingActor = FindObjectWithSkip(CurrentBuildableClass, ConeSkip);
+            }
+
+            if (Name.find("PBWA_W1_Floor_C") != std::string::npos)
+            {
+                FloorSkip++;
+                BuildingActor = FindObjectWithSkip(CurrentBuildableClass, FloorSkip);
+            }
+
+
+            if (Name.find("PBWA_W1_Solid_C") != std::string::npos)
+            {
+                WallSkip++;
+                BuildingActor = FindObjectWithSkip(CurrentBuildableClass, WallSkip);
+            }
+
+            if (BuildingActor)
+            {
+                std::cout << "BuildingActor: " << BuildingActor->GetFullName() << std::endl;
+
+                //Functions::K2_SetActorRotation(BuildingActor, LastBuildPreviewGridSnapRot);
+                Functions::InitializeBuildingActor(BuildingActor);
+            }
+            else
+            {
+                std::cout << "Null Building Actor" << std::endl;
+
+                if (Name.find("PBWA_W1_StairW_C") != std::string::npos)
+                    StairSkip--;
+
+
+                if (Name.find("PBWA_W1_RoofC_C") != std::string::npos)
+                    ConeSkip--;
+
+
+                if (Name.find("PBWA_W1_Floor_C") != std::string::npos)
+                    FloorSkip--;
+
+                if (Name.find("PBWA_W1_Solid_C") != std::string::npos)
+                    WallSkip--;
+            }
         }
 
         if (pFunction->GetName().find("CheatScript") != std::string::npos) {

@@ -536,6 +536,32 @@ static UObject* FindObject(std::string name)
 	return nullptr;
 }
 
+static UObject* FindObjectWithSkip(UObject* Class, int Skip = 0)
+{
+	for (int32_t i = 0; i < GObjects->NumElements; i++)
+	{
+		auto object = GObjects->GetByIndex(i);
+
+		if (object == nullptr)
+			continue;
+
+		if (object->Class == Class) 
+		{
+			if (Skip > 0)
+			{
+				Skip--;
+			}
+			else
+			{
+				std::cout << "Name: " << object->GetFullName() << std::endl;
+				return object;
+			}
+		}
+	}
+
+	return nullptr;
+}
+
 static DWORD FindOffset(std::string OffsetToFind)
 {
 	auto Object = FindObject(OffsetToFind);

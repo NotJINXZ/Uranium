@@ -683,26 +683,6 @@ namespace Functions
 		ProcessEvent(BuildingActor, InitializeKismetSpawnedBuildingActor, &params);
 	}
 
-	static auto K2_SetActorLocation(UObject* Actor, FVector Location)
-	{
-		static auto Fn = FindObject("Function /Script/Engine.Actor.K2_SetActorLocation");
-
-		struct
-		{
-			FVector NewLocation;
-			bool bSweep;
-			char SweepHitResult[0x9c];
-			bool bTeleport;
-			bool ReturnValue;
-		}params;
-		params.NewLocation = Location;
-		params.bSweep = false;
-		params.bTeleport = true;
-
-		ProcessEvent(Actor, Fn, &params);
-
-		return params.ReturnValue;
-	}
 
 	static auto K2_SetActorRotation(UObject* Target, FRotator NewRotation)
 	{
