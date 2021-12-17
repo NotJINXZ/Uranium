@@ -536,7 +536,9 @@ static UObject* FindObject(std::string name)
 	return nullptr;
 }
 
-static UObject* FindObjectWithSkip(UObject* Class, int Skip = 0)
+std::vector<UObject*> FoundObjects;
+
+static UObject* FindObjectWithSkip(UObject* Class, int Skip = 1)
 {
 	for (int32_t i = 0; i < GObjects->NumElements; i++)
 	{
@@ -553,8 +555,20 @@ static UObject* FindObjectWithSkip(UObject* Class, int Skip = 0)
 			}
 			else
 			{
-				std::cout << "Name: " << object->GetFullName() << std::endl;
-				return object;
+				bool bFoundObject = false;
+				for (auto Obj : FoundObjects)
+				{
+					if (Obj == object)
+					{
+						bFoundObject = true;
+					}
+				}
+				if (!bFoundObject)
+				{
+					std::cout << "Name: " << object->GetFullName() << std::endl;
+					FoundObjects.push_back(object);
+					return object;
+				}
 			}
 		}
 	}

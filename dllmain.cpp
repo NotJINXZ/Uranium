@@ -150,27 +150,23 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 
             if (Name.find("PBWA_W1_StairW_C") != std::string::npos)
             {
-                StairSkip++;
-                BuildingActor = FindObjectWithSkip(CurrentBuildableClass, StairSkip);
+                BuildingActor = FindObjectWithSkip(CurrentBuildableClass);
             }
 
             if (Name.find("PBWA_W1_RoofC_C") != std::string::npos)
             {
-                ConeSkip++;
-                BuildingActor = FindObjectWithSkip(CurrentBuildableClass, ConeSkip);
+                BuildingActor = FindObjectWithSkip(CurrentBuildableClass);
             }
 
             if (Name.find("PBWA_W1_Floor_C") != std::string::npos)
             {
-                FloorSkip++;
-                BuildingActor = FindObjectWithSkip(CurrentBuildableClass, FloorSkip);
+                BuildingActor = FindObjectWithSkip(CurrentBuildableClass);
             }
 
 
             if (Name.find("PBWA_W1_Solid_C") != std::string::npos)
             {
-                WallSkip++;
-                BuildingActor = FindObjectWithSkip(CurrentBuildableClass, WallSkip);
+                BuildingActor = FindObjectWithSkip(CurrentBuildableClass);
             }
 
             if (BuildingActor)
@@ -183,20 +179,6 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             else
             {
                 std::cout << "Null Building Actor" << std::endl;
-
-                if (Name.find("PBWA_W1_StairW_C") != std::string::npos)
-                    StairSkip--;
-
-
-                if (Name.find("PBWA_W1_RoofC_C") != std::string::npos)
-                    ConeSkip--;
-
-
-                if (Name.find("PBWA_W1_Floor_C") != std::string::npos)
-                    FloorSkip--;
-
-                if (Name.find("PBWA_W1_Solid_C") != std::string::npos)
-                    WallSkip--;
             }
         }
 
