@@ -137,7 +137,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             auto string = params->ScriptName.ToString();
             auto strings = String::StringUtils::Split(string, " ");
 
-            if (strings[0] == "dump") {
+            if (strings[0] == "Dump") {
                 CreateThread(0, 0, DumpObjectThread, 0, 0, 0);
             }
 
