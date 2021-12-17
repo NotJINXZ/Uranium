@@ -92,7 +92,7 @@
   <ItemGroup>
     <ClInclude Include="Functions.h" />
     <ClInclude Include="Hooks.h" />
-    <ClInclude Include="OffSetTable.hpp" />
+    <ClInclude Include="OffsetTable.hpp" />
     <ClInclude Include="skCryptor.h" />
     <ClInclude Include="stringutils.h" />
     <ClInclude Include="UE5.h" />

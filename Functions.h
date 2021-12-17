@@ -74,11 +74,42 @@ namespace Functions
 		ProcessEvent(KismetLib, fn, &params);
 	}
 
+	static void EmptySlot(UObject* Target, int Slot)
+	{
+		static UObject* EmptySlot = FindObject("Function /Script/FortniteGame.FortQuickBars.EmptySlot");
+
+		struct
+		{
+			EFortQuickBars QuickbarIndex;
+			int Slot;
+		} params;
+
+		params.QuickbarIndex = EFortQuickBars::Primary;
+		params.Slot = Slot;
+
+		ProcessEvent(Target, EmptySlot, &params);
+	}
+
 	static UObject* SpawnActorFromLong(UObject* Class, FTransform trans)
 	{
-		auto spawnParms = FActorSpawnParameters();
-		SpawnActorLong = decltype(SpawnActorLong)(Util::FindPattern(crypt("48 8b C4 55 53 56 57 41 54 41 55 41 56 41 57 48 8d A8 ? ? ? ? 48 81 EC ? ? ? ? 0F 29 70 ? 0F 29 78 ? 44 0F 29 40 ? 44 0F 29 88 ? ? ? ? 44 0F 29 90 ? ? ? ? 44 0f 29 98 ? ? ? ? 44 0f 29 a0 ? ? ? ? 44 0f 29 a8 ? ? ? ? 44 0f 29 b0 ? ? ? ? 44 0f 29 b8 ? ? ? ? 48 8b 05 ? ? ? ? 48 33 c4 48 89 45 ? 45 33 ed")));
-		return SpawnActorLong(World, Class, &trans, spawnParms);
+		auto statics = FindObject(crypt("GameplayStatics /Script/Engine.Default__GameplayStatics"));
+		auto spawnfunc1 = FindObject(crypt("Function /Script/Engine.GameplayStatics.BeginDeferredActorSpawnFromClass"));
+		auto spawnfunc2 = FindObject(crypt("Function /Script/Engine.GameplayStatics.FinishSpawningActor"));
+
+		UGameplayStatics_BeginDeferredActorSpawnFromClass_Params bdasfc;
+		UGameplayStatics_FinishSpawningActor_Params fsap;
+
+		bdasfc.ActorClass = Class;
+		bdasfc.CollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		bdasfc.SpawnTransform = trans;
+		bdasfc.WorldContextObject = World;
+		bdasfc.Owner = nullptr;
+
+		ProcessEvent(statics, spawnfunc1, &bdasfc);
+		fsap.Actor = (UObject*)bdasfc.ReturnValue;
+		fsap.SpawnTransform = bdasfc.SpawnTransform;
+		ProcessEvent(statics, spawnfunc2, &fsap);
+		return (UObject*)fsap.ReturnValue;
 	}
 
 	static UObject* UpdatePlayerController()

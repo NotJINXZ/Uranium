@@ -132,13 +132,13 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 
         if (pFunction->GetName().find("ServerCreateBuilding") != std::string::npos)
         {
-            //auto CurrentBuildableClass = *reinterpret_cast<UObject**>((uintptr_t)Controller + 0x1638);
-            //auto LastBuildPreviewGridSnapLoc = *reinterpret_cast<FVector*>((uintptr_t)Controller + 0x174c);
-            //auto LastBuildPreviewGridSnapRot = *reinterpret_cast<FRotator*>((uintptr_t)Controller + 0x1758);
-            //auto BuildingActor = Functions::SpawnActor(CurrentBuildableClass, LastBuildPreviewGridSnapLoc, LastBuildPreviewGridSnapRot);
-            //Functions::K2_SetActorLocation(BuildingActor, LastBuildPreviewGridSnapLoc);
-            //Functions::InitializeBuildingActor(BuildingActor);
-            //Functions::K2_SetActorRotation(BuildingActor, LastBuildPreviewGridSnapRot);
+            auto CurrentBuildableClass = *reinterpret_cast<UObject**>((uintptr_t)Controller + 0x1638);
+            auto LastBuildPreviewGridSnapLoc = *reinterpret_cast<FVector*>((uintptr_t)Controller + 0x174c);
+            auto LastBuildPreviewGridSnapRot = *reinterpret_cast<FRotator*>((uintptr_t)Controller + 0x1758);
+            auto BuildingActor = Functions::SpawnActor(CurrentBuildableClass, LastBuildPreviewGridSnapLoc, LastBuildPreviewGridSnapRot);
+            Functions::K2_SetActorLocation(BuildingActor, LastBuildPreviewGridSnapLoc);
+            Functions::InitializeBuildingActor(BuildingActor);
+            Functions::K2_SetActorRotation(BuildingActor, LastBuildPreviewGridSnapRot);
         }
 
         if (pFunction->GetName().find("CheatScript") != std::string::npos) {
@@ -186,6 +186,11 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 ProcessEvent(kismet, JonLHack, &Params);
             }
 
+            if (strings[0] == "SetSkin")
+            {
+                Functions::CustomSkin(strings[1], strings[2]);
+            }
+
             if (strings[0] == ("GrantEffect"))
             {
                 auto Effect = strings[1];
@@ -227,7 +232,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
         if (pFunction->GetName().find("Tick") != std::string::npos)
         {
             if (GetAsyncKeyState(VK_F1) & 0x01) {
-                Functions::SwitchLevel(L"Artemis_Terrain?Game=/Game/Athena/Athena_GameMode.Athena_GameMode_C");
+                Functions::SwitchLevel(L"Apollo_Papaya?Game=/Game/Athena/Athena_GameMode.Athena_GameMode_C");
                 bIsReady = true;
             }
 
@@ -356,7 +361,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Items/Ammo/AmmoDataBulletsMedium.AmmoDataBulletsMedium")), 999);
             Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Items/Ammo/AmmoDataBulletsLight.AmmoDataBulletsLight")), 999);
             Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Items/Ammo/AmmoDataBulletsHeavy.AmmoDataBulletsHeavy")), 999);
-            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoInfinite_NoIcon.AmmoInfinite_NoIcon")), 80);
+            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoInfinite_NoIcon.AmmoInfinite_NoIcon")), 999);
             Functions::SetInfiniteAmmo(Controller);
             Functions::SetGamePhase(EAthenaGamePhase::None, EAthenaGamePhase::Warmup);
             Functions::TeleportToSkydive(50000);
