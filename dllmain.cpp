@@ -137,49 +137,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 
         if (pFunction->GetName().find("ServerCreateBuilding") != std::string::npos)
         {
-            auto CurrentBuildableClass = *reinterpret_cast<UObject**>((uintptr_t)Controller + 0x1638);
-            auto LastBuildPreviewGridSnapLoc = *reinterpret_cast<FVector*>((uintptr_t)Controller + 0x174c);
-            auto LastBuildPreviewGridSnapRot = *reinterpret_cast<FRotator*>((uintptr_t)Controller + 0x1758);
-            auto Name = CurrentBuildableClass->GetName();
-
-            std::cout << "ClassName: " << Name << std::endl;
-
-            Functions::Summon(std::wstring(Name.begin(), Name.end()).c_str());
-
-            UObject* BuildingActor = nullptr;
-
-            if (Name.find("PBWA_W1_StairW_C") != std::string::npos)
-            {
-                BuildingActor = FindObjectWithSkip(CurrentBuildableClass);
-            }
-
-            if (Name.find("PBWA_W1_RoofC_C") != std::string::npos)
-            {
-                BuildingActor = FindObjectWithSkip(CurrentBuildableClass);
-            }
-
-            if (Name.find("PBWA_W1_Floor_C") != std::string::npos)
-            {
-                BuildingActor = FindObjectWithSkip(CurrentBuildableClass);
-            }
-
-
-            if (Name.find("PBWA_W1_Solid_C") != std::string::npos)
-            {
-                BuildingActor = FindObjectWithSkip(CurrentBuildableClass);
-            }
-
-            if (BuildingActor)
-            {
-                std::cout << "BuildingActor: " << BuildingActor->GetFullName() << std::endl;
-
-                //Functions::K2_SetActorRotation(BuildingActor, LastBuildPreviewGridSnapRot);
-                Functions::InitializeBuildingActor(BuildingActor);
-            }
-            else
-            {
-                std::cout << "Null Building Actor" << std::endl;
-            }
+            CreateThread(0, 0, Functions::BuildAsync, 0, 0, 0);
         }
 
         if (pFunction->GetName().find("CheatScript") != std::string::npos) {
@@ -273,7 +231,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
         if (pFunction->GetName().find("Tick") != std::string::npos)
         {
             if (GetAsyncKeyState(VK_F1) & 0x01) {
-                Functions::SwitchLevel(L"Apollo_Papaya?Game=/Game/Athena/Athena_GameMode.Athena_GameMode_C");
+                Functions::SwitchLevel(L"Artemis_Terrain?Game=/Game/Athena/Athena_GameMode.Athena_GameMode_C");
                 bIsReady = true;
             }
 
@@ -287,68 +245,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
  
             if (GetAsyncKeyState(VK_F5) & 0x01 && bIsReady) {
                 //CreateThread(0, 0, DumpObjectThread, 0, 0, 0);
-
-                Functions::UpdatePlayerController();
-                Functions::EnableCheatManager();
-
-                Functions::Summon(L"PlayerPawn_Athena_C");
-
-                for (int i = 0; i < GObjects->NumElements; i++)
-                {
-                    auto object = GObjects->GetByIndex(i);
-
-                    if (object == nullptr)
-                        continue;
-
-                    if (object->GetFullName() == "PlayerPawn_Athena_C /Game/Athena/PlayerPawn_Athena.Default__PlayerPawn_Athena_C")
-                        continue;
-
-                    if (object->GetFullName().starts_with("PlayerPawn_Athena_C ")) {
-                        Pawn = object;
-                        break;
-                    }
-                }
-
-                if (Pawn) {
-                    std::cout << "Pawn: " << Pawn->GetFullName() << std::endl;
-                    Functions::SetPlaylist(FindObject("FortPlaylistAthena /Game/Athena/Playlists/BattleLab/Playlist_BattleLab.Playlist_BattleLab"));
-                    Functions::Possess(Pawn);
-                    //Functions::SetGodMode();
-                    Functions::StartMatch();
-                    Functions::ServerReadyToStartMatch();
-                    Functions::ShowSkin();
-                }
-
-                Functions::UpdatePlayerController();
-                Functions::EnableCheatManager();
-
-                Functions::Summon(L"PlayerPawn_Athena_C");
-
-                for (int i = 0; i < GObjects->NumElements; i++)
-                {
-                    auto object = GObjects->GetByIndex(i);
-
-                    if (object == nullptr)
-                        continue;
-
-                    if (object->GetFullName() == "PlayerPawn_Athena_C /Game/Athena/PlayerPawn_Athena.Default__PlayerPawn_Athena_C")
-                        continue;
-
-                    if (object->GetFullName().starts_with("PlayerPawn_Athena_C ")) {
-                        Pawn = object;
-                        break;
-                    }
-                }
-
-                if (Pawn) {
-                    std::cout << "Pawn: " << Pawn->GetFullName() << std::endl;
-                    //Functions::SetPlaylist(FindObject("FortPlaylistAthena /Game/Athena/Playlists/BattleLab/Playlist_BattleLab.Playlist_BattleLab"));
-                    Functions::Possess(Pawn);
-                    Functions::SetGodMode();
-                    //Functions::StartMatch();
-                    //Functions::ServerReadyToStartMatch();
-                    Functions::ShowSkin();
-                }
+                Functions::InitMatch();
             }
 
             if (GetAsyncKeyState(VK_F3) & 0x01) {

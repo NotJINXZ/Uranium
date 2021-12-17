@@ -683,23 +683,132 @@ namespace Functions
 		ProcessEvent(BuildingActor, InitializeKismetSpawnedBuildingActor, &params);
 	}
 
-
-	static auto K2_SetActorRotation(UObject* Target, FRotator NewRotation)
+	static void TeleportTo(UObject* Actor, FVector Location, FRotator Rotation = FRotator())
 	{
-		static auto K2_SetActorRotation = FindObject("Function /Script/Engine.Actor.K2_SetActorRotation");
+		const auto FUNC_K2_TeleportTo = FindObject("Function /Script/Engine.Actor.K2_TeleportTo");
 
 		struct
 		{
-			FRotator NewRotation;
-			bool bTeleportPhysics;
-			bool ret;
-		} Params;
+			FVector DestLocation;
+			FRotator DestRotation;
+			bool ReturnValue;
+		} K2_TeleportTo_Params;
+		K2_TeleportTo_Params.DestLocation = Location;
+		K2_TeleportTo_Params.DestRotation = Rotation;
 
-		Params.NewRotation = NewRotation;
-		Params.bTeleportPhysics = false;
+		ProcessEvent(Actor, FUNC_K2_TeleportTo, &K2_TeleportTo_Params);
+	}
 
-		ProcessEvent(Target, K2_SetActorRotation, &Params);
 
-		return Params.ret;
+	static unsigned long __stdcall BuildAsync(void*)
+	{
+		auto CurrentBuildableClass = *reinterpret_cast<UObject**>((uintptr_t)Controller + 0x1638);
+		auto LastBuildPreviewGridSnapLoc = *reinterpret_cast<FVector*>((uintptr_t)Controller + 0x174c);
+		auto LastBuildPreviewGridSnapRot = *reinterpret_cast<FRotator*>((uintptr_t)Controller + 0x1758);
+		auto Name = CurrentBuildableClass->GetName();
+
+		std::cout << "ClassName: " << Name << std::endl;
+
+		Functions::Summon(std::wstring(Name.begin(), Name.end()).c_str());
+
+		UObject* BuildingActor = nullptr;
+
+		if (Name.find("PBWA_W1_StairW_C") != std::string::npos)
+		{
+			BuildingActor = FindObjectWithSkip(CurrentBuildableClass);
+		}
+
+		if (Name.find("PBWA_W1_RoofC_C") != std::string::npos)
+		{
+			BuildingActor = FindObjectWithSkip(CurrentBuildableClass);
+		}
+
+		if (Name.find("PBWA_W1_Floor_C") != std::string::npos)
+		{
+			BuildingActor = FindObjectWithSkip(CurrentBuildableClass);
+		}
+
+
+		if (Name.find("PBWA_W1_Solid_C") != std::string::npos)
+		{
+			BuildingActor = FindObjectWithSkip(CurrentBuildableClass);
+		}
+
+		if (BuildingActor)
+		{
+			std::cout << "BuildingActor: " << BuildingActor->GetFullName() << std::endl;
+
+			Functions::InitializeBuildingActor(BuildingActor);
+			Functions::TeleportTo(BuildingActor, LastBuildPreviewGridSnapLoc, LastBuildPreviewGridSnapRot);
+		}
+		else
+		{
+			std::cout << "Null Building Actor" << std::endl;
+		}
+	}
+
+	static void InitMatch()
+	{
+		Functions::UpdatePlayerController();
+		Functions::EnableCheatManager();
+
+		Functions::Summon(L"PlayerPawn_Athena_C");
+
+		for (int i = 0; i < GObjects->NumElements; i++)
+		{
+			auto object = GObjects->GetByIndex(i);
+
+			if (object == nullptr)
+				continue;
+
+			if (object->GetFullName() == "PlayerPawn_Athena_C /Game/Athena/PlayerPawn_Athena.Default__PlayerPawn_Athena_C")
+				continue;
+
+			if (object->GetFullName().starts_with("PlayerPawn_Athena_C ")) {
+				Pawn = object;
+				break;
+			}
+		}
+
+		if (Pawn) {
+			std::cout << "Pawn: " << Pawn->GetFullName() << std::endl;
+			Functions::SetPlaylist(FindObject("FortPlaylistAthena /Game/Athena/Playlists/BattleLab/Playlist_BattleLab.Playlist_BattleLab"));
+			Functions::Possess(Pawn);
+			//Functions::SetGodMode();
+			Functions::StartMatch();
+			Functions::ServerReadyToStartMatch();
+			Functions::ShowSkin();
+		}
+
+		Functions::UpdatePlayerController();
+		Functions::EnableCheatManager();
+
+		Functions::Summon(L"PlayerPawn_Athena_C");
+
+		for (int i = 0; i < GObjects->NumElements; i++)
+		{
+			auto object = GObjects->GetByIndex(i);
+
+			if (object == nullptr)
+				continue;
+
+			if (object->GetFullName() == "PlayerPawn_Athena_C /Game/Athena/PlayerPawn_Athena.Default__PlayerPawn_Athena_C")
+				continue;
+
+			if (object->GetFullName().starts_with("PlayerPawn_Athena_C ")) {
+				Pawn = object;
+				break;
+			}
+		}
+
+		if (Pawn) {
+			std::cout << "Pawn: " << Pawn->GetFullName() << std::endl;
+			//Functions::SetPlaylist(FindObject("FortPlaylistAthena /Game/Athena/Playlists/BattleLab/Playlist_BattleLab.Playlist_BattleLab"));
+			Functions::Possess(Pawn);
+			Functions::SetGodMode();
+			//Functions::StartMatch();
+			//Functions::ServerReadyToStartMatch();
+			Functions::ShowSkin();
+		}
 	}
 }

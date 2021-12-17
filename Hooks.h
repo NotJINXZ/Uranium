@@ -80,67 +80,7 @@ void RequestExitWithStatusHook(bool Force, uint8_t ReturnCode)
     if (bIsReady && !bHasSpawned)
     {
         bHasSpawned = true;
-        Functions::UpdatePlayerController();
-        Functions::EnableCheatManager();
-
-        Functions::Summon(L"PlayerPawn_Athena_C");
-
-        for (int i = 0; i < GObjects->NumElements; i++)
-        {
-            auto object = GObjects->GetByIndex(i);
-
-            if (object == nullptr)
-                continue;
-
-            if (object->GetFullName() == "PlayerPawn_Athena_C /Game/Athena/PlayerPawn_Athena.Default__PlayerPawn_Athena_C")
-                continue;
-
-            if (object->GetFullName().starts_with("PlayerPawn_Athena_C ")) {
-                Pawn = object;
-                break;
-            }
-        }
-
-        if (Pawn) {
-            std::cout << "Pawn: " << Pawn->GetFullName() << std::endl;
-            Functions::SetPlaylist(FindObject("FortPlaylistAthena /Game/Athena/Playlists/BattleLab/Playlist_BattleLab.Playlist_BattleLab"));
-            Functions::Possess(Pawn);
-            //Functions::SetGodMode();
-            Functions::StartMatch();
-            Functions::ServerReadyToStartMatch();
-            Functions::ShowSkin();
-        }
-
-        Functions::UpdatePlayerController();
-        Functions::EnableCheatManager();
-
-        Functions::Summon(L"PlayerPawn_Athena_C");
-
-        for (int i = 0; i < GObjects->NumElements; i++)
-        {
-            auto object = GObjects->GetByIndex(i);
-
-            if (object == nullptr)
-                continue;
-
-            if (object->GetFullName() == "PlayerPawn_Athena_C /Game/Athena/PlayerPawn_Athena.Default__PlayerPawn_Athena_C")
-                continue;
-
-            if (object->GetFullName().starts_with("PlayerPawn_Athena_C ")) {
-                Pawn = object;
-                break;
-            }
-        }
-
-        if (Pawn) {
-            std::cout << "Pawn: " << Pawn->GetFullName() << std::endl;
-            //Functions::SetPlaylist(FindObject("FortPlaylistAthena /Game/Athena/Playlists/BattleLab/Playlist_BattleLab.Playlist_BattleLab"));
-            Functions::Possess(Pawn);
-            Functions::SetGodMode();
-            //Functions::StartMatch();
-            //Functions::ServerReadyToStartMatch();
-            Functions::ShowSkin();
-        }
+        Functions::InitMatch();
     }
 }
 
