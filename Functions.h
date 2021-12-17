@@ -438,13 +438,6 @@ namespace Functions
 		ProcessEvent(GetAnimInstance(), fn, &params);
 	}
 
-	static void ServerSetClientHasFinishedLoading()
-	{
-		static UObject* ServerSetClientHasFinishedLoading = FindObject(crypt("Function /Script/FortniteGame.FortPlayerController.ServerSetClientHasFinishedLoading"));
-		bool HasFinishedLoading = true;
-		ProcessEvent(Controller, ServerSetClientHasFinishedLoading, &HasFinishedLoading);
-	}
-
 	inline void DestroyActor(UObject* actor)
 	{
 		const auto fn = FindObject("Function /Script/Engine.Actor.K2_DestroyActor");
@@ -630,5 +623,14 @@ namespace Functions
 		ProcessEvent(GetCharacterMovementComponent(), fn, &ReturnValue);
 
 		return ReturnValue;
+	}
+
+	static void ServerSetClientHasFinishedLoading(UObject* Target)
+	{
+		static UObject* ServerSetClientHasFinishedLoading = FindObject("Function /Script/FortniteGame.FortPlayerController.ServerSetClientHasFinishedLoading");
+
+		bool HasFinishedLoading = true;
+
+		ProcessEvent(Target, ServerSetClientHasFinishedLoading, &HasFinishedLoading);
 	}
 }

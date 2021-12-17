@@ -340,6 +340,12 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             Functions::SetInfiniteAmmo(Controller);
             Functions::SetGamePhase(EAthenaGamePhase::None, EAthenaGamePhase::Warmup);
             Functions::TeleportToSkydive(50000);
+
+            Functions::ServerSetClientHasFinishedLoading(Controller);
+
+            auto bHasServerFinishedLoading = reinterpret_cast<bool*>(reinterpret_cast<uintptr_t>(Controller) + 0x959);
+            *bHasServerFinishedLoading = true;
+
         }
     }
 
