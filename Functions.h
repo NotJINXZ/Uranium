@@ -609,4 +609,26 @@ namespace Functions
 		static auto fn = FindObject(crypt("Function /Script/FortniteGame.FortPlayerPawnAthena.TeleportToSkyDive"));
 		ProcessEvent(Pawn, fn, &InHeight);
 	}
+
+	static void UnCrouch()
+	{
+		static auto fn = FindObject(crypt("Function /Script/Engine.Character.UnCrouch"));
+		bool ClientSim = false;
+		ProcessEvent(Pawn, fn, &ClientSim);
+	}
+
+	static UObject* GetCharacterMovementComponent()
+	{
+		return *reinterpret_cast<UObject**>((uintptr_t)Pawn + 0x288);
+	}
+
+	static bool IsFalling()
+	{
+		static auto fn = FindObject(crypt("Function /Script/Engine.NavMovementComponent.IsFalling"));
+		bool ReturnValue;
+
+		ProcessEvent(GetCharacterMovementComponent(), fn, &ReturnValue);
+
+		return ReturnValue;
+	}
 }

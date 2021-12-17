@@ -19,6 +19,48 @@ DWORD WINAPI DumpObjectThread(LPVOID param)
     return NULL;
 }
 
+FVector LastEmoteLoc;
+bool bIsEmoting;
+UObject* CurrentEmote;
+
+DWORD WINAPI EmoteCheckThread(LPVOID)
+{
+    while (Pawn)
+    {
+        auto PawnLoc = Functions::GetActorLocation(Pawn);
+        float Xdif = PawnLoc.X - LastEmoteLoc.X;
+        float Ydif = PawnLoc.Y - LastEmoteLoc.Y;
+
+        if (Xdif > 75 || Xdif < -75 || Ydif > 75 || Ydif < -75)
+        {
+            bIsEmoting = false;
+            CurrentEmote = nullptr;
+            
+            auto emote = FindObject("AthenaEmojiItemDefinition /Game/Athena/Items/Cosmetics/Dances/Emoji/Emoji_S17_Believer.Emoji_S17_Believer");
+            if (emote) {
+                auto AnimRef = Functions::GetAnimationHardReference(emote);
+                Functions::PlayMontage(AnimRef);
+            }
+        }
+
+        if (Functions::IsFalling())
+        {
+            bIsEmoting = false;
+            CurrentEmote = nullptr;
+
+            auto emote = FindObject("AthenaEmojiItemDefinition /Game/Athena/Items/Cosmetics/Dances/Emoji/Emoji_S17_Believer.Emoji_S17_Believer");
+            if (emote) {
+                auto AnimRef = Functions::GetAnimationHardReference(emote);
+                Functions::PlayMontage(AnimRef);
+            }
+        }
+
+        Sleep(1000 / 60);
+    }
+
+    return 0;
+}
+
 void* (*PEOG)(void*, void*, void*);
 void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 {
@@ -33,13 +75,27 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
         if (pFunction->GetFullName().find("BP_OnDeactivated") != std::string::npos && pObject->GetFullName().find("PickerOverlay_EmoteWheel") != std::string::npos)
         {
             if (Pawn) {
+                Functions::UnCrouch();
+                
+                if (Functions::IsFalling()) {
+                    return NULL;
+                }
+
                 UObject* LastEmotePlayed = *reinterpret_cast<UObject**>(__int64(Controller) + __int64(0x1e78));
 
                 if (LastEmotePlayed) {
                     std::cout << "NewEmote: " << LastEmotePlayed->GetFullName() << std::endl;
 
                     auto AnimRef = Functions::GetAnimationHardReference(LastEmotePlayed);
+
+                    if (CurrentEmote == AnimRef) {
+                        return NULL;
+                    }
+
                     Functions::PlayMontage(AnimRef);
+
+                    CurrentEmote = AnimRef;
+                    LastEmoteLoc = Functions::GetActorLocation(Pawn);
                 }
             }
         }
