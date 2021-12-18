@@ -18,6 +18,10 @@ namespace Offsets
 	DWORD AcknowledgedPawnOffset = 0;
 	DWORD PlayerStateOffset = 0;
 	DWORD GameInstanceOffset = 0;
+	DWORD InfiniteAmmoOffset = 0;
+	DWORD CosmeticLoadoutPCOffset = 0;
+	DWORD WeaponDefinitionOffset = 0;
+	DWORD MeshOffset = 0;
 
 	static void InitOffsets()
 	{
@@ -33,6 +37,11 @@ namespace Offsets
 		AcknowledgedPawnOffset = FindOffset("PlayerController", "AcknowledgedPawn");
 		PlayerStateOffset = FindOffset("Pawn", "PlayerState");
 		GameInstanceOffset = FindOffset("GameEngine", "GameInstance");
+		InfiniteAmmoOffset = FindOffset("FortPlayerController", "bInfiniteAmmo");
+		CosmeticLoadoutPCOffset = FindOffset("FortPlayerController", "CosmeticLoadoutPC");
+		WeaponDefinitionOffset = FindOffset("AthenaPickaxeItemDefinition", "WeaponDefinition");
+		MeshOffset = FindOffset("Character", "Mesh");
+
 	}
 
 	static void InitFuncs()

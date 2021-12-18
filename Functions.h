@@ -118,7 +118,7 @@ namespace Functions
 
 	static void SetInfiniteAmmo(UObject* InController)
 	{
-		RBitField* BitField = reinterpret_cast<RBitField*>(__int64(InController) + 0x218c);
+		RBitField* BitField = reinterpret_cast<RBitField*>(__int64(InController) + __int64(Offsets::InfiniteAmmoOffset));
 		BitField->C = 1;
 	}
 
@@ -174,21 +174,13 @@ namespace Functions
 		auto ConsoleClass = FindObject(crypt("/Script/Engine.Console"));
 		auto ViewportConsole = reinterpret_cast<UObject**>((uintptr_t)FortGameViewportClient + 0x40);
 
-	//	std::cout << "FortGameViewportClient: " << FortGameViewportClient << std::endl;
-	//	std::cout << "SpawnObject: " << fn << std::endl;
-//std::cout << "Gameplay Statics: " << statics << std::endl;
-	//	std::cout << "Console Class: " << ConsoleClass << std::endl;
-	//	std::cout << "ViewportConsole: " << ViewportConsole << std::endl;
-
 		SpawnObjectParams params;
 		params.ObjectClass = ConsoleClass;
 		params.Outer = FortGameViewportClient;
 
 		ProcessEvent(statics, fn, &params);
 
-		//std::cout << "Return Value: " << params.ReturnValue;
 		*ViewportConsole = params.ReturnValue;
-
 	}
 
 	static void EnableCheatManager()
@@ -315,7 +307,7 @@ namespace Functions
 	static void Summon(FString ClassToSummon)
 	{
 		auto fn = FindObject(crypt("Function /Script/Engine.CheatManager.Summon"));
-		ProcessEvent((UObject*)ReadPointer(ControllerFinder(), 0x340), fn, &ClassToSummon);
+		ProcessEvent((UObject*)ReadPointer(ControllerFinder(), (int)Offsets::CheatManagerOffset), fn, &ClassToSummon);
 	}
 
 	static void SetGamePhase(EAthenaGamePhase NewPhase, EAthenaGamePhase OldPhase)
@@ -329,16 +321,16 @@ namespace Functions
 
 	static UObject* GetPickaxeDef()
 	{
-		auto CosmeticLoadoutPC = reinterpret_cast<FFortAthenaLoadout*>((uintptr_t)Controller + 0x1be8);
+		auto CosmeticLoadoutPC = reinterpret_cast<FFortAthenaLoadout*>((uintptr_t)Controller + __int64(Offsets::CosmeticLoadoutPCOffset));
 		auto Pickaxe = CosmeticLoadoutPC->Pickaxe;
-		auto PickaxeDef = *reinterpret_cast<UObject**>((uintptr_t)Pickaxe + 0x708);
+		auto PickaxeDef = *reinterpret_cast<UObject**>((uintptr_t)Pickaxe + __int64(Offsets::WeaponDefinitionOffset));
 		return PickaxeDef;
 	}
 
 	static UObject* GetAnimInstance()
 	{
-		auto Pawn = *reinterpret_cast<UObject**>((uintptr_t)Controller + 0x2a8);
-		auto Mesh = *reinterpret_cast<UObject**>((uintptr_t)Pawn + 0x280);
+		auto Pawn = *reinterpret_cast<UObject**>((uintptr_t)Controller + __int64(Offsets::AcknowledgedPawnOffset));
+		auto Mesh = *reinterpret_cast<UObject**>((uintptr_t)Pawn + __int64(Offsets::MeshOffset));
 		static auto GetAnimInstanceFN = FindObject(crypt("Function /Script/Engine.SkeletalMeshComponent.GetAnimInstance"));
 
 		struct GetAnimInstanceParams
@@ -484,7 +476,7 @@ namespace Functions
 
 	static void OnRep_QuickbarEquippedItems()
 	{
-		auto PlayerState = *reinterpret_cast<UObject**>((uintptr_t)Pawn + 0x238);
+		auto PlayerState = *reinterpret_cast<UObject**>((uintptr_t)Pawn + __int64(Offsets::PlayerStateOffset));
 		auto Fn = FindObject("Function /Script/FortniteGame.FortPlayerStateZone.OnRep_QuickbarEquippedItems");
 		ProcessEvent(PlayerState, Fn, nullptr);
 	}
