@@ -134,15 +134,8 @@ namespace Functions
 
 	}
 
-	static void CustomSkin(std::string DefaultHeadPart ,std::string DefaultBodyPart) {
-		TCHAR* DefaultHeadPartparam = new TCHAR[DefaultHeadPart.size() + 1];
-		TCHAR* DefaultBodyPartparam = new TCHAR[DefaultBodyPart.size() + 1];
-
-
-		StaticLoadObject(FindObject("Class /Script/FortniteGame.CustomCharacterPart"), nullptr, (DefaultHeadPartparam));
-		StaticLoadObject(FindObject("Class /Script/FortniteGame.CustomCharacterPart"), nullptr, (DefaultBodyPartparam));
-
-
+	static void CustomSkin(std::string DefaultHeadPart ,std::string DefaultBodyPart)
+	{
 		auto PlayerState = ReadPointer(PawnFinder(), 0x238);
 		UObject* DefaultHead = FindObject("CustomCharacterPart " + DefaultBodyPart);
 		UObject* DefaultBody = FindObject("CustomCharacterPart " + DefaultBodyPart);
@@ -699,27 +692,10 @@ namespace Functions
 		auto CurrentBuildableClass = *reinterpret_cast<UObject**>((uintptr_t)Controller + 0x1638);
 		auto LastBuildPreviewGridSnapLoc = *reinterpret_cast<FVector*>((uintptr_t)Controller + 0x174c);
 		auto LastBuildPreviewGridSnapRot = *reinterpret_cast<FRotator*>((uintptr_t)Controller + 0x1758);
-		auto Name = CurrentBuildableClass->GetName();
 
-		std::cout << "ClassName: " << Name << std::endl;
-
-		Functions::Summon(std::wstring(Name.begin(), Name.end()).c_str());
-
-		UObject* BuildingActor = nullptr;
-
-		BuildingActor = FindObjectWithSkip(CurrentBuildableClass);
-
-		if (BuildingActor)
-		{
-			std::cout << "BuildingActor: " << BuildingActor->GetFullName() << std::endl;
-
-			Functions::InitializeBuildingActor(BuildingActor);
-			Functions::TeleportTo(BuildingActor, LastBuildPreviewGridSnapLoc, LastBuildPreviewGridSnapRot);
-		}
-		else
-		{
-			std::cout << "Null Building Actor" << std::endl;
-		}
+		auto Build = Functions::SpawnActor(CurrentBuildableClass, LastBuildPreviewGridSnapLoc, LastBuildPreviewGridSnapRot);
+		Functions::InitializeBuildingActor(Build);
+		Functions::TeleportTo(Build, LastBuildPreviewGridSnapLoc, LastBuildPreviewGridSnapRot);
 
 		return 0;
 	}

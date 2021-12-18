@@ -72,14 +72,18 @@ void* (*PEOG)(void*, void*, void*);
 void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 {
     if (pObject && pFunction) {
-        if (pFunction->GetName().find("SendClientHello") != std::string::npos ||
-            pFunction->GetName().find("SendPacketToServer") != std::string::npos ||
-            pFunction->GetName().find("SendPacketToClient") != std::string::npos)
+
+        auto FuncName = pFunction->GetName();
+        auto FullFuncName = pFunction->GetFullName();
+
+        if (FuncName.find("SendClientHello") != std::string::npos ||
+            FuncName.find("SendPacketToServer") != std::string::npos ||
+            FuncName.find("SendPacketToClient") != std::string::npos)
         {
             return NULL;
         }
 
-        if (pFunction->GetFullName().find("BP_OnDeactivated") != std::string::npos && pObject->GetFullName().find("PickerOverlay_EmoteWheel") != std::string::npos)
+        if (FullFuncName.find("BP_OnDeactivated") != std::string::npos && pObject->GetFullName().find("PickerOverlay_EmoteWheel") != std::string::npos)
         {
             if (Pawn) {
                 Functions::UnCrouch();
@@ -107,7 +111,12 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             }
         }
 
-        if (pFunction->GetFullName().find(crypt("ServerExecuteInventoryItem")) != std::string::npos && FortInventory)
+        if (pObject->GetName().find("RiftPortal_Item_Athena") != std::string::npos && FuncName.find("ComponentBeginOverlapSignature") != std::string::npos)
+        {
+            Functions::TeleportToSkydive(25000);
+        }
+
+        if (FullFuncName.find(crypt("ServerExecuteInventoryItem")) != std::string::npos && FortInventory)
         {
             FGuid* guid = reinterpret_cast<FGuid*>(pParams);
 
@@ -136,12 +145,12 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             }
         }
 
-        if (pFunction->GetName().find("ServerCreateBuilding") != std::string::npos)
+        if (FuncName.find("ServerCreateBuilding") != std::string::npos)
         {
             CreateThread(0, 0, Functions::BuildAsync, 0, 0, 0);
         }
 
-        if (pFunction->GetName().find("ServerHandlePickup") != std::string::npos && FortInventory)
+        if (FuncName.find("ServerHandlePickup") != std::string::npos && FortInventory)
         {
             if (!bIsPickingUp)
                 bIsPickingUp = true;
@@ -171,7 +180,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             Functions::DestroyActor(params->PickUp);
         }
 
-        if (pFunction->GetName().find("ServerAttemptInventoryDrop") != std::string::npos && FortInventory)
+        if (FuncName.find("ServerAttemptInventoryDrop") != std::string::npos && FortInventory)
         {
             if (bIsPickingUp) {
                 bIsPickingUp = false;
@@ -202,7 +211,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             }
         }
 
-        if (pFunction->GetName().find("CheatScript") != std::string::npos) {
+        if (FuncName.find("CheatScript") != std::string::npos) {
 
             struct CheatScriptParams { struct FString ScriptName; UObject* ReturnValue; };
             auto params = reinterpret_cast<CheatScriptParams*>(pParams);
@@ -300,7 +309,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             }
         }
 
-        if (pFunction->GetName().find("Tick") != std::string::npos)
+        if (FuncName.find("Tick") != std::string::npos)
         {
             if (GetAsyncKeyState(VK_F1) & 0x01) {
                 Functions::SwitchLevel(L"Apollo_Papaya?Game=/Game/Athena/Athena_GameMode.Athena_GameMode_C");
@@ -325,7 +334,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             }
         }
 
-        if (pFunction->GetName().find("ServerLoadingScreenDropped") != std::string::npos)
+        if (FuncName.find("ServerLoadingScreenDropped") != std::string::npos)
         {
             Functions::UpdatePlayerController();
             Functions::ShowSkin();
@@ -373,7 +382,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoInfinite_NoIcon.AmmoInfinite_NoIcon")), 999);
             Functions::SetInfiniteAmmo(Controller);
             Functions::SetGamePhase(EAthenaGamePhase::None, EAthenaGamePhase::Warmup);
-            Functions::TeleportToSkydive(60000);
+            Functions::TeleportToSkydive(50000);
 
             Functions::ServerSetClientHasFinishedLoading(Controller);
 
