@@ -698,11 +698,20 @@ struct FSlateBrush
 	UObject* ObjectResource; // 0x08
 };
 
-struct FQuickBarSlot
+struct QuickBarSlot
 {
-	TArray<struct FGuid> Items;
+	TArray<FGuid> Items;
 	bool bEnabled;
 	char Unk00[0x7];
+};
+
+struct FQuickBar {
+	int32_t CurrentFocusedSlot; // 0x00(0x04)
+	int32_t PreviousFocusedSlot; // 0x04(0x04)
+	int32_t SecondaryFocusedSlot; // 0x08(0x04)
+	char pad_C[0x4]; // 0x0c(0x04)
+	struct TArray<struct FQuickBarSlot> Slots; // 0x10(0x10)
+	char pad[0x3];
 };
 
 enum class EFortPickupSourceTypeFlag : uint8_t

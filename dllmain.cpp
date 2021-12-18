@@ -158,6 +158,8 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 
             auto PickupEntry = reinterpret_cast<FFortItemEntry*>((uintptr_t)params->PickUp + 0x2a0);
             Functions::AddItemToInventoryWithEntry(*PickupEntry, *(int*)((uintptr_t)PickupEntry + 0x0c));
+
+            Functions::DestroyActor(params->PickUp);
         }
 
         if (pFunction->GetName().find("ServerAttemptInventoryDrop") != std::string::npos && FortInventory)
@@ -173,7 +175,6 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             auto params = (Params*)(pParams);
 
             auto entries = reinterpret_cast<TArray<FFortItemEntry>*>(__int64(FortInventory) + static_cast<__int64>(0x228) + static_cast<__int64>(0x108));
-            //auto quickbarSlots = *reinterpret_cast<TArray<FQuickBarSlot>*>((uintptr_t)QuickBar + 0x220 + 0x10);
 
             for (int i = 0; i < entries->Num(); i++)
             {
@@ -334,7 +335,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 
             //auto Controller = *reinterpret_cast<UObject**>((uintptr_t)Functions::ControllerFinder());
             FortInventory = reinterpret_cast<InventoryPointer*>((uintptr_t)Controller + 0x1ab0)->Inventory;
-            QuickBar = *reinterpret_cast<UObject**>((uintptr_t)Controller + 0x17f8);
+            QuickBar = reinterpret_cast<QuickBarPointer*>((uintptr_t)Controller + 0x17f8)->QuickBar;
 
             //std::cout << "FortInventory: " << FortInventory->GetFullName() << std::endl;
             //std::cout << "QuickBar: " << QuickBar << std::endl;
