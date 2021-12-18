@@ -211,6 +211,14 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             }
         }
 
+        if (FuncName.find("ServerReturnToMainMenu") != std::string::npos)
+        {
+            auto CheatManager = reinterpret_cast<UObject**>((uintptr_t)Controller + Offsets::PlayerController::CheatManager);
+            *CheatManager = nullptr;
+            Sleep(500);
+            Functions::SwitchLevel(L"Frontend");
+        }
+
         if (FuncName.find("CheatScript") != std::string::npos) {
 
             struct CheatScriptParams { struct FString ScriptName; UObject* ReturnValue; };
