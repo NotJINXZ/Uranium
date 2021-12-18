@@ -359,7 +359,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoInfinite_NoIcon.AmmoInfinite_NoIcon")), 999);
             Functions::SetInfiniteAmmo(Controller);
             Functions::SetGamePhase(EAthenaGamePhase::None, EAthenaGamePhase::Warmup);
-            Functions::TeleportToSkydive(50000);
+            Functions::TeleportToSkydive(60000);
 
             Functions::ServerSetClientHasFinishedLoading(Controller);
 
