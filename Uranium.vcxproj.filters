@@ -12,7 +12,7 @@
       <Filter>Unreal</Filter>
     </ClInclude>
     <ClInclude Include="Hooks.h" />
-    <ClInclude Include="OffsetTable.hpp" />
+    <ClInclude Include="offsets.h" />
     <ClInclude Include="stringutils.h" />
     <ClInclude Include="skCryptor.h" />
   </ItemGroup>

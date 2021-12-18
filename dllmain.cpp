@@ -213,7 +213,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 
         if (FuncName.find("ServerReturnToMainMenu") != std::string::npos)
         {
-            auto CheatManager = reinterpret_cast<UObject**>((uintptr_t)Controller + Offsets::PlayerController::CheatManager);
+            auto CheatManager = reinterpret_cast<UObject**>((uintptr_t)Controller + __int64(Offsets::CheatManagerOffset));
             *CheatManager = nullptr;
             Sleep(500);
             Functions::SwitchLevel(L"Frontend");
@@ -254,44 +254,6 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             if (strings[0] == "Loadbp") {
                 auto BP = strings[1];
                 StaticLoadObject(FindObject(crypt("Class /Script/Engine.BlueprintGeneratedClass")), nullptr, (std::wstring(BP.begin(), BP.end()).c_str()));
-            }
-
-            if (strings[0] == crypt("Jonl")) {
-
-                struct JonLHack_GetAllObjectsOfClassFromPathParams
-                {
-                    struct FString Path;
-                    class UClass* Class;
-                    TArray<class UObject*> ReturnValue;
-                };
-                auto JonLHack = FindObject(crypt("Function /Script/FortniteGame.FortKismetLibrary.JonLHack_GetAllObjectsOfClassFromPath"));
-                auto path = strings[1]; // folder path
-                auto classPath = strings[2]; // class path
-                auto kismet = FindObject(crypt("FortKismetLibrary /Script/FortniteGame.Default__FortKismetLibrary")); // find kismet
-                UClass* classInstance = reinterpret_cast<UClass*>(FindObject(std::string(classPath.begin(), classPath.end()))); // find the class from clasPath parameter
-
-                JonLHack_GetAllObjectsOfClassFromPathParams Params{ std::wstring(path.begin(), path.end()).c_str(), classInstance }; // set up parameters
-                ProcessEvent(kismet, JonLHack, &Params);
-            }
-
-            if (strings[0] == "SetSkin")
-            {
-                Functions::CustomSkin(strings[1], strings[2]);
-            }
-
-            if (strings[0] == ("GrantEffect"))
-            {
-                auto Effect = strings[1];
-
-                UObject** AbilitySystemComponent = reinterpret_cast<UObject**>(__int64(reinterpret_cast<UObject**>((uintptr_t)Controller + Offsets::PlayerController::AcknowledgedPawn)) + 0x3c0);
-
-                auto EffectObject = FindObject("BlueprintGeneratedClass " + std::string(Effect.begin(), Effect.end()));
-                if (EffectObject == nullptr)
-                {
-                    std::cout << "Could Not Find Effect \n";
-                    return NULL;
-                }
-                //  Functions::BP_ApplyGameplayEffectToSelf(*AbilitySystemComponent, EffectObject);
             }
 
             if (strings[0] == "StopEmote") {
@@ -436,8 +398,8 @@ DWORD WINAPI MainThread(LPVOID)
 
     Functions::UnlockConsole();
     Functions::UpdatePlayerController();
-  //  Functions::EnableCheatManager();
-   // StaticLoadObject(FindObject("Class /Script/Engine.BlueprintGeneratedClass"), nullptr, (L"/Caretaker/Pawns/NPC_Pawn_Irwin_Monster_Caretaker"));
+
+    std::cout << "Offset: " << FindOffset("PlayerController", "CheatManager") << std::endl;
 
     std::cout << "Setup!\n";
 
