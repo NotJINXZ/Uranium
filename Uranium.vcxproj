@@ -22,7 +22,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -92,7 +92,7 @@
   <ItemGroup>
     <ClInclude Include="Functions.h" />
     <ClInclude Include="Hooks.h" />
-    <ClInclude Include="offsets.h" />
+    <ClInclude Include="OffsetTable.hpp" />
     <ClInclude Include="skCryptor.h" />
     <ClInclude Include="stringutils.h" />
     <ClInclude Include="UE5.h" />
