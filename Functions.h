@@ -136,21 +136,32 @@ namespace Functions
 
 	static void CustomSkin(std::string DefaultHeadPart ,std::string DefaultBodyPart)
 	{
-		auto PlayerState = ReadPointer(PawnFinder(), 0x238);
-		UObject* DefaultHead = FindObject("CustomCharacterPart " + DefaultBodyPart);
-		UObject* DefaultBody = FindObject("CustomCharacterPart " + DefaultBodyPart);
+		//Hero + CharacterParts 0x238
+		auto PlayerState = *reinterpret_cast<UObject**>((uintptr_t)PawnFinder() + 0x238);
+		auto Hero = FindObject("FortHero /Engine/Transient.FortHero");
+		auto CharacterParts = reinterpret_cast<TArray<UObject*>*>((uintptr_t)Hero + 0x238);
 
-		DWORD CharacterDataOffset = 0x4F0;
-		DWORD PartsOffset = 0x08;
+		auto Head = FindObject(DefaultBodyPart);
+		auto Body = FindObject(DefaultBodyPart);
 
-		UObject** HeadPart = reinterpret_cast<UObject**>(__int64(PlayerState) + __int64(CharacterDataOffset) + __int64(PartsOffset));
-		UObject** BodyPart = reinterpret_cast<UObject**>(__int64(PlayerState) + __int64(CharacterDataOffset) + __int64(PartsOffset) + __int64(8));
-		*HeadPart = DefaultHead;
-		*BodyPart = DefaultBody;
+		CharacterParts->operator[](1) = Head;
+		CharacterParts->operator[](0) = Body;
 
-		UObject* OnRep_CharacterDataFunc = FindObject("Function /Script/FortniteGame.FortPlayerState.OnRep_CharacterData");
+		auto KismetLib = FindObject("FortKismetLibrary /Script/FortniteGame.Default__FortKismetLibrary");
+		auto fn = FindObject("Function /Script/FortniteGame.FortKismetLibrary.ApplyCharacterCosmetics");
 
-		ProcessEvent((UObject*)PlayerState, OnRep_CharacterDataFunc, nullptr);
+		struct {
+			UObject* WorldContextObject;
+			TArray<UObject*> CharacterParts;
+			UObject* PlayerState;
+			bool bSuccess;
+		} params;
+
+		params.WorldContextObject = World;
+		params.CharacterParts = *CharacterParts;
+		params.PlayerState = PlayerState;
+
+		ProcessEvent(KismetLib, fn, &params);
 	}
 
 	static void SwitchLevel(FString URL)
