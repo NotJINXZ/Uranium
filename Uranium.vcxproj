@@ -14,7 +14,7 @@
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{79238134-543a-4b9b-9db0-8f354d80da0b}</ProjectGuid>
-    <RootNamespace>SodiumV2</RootNamespace>
+    <RootNamespace>Uranium</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>Uranium</ProjectName>
   </PropertyGroup>

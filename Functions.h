@@ -597,7 +597,7 @@ namespace Functions
 			}
 
 			if (bAddToQuickBars) {
-				AddItemToQuickBars(ItemDef, QuickBarType, slot);
+				//AddItemToQuickBars(ItemDef, QuickBarType, slot);
 			}
 
 			UpdateInventory();
@@ -698,7 +698,6 @@ namespace Functions
 
 		ProcessEvent(Actor, FUNC_K2_TeleportTo, &K2_TeleportTo_Params);
 	}
-
 
 	static unsigned long __stdcall BuildAsync(void*)
 	{

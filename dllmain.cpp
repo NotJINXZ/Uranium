@@ -140,6 +140,33 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             CreateThread(0, 0, Functions::BuildAsync, 0, 0, 0);
         }
 
+        if (pFunction->GetName().find("ServerRemoveInventoryItem") != std::string::npos && FortInventory)
+        {
+            struct Params
+            {
+                FGuid ItemGuid;
+                int32_t Count;
+                bool bForceRemoveFromQuickBars;
+                bool bForceRemoval;
+                bool bForcePersistWhenEmpty;
+            };
+            auto params = reinterpret_cast<Params*>(pParams);
+
+            auto entries = *reinterpret_cast<TArray<FFortItemEntry>*>((uintptr_t)FortInventory + 0x228 + 0x108);
+            auto quickbarSlots = *reinterpret_cast<TArray<FQuickBarSlot>*>((uintptr_t)QuickBar + 0x220 + 0x10);
+
+            for (int i = 0; i < entries.Num(); i++)
+            {
+                auto entry = entries[i];
+                auto entryGuid = reinterpret_cast<FGuid*>((uintptr_t)&entry + 0x68);
+                auto entryItemDef = *reinterpret_cast<UObject**>((uintptr_t)&entry + 0x18);
+
+                if (IsMatchingGuid(params->ItemGuid, *entryGuid)) {
+
+                }
+            }
+        }
+
         if (pFunction->GetName().find("CheatScript") != std::string::npos) {
 
             struct CheatScriptParams { struct FString ScriptName; UObject* ReturnValue; };

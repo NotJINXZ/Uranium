@@ -697,3 +697,10 @@ struct FSlateBrush
 	unsigned char Unk00[0x48];
 	UObject* ObjectResource; // 0x08
 };
+
+struct FQuickBarSlot
+{
+	TArray<struct FGuid> Items;
+	bool bEnabled;
+	char Unk00[0x7];
+};
