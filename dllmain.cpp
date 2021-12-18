@@ -434,6 +434,11 @@ DWORD WINAPI MainThread(LPVOID)
 
     InitHooks();
 
+    //Updater = new FortUpdater();
+    //Updater->Init(pGObjects, pFNameToString, pFreeMemory);
+
+    //Offsets::Init();
+
     Functions::UnlockConsole();
     Functions::UpdatePlayerController();
   //  Functions::EnableCheatManager();

@@ -1,5 +1,7 @@
 #pragma once
+#include "FortUpdater.h"
 
+FortUpdater* Updater;
 
 namespace Offsets
 {
@@ -28,5 +30,10 @@ namespace Offsets
 	namespace CurrentPlaylistInfo
 	{
 		inline __int64 BasePlaylist = 0x120;
+	}
+
+	static void Init()
+	{
+		PlayerController::CheatManager = __int64(Updater->FindOffset("PlayerController", "CheatManager"));
 	}
 }
