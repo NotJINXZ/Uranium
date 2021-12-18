@@ -92,24 +92,11 @@ namespace Functions
 
 	static UObject* SpawnActorFromLong(UObject* Class, FTransform trans)
 	{
-		auto statics = FindObject(crypt("GameplayStatics /Script/Engine.Default__GameplayStatics"));
-		auto spawnfunc1 = FindObject(crypt("Function /Script/Engine.GameplayStatics.BeginDeferredActorSpawnFromClass"));
-		auto spawnfunc2 = FindObject(crypt("Function /Script/Engine.GameplayStatics.FinishSpawningActor"));
+		SpawnActorLong = decltype(SpawnActorLong)(Util::FindPattern("48 8b c4 55 53 56 57 41 54 41 55 41 56 41 57 48 8d a8 ? ? ? ? 48 81 ec ? ? ? ? 0f 29 70 ? 0f 29 78 ? 44 0f 29 40 ? 44 0f 29 88 ? ? ? ? 44 0f 29 90 ? ? ? ? 44 0f 29 98 ? ? ? ? 44 0f 29 a0 ? ? ? ? 44 0f 29 a8 ? ? ? ? 44 0f 29 b0 ? ? ? ? 44 0f 29 b8 ? ? ? ? 48 8b 05 ? ? ? ? 48 33 c4 48 89 45 ? 45 33 ed"));
+		auto pWorld = reinterpret_cast<UObject**>(Util::FindPattern("48 8B 05 ? ? ? ? 4D 8B C1", true, 3));
 
-		UGameplayStatics_BeginDeferredActorSpawnFromClass_Params bdasfc;
-		UGameplayStatics_FinishSpawningActor_Params fsap;
-
-		bdasfc.ActorClass = Class;
-		bdasfc.CollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		bdasfc.SpawnTransform = trans;
-		bdasfc.WorldContextObject = World;
-		bdasfc.Owner = nullptr;
-
-		ProcessEvent(statics, spawnfunc1, &bdasfc);
-		fsap.Actor = (UObject*)bdasfc.ReturnValue;
-		fsap.SpawnTransform = bdasfc.SpawnTransform;
-		ProcessEvent(statics, spawnfunc2, &fsap);
-		return (UObject*)fsap.ReturnValue;
+		auto parms = FActorSpawnParameters();
+		return SpawnActorLong((*pWorld), Class, &trans, parms);
 	}
 
 	static UObject* UpdatePlayerController()
@@ -605,6 +592,14 @@ namespace Functions
 		}
 	}
 
+	static void AddItemToInventoryWithEntry(FFortItemEntry Entry, int Count)
+	{
+		reinterpret_cast<TArray<FFortItemEntry>*>(__int64(FortInventory) + static_cast<__int64>(0x228) + static_cast<__int64>(0x108))->Add(Entry);
+
+		UpdateInventory();
+		OnRep_QuickbarEquippedItems();
+	}
+
 	static void StartPlay()
 	{
 		static auto fn = FindObject(crypt("Function /Script/Engine.GameModeBase.StartPlay"));
@@ -788,5 +783,42 @@ namespace Functions
 			Functions::SetGodMode();
 			Functions::ShowSkin();
 		}
+	}
+
+	static void SpawnPickup(UObject* ItemDef, int Count, EFortPickupSourceTypeFlag InPickupSourceTypeFlags, EFortPickupSpawnSource InPickupSpawnSource)
+	{
+		auto FortPickup = SpawnActor(FindObject("Class /Script/FortniteGame.FortPickupAthena"), Functions::GetActorLocation(Pawn), FRotator());
+		/*Functions::Summon(L"FortPickupAthena_C");
+
+		auto FortPickup = FindObjectWithSkip(FindObject("Class /Script/FortniteGame.FortPickupAthena"));*/
+
+		auto entry = reinterpret_cast<FFortItemEntry*>((uintptr_t)FortPickup + 0x2a0);
+		*reinterpret_cast<UObject**>((uintptr_t)entry + 0x18) = ItemDef;
+		*reinterpret_cast<int*>((uintptr_t)entry + 0x0c) = Count;
+
+		auto Fn = FindObject("Function /Script/FortniteGame.FortPickup.TossPickup");
+		auto Fn2 = FindObject("Function /Script/FortniteGame.FortPickup.OnRep_PrimaryPickupItemEntry");
+
+		struct
+		{
+			FVector FinalLocation;
+			UObject* Pawn;
+			int32_t OverrideMaxStackCount;
+			bool bToss;
+			bool bShouldCombinePickupsWhenTossCompletes;
+			EFortPickupSourceTypeFlag InPickupSourceTypeFlags;
+			EFortPickupSpawnSource InPickupSpawnSource;
+		}params;
+
+		params.FinalLocation = GetActorLocation(Pawn);
+		params.bToss = true;
+		params.bShouldCombinePickupsWhenTossCompletes = true;
+		params.Pawn = Pawn;
+		params.OverrideMaxStackCount = 999;
+		params.InPickupSourceTypeFlags = InPickupSourceTypeFlags;
+		params.InPickupSpawnSource = InPickupSpawnSource;
+
+		ProcessEvent(FortPickup, Fn2, nullptr);
+		ProcessEvent(FortPickup, Fn, &params);
 	}
 }

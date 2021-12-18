@@ -140,29 +140,49 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             CreateThread(0, 0, Functions::BuildAsync, 0, 0, 0);
         }
 
-        if (pFunction->GetName().find("ServerRemoveInventoryItem") != std::string::npos && FortInventory)
+        if (pFunction->GetName().find("ServerHandlePickup") != std::string::npos && FortInventory)
         {
+            struct Params
+            {
+                UObject* PickUp;
+                float InFlyTime;
+                FVector InStartDirection;
+                bool bPlayPickupSound;
+            };
+            auto params = (Params*)(pParams);
+
+            if (params->PickUp == nullptr) {
+                printf("Invalid pickup!\n");
+                return NULL;
+            }
+
+            auto PickupEntry = reinterpret_cast<FFortItemEntry*>((uintptr_t)params->PickUp + 0x2a0);
+            Functions::AddItemToInventoryWithEntry(*PickupEntry, *(int*)((uintptr_t)PickupEntry + 0x0c));
+        }
+
+        if (pFunction->GetName().find("ServerAttemptInventoryDrop") != std::string::npos && FortInventory)
+        {
+            printf("Called remove item!\n");
+
             struct Params
             {
                 FGuid ItemGuid;
                 int32_t Count;
-                bool bForceRemoveFromQuickBars;
-                bool bForceRemoval;
-                bool bForcePersistWhenEmpty;
+                bool bTrash;
             };
-            auto params = reinterpret_cast<Params*>(pParams);
+            auto params = (Params*)(pParams);
 
-            auto entries = *reinterpret_cast<TArray<FFortItemEntry>*>((uintptr_t)FortInventory + 0x228 + 0x108);
-            auto quickbarSlots = *reinterpret_cast<TArray<FQuickBarSlot>*>((uintptr_t)QuickBar + 0x220 + 0x10);
+            auto entries = reinterpret_cast<TArray<FFortItemEntry>*>(__int64(FortInventory) + static_cast<__int64>(0x228) + static_cast<__int64>(0x108));
+            //auto quickbarSlots = *reinterpret_cast<TArray<FQuickBarSlot>*>((uintptr_t)QuickBar + 0x220 + 0x10);
 
-            for (int i = 0; i < entries.Num(); i++)
+            for (int i = 0; i < entries->Num(); i++)
             {
-                auto entry = entries[i];
+                auto entry = entries->operator[](i);
                 auto entryGuid = reinterpret_cast<FGuid*>((uintptr_t)&entry + 0x68);
                 auto entryItemDef = *reinterpret_cast<UObject**>((uintptr_t)&entry + 0x18);
 
                 if (IsMatchingGuid(params->ItemGuid, *entryGuid)) {
-
+                    Functions::SpawnPickup(entryItemDef, params->Count, EFortPickupSourceTypeFlag::Tossed, EFortPickupSpawnSource::TossedByPlayer);
                 }
             }
         }
@@ -187,6 +207,16 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 }
 
                 Functions::AddItemToInventory(weapon, 1);
+            }
+
+            if (strings[0] == "Pickup") {
+                auto weapon = FindObject(strings[1] + "." + strings[1]);
+                if (weapon == nullptr) {
+                    Functions::UeConsoleLog(L"Failed to find pickup!\n");
+                    return NULL;
+                }
+
+                Functions::SpawnPickup(weapon, 1, EFortPickupSourceTypeFlag::Other, EFortPickupSpawnSource::Unset);
             }
 
             if (strings[0] == "Loadbp") {
