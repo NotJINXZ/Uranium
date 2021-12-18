@@ -23,6 +23,7 @@ DWORD WINAPI DumpObjectThread(LPVOID param)
 FVector LastEmoteLoc;
 bool bIsEmoting;
 UObject* CurrentEmote;
+bool bIsPickingUp = false;
 
 DWORD WINAPI EmoteCheckThread(LPVOID)
 {
@@ -151,6 +152,9 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 
         if (FuncName.find("ServerHandlePickup") != std::string::npos && FortInventory)
         {
+            if (!bIsPickingUp)
+                bIsPickingUp = true;
+
             struct Params
             {
                 UObject* PickUp;
@@ -165,6 +169,11 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 return NULL;
             }
 
+            auto primQuickbar = reinterpret_cast<FQuickBar*>((uintptr_t)QuickBar + 0x220);
+            auto entries = reinterpret_cast<TArray<FFortItemEntry>*>(__int64(FortInventory) + static_cast<__int64>(0x228) + static_cast<__int64>(0x108));
+
+            std::cout << "CurrentFocusedSlot: " << primQuickbar->CurrentFocusedSlot << std::endl;
+
             auto PickupEntry = reinterpret_cast<FFortItemEntry*>((uintptr_t)params->PickUp + 0x2a0);
             Functions::AddItemToInventoryWithEntry(*PickupEntry, *(int*)((uintptr_t)PickupEntry + 0x0c));
 
@@ -173,6 +182,11 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 
         if (FuncName.find("ServerAttemptInventoryDrop") != std::string::npos && FortInventory)
         {
+            if (bIsPickingUp) {
+                bIsPickingUp = false;
+                return NULL;
+            }
+
             printf("Called remove item!\n");
 
             struct Params
@@ -298,7 +312,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
         if (FuncName.find("Tick") != std::string::npos)
         {
             if (GetAsyncKeyState(VK_F1) & 0x01) {
-                Functions::SwitchLevel(L"Artemis_Terrain?Game=/Game/Athena/Athena_GameMode.Athena_GameMode_C");
+                Functions::SwitchLevel(L"Apollo_Papaya?Game=/Game/Athena/Athena_GameMode.Athena_GameMode_C");
                 bIsReady = true;
             }
 

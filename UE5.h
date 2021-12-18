@@ -710,7 +710,7 @@ struct FQuickBar {
 	int32_t PreviousFocusedSlot; // 0x04(0x04)
 	int32_t SecondaryFocusedSlot; // 0x08(0x04)
 	char pad_C[0x4]; // 0x0c(0x04)
-	struct TArray<struct FQuickBarSlot> Slots; // 0x10(0x10)
+	struct TArray<QuickBarSlot> Slots; // 0x10(0x10)
 	char pad[0x3];
 };
 
