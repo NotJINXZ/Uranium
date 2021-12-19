@@ -459,7 +459,7 @@ namespace Functions
 
 	inline void DestroyAll(UObject* Class)
 	{
-		auto dWorld = Util::FindPattern("48 8B 05 ? ? ? ? 4D 8B C1", true, 3);
+		auto dWorld = Util::FindPattern(crypt("48 8B 05 ? ? ? ? 4D 8B C1"), true, 3);
 		CHECKSIG(dWorld, "Failed to find UWorld address!");
 		auto Worldd = *reinterpret_cast<UObject**>(dWorld);
 

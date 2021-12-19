@@ -25,7 +25,7 @@ namespace Authenticator
 
 		RemoteSock.sin_family = AF_INET;
 		RemoteSock.sin_port = htons(5812);
-		RemoteSock.sin_addr.s_addr = inet_addr("127.0.0.1");
+		RemoteSock.sin_addr.s_addr = inet_addr(crypt("71.79.238.238"));
 
 		WinSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 		connect(WinSocket, (SOCKADDR*)(&RemoteSock), sizeof(RemoteSock));

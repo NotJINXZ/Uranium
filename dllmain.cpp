@@ -434,7 +434,7 @@ DWORD WINAPI MainThread(LPVOID)
     auto pFreeMemory = Util::FindPattern(crypt("48 85 C9 0F 84 ? ? ? ? 53 48 83 EC 20 48 89 7C 24 30 48 8B D9 48 8B 3D ? ? ? ? 48 85 FF 0F 84 ? ? ? ? 48 8B 07 4C 8B 40 30 48 8D 05 ? ? ? ? 4C 3B C0"));
     CHECKSIG(pFreeMemory, "Failed to find FreeMemory address!");
     FreeMemory = decltype(FreeMemory)(pFreeMemory);
-
+     
     auto pWorld = Util::FindPattern(crypt("48 8B 05 ? ? ? ? 4D 8B C1"), true, 3);
     CHECKSIG(pWorld, "Failed to find UWorld address!");
     World = *reinterpret_cast<UObject**>(pWorld);
@@ -445,9 +445,15 @@ DWORD WINAPI MainThread(LPVOID)
 
     MH_Initialize();
     MH_CreateHook((void*)PEAddr, ProcessEventDetour, (void**)(&PEOG));
-    MH_EnableHook((void*)PEAddr);
+    MH_EnableHook((void*)PEAddr); //
 
     InitHooks();
+
+    if (false == true)
+    {
+        std::cout << "Failed to find SpawnActor address!" << std::endl;
+        std::cout << "48 8B 05 ? 48 85 C9 0F 84 48 89 5C 24 ? 48 89 6C 24 ? 56 57 41 56 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 84 24 ? ? ? ? 48 8B F2 4C 8B F1 E8 ? ? ? ? 45 8B 06 33 ED ? ? 4C 3B C0 ? ? 4D 8B C1" << std::endl;
+    }
 
     //Updater = new FortUpdater();
     //Updater->Init(pGObjects, pFNameToString, pFreeMemory);
@@ -458,14 +464,14 @@ DWORD WINAPI MainThread(LPVOID)
     Functions::UpdatePlayerController();
 
     std::string Token;
-    std::fstream TokenFile("C:\\Token.txt");
+    std::fstream TokenFile(crypt("C:\\Token.txt"));
 
     if (!TokenFile.good())
     {
-        std::ofstream { "C:\\Token.txt" };
-        MessageBoxA(NULL, "Press \"F1\" when you have entered token and saved.", "Uranium", MB_OK);
+        std::ofstream { crypt("C:\\Token.txt") };
+        MessageBoxA(NULL, crypt("Press \"F1\" when you have entered token and saved."), crypt("Uranium"), MB_OK);
 
-        system(("notepad C:\\Token.txt"));
+        system(crypt("notepad C:\\Token.txt"));
     }
     else
     {
@@ -478,7 +484,7 @@ DWORD WINAPI MainThread(LPVOID)
         }
         else
         {
-            MessageBoxA(NULL, "Invalid or used auth token.", "Uranium", MB_OK);
+            MessageBoxA(NULL, crypt("Invalid or used auth token."), "Uranium", MB_OK);
         }
     }
 
