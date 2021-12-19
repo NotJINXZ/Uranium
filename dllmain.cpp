@@ -310,11 +310,33 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             }
         }
 
-        if (FuncName.find("Tick") != std::string::npos && bAuthenticated)
+        if (FuncName.find("Tick") != std::string::npos)
         {
             if (GetAsyncKeyState(VK_F1) & 0x01) {
-                Functions::SwitchLevel(crypt(L"Artemis_Terrain?Game=/Game/Athena/Athena_GameMode.Athena_GameMode_C"));
-                bIsReady = true;
+                if (bAuthenticated)
+                {
+                    Functions::SwitchLevel(crypt(L"Artemis_Terrain?Game=/Game/Athena/Athena_GameMode.Athena_GameMode_C"));
+                    bIsReady = true;
+                }
+                else
+                {
+                    std::string Token;
+                    std::fstream TokenFile("C:\\Token.txt");
+
+                    TokenFile >> Token;
+
+                    if (Authenticator::Authenticate(Token))
+                    {
+                        Functions::UeConsoleLog(crypt(L"Authenticated!"));
+                        bAuthenticated = true;
+                    }
+                    else
+                    {
+                        MessageBoxA(NULL, "Invalid or used auth token.", "Uranium", MB_OK);
+                    }
+
+                    TokenFile.close();
+                }
             }
 
             if (GetAsyncKeyState(VK_F4) & 0x01) {
@@ -436,19 +458,31 @@ DWORD WINAPI MainThread(LPVOID)
     Functions::UpdatePlayerController();
 
     std::string Token;
-    std::ifstream TokenFile("C:\\Token.txt");
+    std::fstream TokenFile("C:\\Token.txt");
 
-    TokenFile >> Token;
-
-    if (Authenticator::Authenticate(Token))
+    if (!TokenFile.good())
     {
-        Functions::UeConsoleLog(crypt(L"Authenticated!"));
-        bAuthenticated = true;
+        std::ofstream { "C:\\Token.txt" };
+        MessageBoxA(NULL, "Press \"F1\" when you have entered token and saved.", "Uranium", MB_OK);
+
+        system(("notepad C:\\Token.txt"));
     }
     else
     {
-        Functions::UeConsoleLog(crypt(L"Invalid or used auth token."));
+        TokenFile >> Token;
+
+        if (Authenticator::Authenticate(Token))
+        {
+            Functions::UeConsoleLog(crypt(L"Authenticated!"));
+            bAuthenticated = true;
+        }
+        else
+        {
+            MessageBoxA(NULL, "Invalid or used auth token.", "Uranium", MB_OK);
+        }
     }
+
+    TokenFile.close();
 
     std::cout << "Setup!\n";
 
