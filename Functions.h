@@ -256,7 +256,7 @@ namespace Functions
 		auto fn = FindObject(crypt("Function /Script/Engine.GameplayStatics.SpawnObject"));
 		auto statics = FindObject(crypt("GameplayStatics /Script/Engine.Default__GameplayStatics"));
 		auto CheatManager = reinterpret_cast<UObject**>((uintptr_t)ControllerFinder() + Offsets::PlayerController::CheatManager);
-		auto CheatManagerClass = FindObject(crypt("/Script/Engine.CheatManager"));
+		auto CheatManagerClass = FindObject(crypt("/Script/FortniteGame.FortCheatManager"));
 
 		SpawnObjectParams params;
 		params.ObjectClass = CheatManagerClass;
@@ -348,7 +348,6 @@ namespace Functions
 
 		ProcessEvent(GameplayStatics, GetGameState, &ggsparams);
 
-		std::cout << "GameState: " << ggsparams.ReturnValue->GetFullName() << std::endl;
 		return ggsparams.ReturnValue;
 	}
 

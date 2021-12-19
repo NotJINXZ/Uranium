@@ -70,6 +70,8 @@ int WallSkip = 0;
 int FloorSkip = 0;
 int StairSkip = 0;
 
+UObject* OldCheat;
+
 void* (*PEOG)(void*, void*, void*);
 void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 {
@@ -165,8 +167,6 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             auto primQuickbar = reinterpret_cast<FQuickBar*>((uintptr_t)QuickBar + 0x220);
             auto entries = reinterpret_cast<TArray<FFortItemEntry>*>(__int64(FortInventory) + static_cast<__int64>(0x228) + static_cast<__int64>(0x108));
 
-            std::cout << "CurrentFocusedSlot: " << primQuickbar->CurrentFocusedSlot << std::endl;
-
             auto PickupEntry = reinterpret_cast<FFortItemEntry*>((uintptr_t)params->PickUp + 0x2a0);
             Functions::AddItemToInventoryWithEntry(*PickupEntry, *(int*)((uintptr_t)PickupEntry + 0x0c));
 
@@ -210,6 +210,16 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             *CheatManager = nullptr;
             Sleep(500);
             Functions::SwitchLevel(L"Frontend?Game=/Script/FortniteGame.FortGameModeFrontEnd");
+        }
+
+        if (FuncName.find(crypt("ReadyToEndMatch")) != std::string::npos)
+        {
+            if (!Controller)
+                Functions::UpdatePlayerController();
+
+            auto CheatManager = *reinterpret_cast<UObject**>((uintptr_t)Controller + Offsets::PlayerController::CheatManager);
+            if (CheatManager)
+                FreeMemory(__int64(CheatManager)); //gets gc error on cheatmanager
         }
 
         if (FuncName.find(crypt("CheatScript")) != std::string::npos) {
@@ -447,6 +457,7 @@ DWORD WINAPI MainThread(LPVOID)
 
     Functions::UnlockConsole();
     Functions::UpdatePlayerController();
+    Functions::EnableCheatManager();
 
     std::cout << "Setup!\n";
 
