@@ -328,7 +328,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             if (GetAsyncKeyState(VK_F1) & 0x01) {
                 auto CheatManager = *reinterpret_cast<UObject**>((uintptr_t)Controller + Offsets::PlayerController::CheatManager);
                 if (CheatManager)
-                    FreeMemory(__int64(CheatManager)); //gets gc error on cheatmanager
+                    CheatManager = nullptr; //gets gc error on cheatmanager
 
                 Functions::SwitchLevel(crypt(L"Artemis_Terrain?Game=/Game/Athena/Athena_GameMode.Athena_GameMode_C"));
                 bIsReady = true;
