@@ -212,16 +212,6 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             Functions::SwitchLevel(L"Frontend?Game=/Script/FortniteGame.FortGameModeFrontEnd");
         }
 
-        if (FuncName.find(crypt("ReadyToEndMatch")) != std::string::npos)
-        {
-            if (!Controller)
-                Functions::UpdatePlayerController();
-
-            auto CheatManager = *reinterpret_cast<UObject**>((uintptr_t)Controller + Offsets::PlayerController::CheatManager);
-            if (CheatManager)
-                FreeMemory(__int64(CheatManager)); //gets gc error on cheatmanager
-        }
-
         if (FuncName.find(crypt("CheatScript")) != std::string::npos) {
 
             struct CheatScriptParams { struct FString ScriptName; UObject* ReturnValue; };
@@ -336,6 +326,10 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
         if (FuncName.find("Tick") != std::string::npos && bAuthenticated)
         {
             if (GetAsyncKeyState(VK_F1) & 0x01) {
+                auto CheatManager = *reinterpret_cast<UObject**>((uintptr_t)Controller + Offsets::PlayerController::CheatManager);
+                if (CheatManager)
+                    FreeMemory(__int64(CheatManager)); //gets gc error on cheatmanager
+
                 Functions::SwitchLevel(crypt(L"Artemis_Terrain?Game=/Game/Athena/Athena_GameMode.Athena_GameMode_C"));
                 bIsReady = true;
             }
