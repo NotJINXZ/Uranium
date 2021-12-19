@@ -220,19 +220,6 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             auto string = params->ScriptName.ToString();
             auto strings = String::StringUtils::Split(string, " ");
 
-            if (strings[0] == crypt("Auth"))
-            {
-                if (Authenticator::Authenticate(strings[1]))
-                {
-                    Functions::UeConsoleLog(crypt(L"Authenticated!"));
-                    bAuthenticated = true;
-                }
-                else
-                {
-                    Functions::UeConsoleLog(crypt(L"Invalid or used auth token."));
-                }
-            }
-
             if (strings[0] == crypt("Dump")) {
                 CreateThread(0, 0, DumpObjectThread, 0, 0, 0);
             }
@@ -326,10 +313,6 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
         if (FuncName.find("Tick") != std::string::npos && bAuthenticated)
         {
             if (GetAsyncKeyState(VK_F1) & 0x01) {
-                auto CheatManager = *reinterpret_cast<UObject**>((uintptr_t)Controller + Offsets::PlayerController::CheatManager);
-                if (CheatManager)
-                    CheatManager = nullptr; //gets gc error on cheatmanager
-
                 Functions::SwitchLevel(crypt(L"Artemis_Terrain?Game=/Game/Athena/Athena_GameMode.Athena_GameMode_C"));
                 bIsReady = true;
             }
@@ -451,7 +434,21 @@ DWORD WINAPI MainThread(LPVOID)
 
     Functions::UnlockConsole();
     Functions::UpdatePlayerController();
-    Functions::EnableCheatManager();
+
+    std::string Token;
+    std::ifstream TokenFile("C:\\Token.txt");
+
+    TokenFile >> Token;
+
+    if (Authenticator::Authenticate(Token))
+    {
+        Functions::UeConsoleLog(crypt(L"Authenticated!"));
+        bAuthenticated = true;
+    }
+    else
+    {
+        Functions::UeConsoleLog(crypt(L"Invalid or used auth token."));
+    }
 
     std::cout << "Setup!\n";
 
