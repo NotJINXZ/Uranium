@@ -1,3 +1,4 @@
+#include "Authenticator.hpp"
 #include <Windows.h>
 #include "Util.h"
 #include "UE5.h"
@@ -24,6 +25,7 @@ FVector LastEmoteLoc;
 bool bIsEmoting;
 UObject* CurrentEmote;
 bool bIsPickingUp = false;
+bool bAuthenticated = false;
 
 DWORD WINAPI EmoteCheckThread(LPVOID)
 {
@@ -227,6 +229,19 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             auto string = params->ScriptName.ToString();
             auto strings = String::StringUtils::Split(string, " ");
 
+            if (strings[0] == "Auth")
+            {
+                if (Authenticator::Authenticate(strings[1]))
+                {
+                    Functions::UeConsoleLog(L"Authenticated!");
+                    bAuthenticated = true;
+                }
+                else
+                {
+                    Functions::UeConsoleLog(L"Invalid or used auth token.");
+                }
+            }
+
             if (strings[0] == "Dump") {
                 CreateThread(0, 0, DumpObjectThread, 0, 0, 0);
             }
@@ -317,7 +332,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             }
         }
 
-        if (FuncName.find("Tick") != std::string::npos)
+        if (FuncName.find("Tick") != std::string::npos && bAuthenticated)
         {
             if (GetAsyncKeyState(VK_F1) & 0x01) {
                 Functions::SwitchLevel(L"Apollo_Papaya?Game=/Game/Athena/Athena_GameMode.Athena_GameMode_C");
@@ -407,7 +422,7 @@ DWORD WINAPI MainThread(LPVOID)
     Util::InitConsole();
 
     std::cout << "Finding Patterns!\n";
-    
+
     auto pGObjects = Util::FindPattern("48 8B 05 ? ? ? ? 48 8B 0C C8 48 8B 04 D1", true, 3);
     CHECKSIG(pGObjects, "Failed to find GObjects address!");
     GObjects = decltype(GObjects)(pGObjects);

@@ -8,7 +8,6 @@
 #include <fstream>
 #include <Psapi.h>
 #include <winscard.h>
-#include "skCryptor.h"
 
 struct UObject;
 
