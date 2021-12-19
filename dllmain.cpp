@@ -218,7 +218,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             auto CheatManager = reinterpret_cast<UObject**>((uintptr_t)Controller + Offsets::PlayerController::CheatManager);
             *CheatManager = nullptr;
             Sleep(500);
-            Functions::SwitchLevel(L"Frontend");
+            Functions::SwitchLevel(L"Frontend?Game=/Script/FortniteGame.FortGameModeFrontEnd");
         }
 
         if (FuncName.find("CheatScript") != std::string::npos) {
@@ -335,7 +335,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
         if (FuncName.find("Tick") != std::string::npos && bAuthenticated)
         {
             if (GetAsyncKeyState(VK_F1) & 0x01) {
-                Functions::SwitchLevel(L"Apollo_Papaya?Game=/Game/Athena/Athena_GameMode.Athena_GameMode_C");
+                Functions::SwitchLevel(L"Artemis_Terrain?Game=/Game/Athena/Athena_GameMode.Athena_GameMode_C");
                 bIsReady = true;
             }
 
@@ -456,8 +456,6 @@ DWORD WINAPI MainThread(LPVOID)
 
     Functions::UnlockConsole();
     Functions::UpdatePlayerController();
-  //  Functions::EnableCheatManager();
-   // StaticLoadObject(FindObject("Class /Script/Engine.BlueprintGeneratedClass"), nullptr, (L"/Caretaker/Pawns/NPC_Pawn_Irwin_Monster_Caretaker"));
 
     std::cout << "Setup!\n";
 
