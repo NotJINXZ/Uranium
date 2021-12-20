@@ -15,8 +15,8 @@ PVOID LocalPawn;
 UObject* QuickBar;
 UObject* FortInventory;
 
-PVOID(*AGarbageInternal)(uint32_t, bool) = nullptr;
-PVOID AGarbInteralHook(uint32_t KeepFlags, bool bPerformFullPurge)
+void* (*AGarbageInternal)(uint32_t, bool);
+void* AGarbInteralHook(uint32_t KeepFlags, bool bPerformFullPurge)
 {
 	printf("[URANIUM] Garbage Collection Failed To Purge \n");
 	return NULL;
