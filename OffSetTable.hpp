@@ -2,30 +2,25 @@
 
 namespace Offsets
 {
-	namespace GameState
-	{
-		inline __int64 CurrentPlaylistInfo = 0x2068;
-	}
+	//If there is an offset that is being used for core gameplay put it here if not just find it
+	//where the function is.
+	//TODO: Move all of the offsets here
+	DWORD InventoryOffset;
+	DWORD ItemGuidOffset;
+	DWORD ItemDefinitionOffset;
+	DWORD PrimQuickBarOffset;
+	DWORD EntriesOffset;
+	DWORD PickupEntryOffset;
+	DWORD EntryCountOffset;
 
-	namespace World
+	static void InitPreDefinedOffsets()
 	{
-		inline __int64 GameState = 0x130;
-		inline __int64 GameMode = 0x128;
-	}
-
-	namespace GameViewportClient
-	{
-		inline __int64 ViewportConsole = 0x40;
-	}
-
-	namespace PlayerController
-	{
-		inline __int64 CheatManager = 0x340;
-		inline __int64 AcknowledgedPawn = 0x2a8;
-	}
-
-	namespace CurrentPlaylistInfo
-	{
-		inline __int64 BasePlaylist = 0x120;
+		InventoryOffset = FindOffset("FortInventory", "Inventory");
+		EntriesOffset = FindOffset("FortItemList", "ReplicatedEntries");
+		ItemGuidOffset = FindOffset("FortItemEntry", "ItemGuid");
+		ItemDefinitionOffset = FindOffset("FortItemEntry", "ItemDefinition");
+		PrimQuickBarOffset = FindOffset("FortQuickBars", "PrimaryQuickBar");
+		PickupEntryOffset = FindOffset("FortPickup", "PrimaryPickupItemEntry");
+		EntryCountOffset = FindOffset("FortItemEntry", "Count");
 	}
 }
