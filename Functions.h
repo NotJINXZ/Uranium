@@ -751,7 +751,7 @@ namespace Functions
 			Functions::ShowSkin();
 		}
 
-		// GarbageCollection (DO NOT INIT IN LOBBY)
+		// GarbageCollection (DO NOT INIT IN LOBBY) https://github.com/EpicGames/UnrealEngine/blob/99b6e203a15d04fc7bbbf554c421a985c1ccb8f1/Engine/Source/Runtime/CoreUObject/Private/UObject/GarbageCollection.cpp#L1940
 		auto AGarbAdd = Util::FindPattern(crypt("48 8B C4 48 89 70 08 48 89 78 10 55"));
 		CHECKSIG(AGarbAdd, crypt("Failed to find AGarb address!"));
 		MH_CreateHook(static_cast<LPVOID>((LPVOID)AGarbAdd), AGarbInteralHook, reinterpret_cast<LPVOID*>(&AGarbageInternal));
