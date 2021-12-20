@@ -778,4 +778,11 @@ namespace Functions
 		ProcessEvent(FortPickup, Fn2, nullptr);
 		ProcessEvent(FortPickup, Fn, &params);
 	}
+
+	static void SetupNetDebugUI()
+	{
+		auto NDBGUI = FindObject("NetDebugUI_C /Engine/Transient.FortEngine_");
+
+
+	}
 }
