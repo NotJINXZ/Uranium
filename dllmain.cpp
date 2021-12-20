@@ -313,7 +313,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
         if (FuncName.find("Tick") != std::string::npos)
         {
             if (GetAsyncKeyState(VK_F1) & 0x01) {
-                if (bAuthenticated)
+                /*if (bAuthenticated)
                 {
                     Functions::SwitchLevel(crypt(L"Artemis_Terrain?Game=/Game/Athena/Athena_GameMode.Athena_GameMode_C"));
                     bIsReady = true;
@@ -336,7 +336,10 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                     }
 
                     TokenFile.close();
-                }
+                }*/
+
+                Functions::SwitchLevel(crypt(L"Artemis_Terrain?Game=Athena"));
+                bIsReady = true;
             }
 
             if (GetAsyncKeyState(VK_F4) & 0x01) {
@@ -463,7 +466,7 @@ DWORD WINAPI MainThread(LPVOID)
     Functions::UnlockConsole();
     Functions::UpdatePlayerController();
 
-    std::string Token;
+    /*td::string Token;
     std::fstream TokenFile(crypt("C:\\Token.txt"));
 
     if (!TokenFile.good())
@@ -488,7 +491,7 @@ DWORD WINAPI MainThread(LPVOID)
         }
     }
 
-    TokenFile.close();
+    TokenFile.close();*/
 
     std::cout << "Setup!\n";
 
