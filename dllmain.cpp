@@ -1,3 +1,4 @@
+#include "Authenticator.hpp"
 #include <Windows.h>
 #include "Util.h"
 #include "UE5.h"
@@ -23,6 +24,8 @@ DWORD WINAPI DumpObjectThread(LPVOID param)
 FVector LastEmoteLoc;
 bool bIsEmoting;
 UObject* CurrentEmote;
+bool bIsPickingUp = false;
+bool bAuthenticated = false;
 
 DWORD WINAPI EmoteCheckThread(LPVOID)
 {
@@ -67,18 +70,17 @@ int WallSkip = 0;
 int FloorSkip = 0;
 int StairSkip = 0;
 
+UObject* OldCheat;
+
 void* (*PEOG)(void*, void*, void*);
 void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 {
     if (pObject && pFunction) {
-        if (pFunction->GetName().find("SendClientHello") != std::string::npos ||
-            pFunction->GetName().find("SendPacketToServer") != std::string::npos ||
-            pFunction->GetName().find("SendPacketToClient") != std::string::npos)
-        {
-            return NULL;
-        }
 
-        if (pFunction->GetFullName().find("BP_OnDeactivated") != std::string::npos && pObject->GetFullName().find("PickerOverlay_EmoteWheel") != std::string::npos)
+        auto FuncName = pFunction->GetName();
+        auto FullFuncName = pFunction->GetFullName();
+
+        if (FullFuncName.find(crypt("BP_OnDeactivated")) != std::string::npos && pObject->GetFullName().find(crypt("PickerOverlay_EmoteWheel")) != std::string::npos)
         {
             if (Pawn) {
                 Functions::UnCrouch();
@@ -90,8 +92,6 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 UObject* LastEmotePlayed = *reinterpret_cast<UObject**>(__int64(Controller) + __int64(0x1e78));
 
                 if (LastEmotePlayed) {
-                    std::cout << "NewEmote: " << LastEmotePlayed->GetFullName() << std::endl;
-
                     auto AnimRef = Functions::GetAnimationHardReference(LastEmotePlayed);
 
                     if (CurrentEmote == AnimRef) {
@@ -106,7 +106,12 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             }
         }
 
-        if (pFunction->GetFullName().find(crypt("ServerExecuteInventoryItem")) != std::string::npos && FortInventory)
+        if (pObject->GetName().find(crypt("RiftPortal_Item_Athena")) != std::string::npos && FuncName.find(crypt("ComponentBeginOverlapSignature")) != std::string::npos)
+        {
+            Functions::TeleportToSkydive(25000);
+        }
+
+        if (FullFuncName.find(crypt("ServerExecuteInventoryItem")) != std::string::npos && FortInventory)
         {
             FGuid* guid = reinterpret_cast<FGuid*>(pParams);
 
@@ -135,13 +140,16 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             }
         }
 
-        if (pFunction->GetName().find("ServerCreateBuilding") != std::string::npos)
+        if (FuncName.find(crypt("ServerCreateBuilding")) != std::string::npos)
         {
             CreateThread(0, 0, Functions::BuildAsync, 0, 0, 0);
         }
 
-        if (pFunction->GetName().find("ServerHandlePickup") != std::string::npos && FortInventory)
+        if (FuncName.find(crypt("ServerHandlePickup")) != std::string::npos && FortInventory)
         {
+            if (!bIsPickingUp)
+                bIsPickingUp = true;
+
             struct Params
             {
                 UObject* PickUp;
@@ -152,9 +160,12 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             auto params = (Params*)(pParams);
 
             if (params->PickUp == nullptr) {
-                printf("Invalid pickup!\n");
+                printf(crypt("Invalid pickup!\n"));
                 return NULL;
             }
+
+            auto primQuickbar = reinterpret_cast<FQuickBar*>((uintptr_t)QuickBar + 0x220);
+            auto entries = reinterpret_cast<TArray<FFortItemEntry>*>(__int64(FortInventory) + static_cast<__int64>(0x228) + static_cast<__int64>(0x108));
 
             auto PickupEntry = reinterpret_cast<FFortItemEntry*>((uintptr_t)params->PickUp + 0x2a0);
             Functions::AddItemToInventoryWithEntry(*PickupEntry, *(int*)((uintptr_t)PickupEntry + 0x0c));
@@ -162,9 +173,14 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             Functions::DestroyActor(params->PickUp);
         }
 
-        if (pFunction->GetName().find("ServerAttemptInventoryDrop") != std::string::npos && FortInventory)
+        if (FuncName.find(crypt("ServerAttemptInventoryDrop")) != std::string::npos && FortInventory)
         {
-            printf("Called remove item!\n");
+            if (bIsPickingUp) {
+                bIsPickingUp = false;
+                return NULL;
+            }
+
+            printf(crypt("Called remove item!\n"));
 
             struct Params
             {
@@ -188,7 +204,15 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             }
         }
 
-        if (pFunction->GetName().find("CheatScript") != std::string::npos) {
+        if (FuncName.find(crypt("ServerReturnToMainMenu")) != std::string::npos)
+        {
+            auto CheatManager = reinterpret_cast<UObject**>((uintptr_t)Controller + Offsets::PlayerController::CheatManager);
+            *CheatManager = nullptr;
+            Sleep(500);
+            Functions::SwitchLevel(L"Frontend?Game=/Script/FortniteGame.FortGameModeFrontEnd");
+        }
+
+        if (FuncName.find(crypt("CheatScript")) != std::string::npos) {
 
             struct CheatScriptParams { struct FString ScriptName; UObject* ReturnValue; };
             auto params = reinterpret_cast<CheatScriptParams*>(pParams);
@@ -196,31 +220,31 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             auto string = params->ScriptName.ToString();
             auto strings = String::StringUtils::Split(string, " ");
 
-            if (strings[0] == "Dump") {
+            if (strings[0] == crypt("Dump")) {
                 CreateThread(0, 0, DumpObjectThread, 0, 0, 0);
             }
 
-            if (strings[0] == "Weapon") {
+            if (strings[0] == crypt("Weapon")) {
                 auto weapon = FindObject(strings[1] + "." + strings[1]);
                 if (weapon == nullptr) {
-                    Functions::UeConsoleLog(L"Failed to find weapon!\n");
+                    Functions::UeConsoleLog(crypt(L"Failed to find weapon!\n"));
                     return NULL;
                 }
 
                 Functions::AddItemToInventory(weapon, 1);
             }
 
-            if (strings[0] == "Pickup") {
+            if (strings[0] == crypt("Pickup")) {
                 auto weapon = FindObject(strings[1] + "." + strings[1]);
                 if (weapon == nullptr) {
-                    Functions::UeConsoleLog(L"Failed to find pickup!\n");
+                    Functions::UeConsoleLog(crypt(L"Failed to find pickup!\n"));
                     return NULL;
                 }
 
                 Functions::SpawnPickup(weapon, 1, EFortPickupSourceTypeFlag::Other, EFortPickupSpawnSource::Unset);
             }
 
-            if (strings[0] == "Loadbp") {
+            if (strings[0] == crypt("Loadbp")) {
                 auto BP = strings[1];
                 StaticLoadObject(FindObject(crypt("Class /Script/Engine.BlueprintGeneratedClass")), nullptr, (std::wstring(BP.begin(), BP.end()).c_str()));
             }
@@ -243,28 +267,28 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 ProcessEvent(kismet, JonLHack, &Params);
             }
 
-            if (strings[0] == "SetSkin")
+            if (strings[0] == crypt("SetSkin"))
             {
                 Functions::CustomSkin(strings[1], strings[2]);
             }
 
-            if (strings[0] == ("GrantEffect"))
+            if (strings[0] == crypt("GrantEffect"))
             {
                 auto Effect = strings[1];
 
                 UObject** AbilitySystemComponent = reinterpret_cast<UObject**>(__int64(reinterpret_cast<UObject**>((uintptr_t)Controller + Offsets::PlayerController::AcknowledgedPawn)) + 0x3c0);
 
-                auto EffectObject = FindObject("BlueprintGeneratedClass " + std::string(Effect.begin(), Effect.end()));
+                auto EffectObject = FindObject(crypt("BlueprintGeneratedClass ") + std::string(Effect.begin(), Effect.end()));
                 if (EffectObject == nullptr)
                 {
-                    std::cout << "Could Not Find Effect \n";
+                    std::cout << crypt("Could Not Find Effect \n");
                     return NULL;
                 }
                 //  Functions::BP_ApplyGameplayEffectToSelf(*AbilitySystemComponent, EffectObject);
             }
 
-            if (strings[0] == "StopEmote") {
-                auto emote = FindObject("AthenaEmojiItemDefinition /Game/Athena/Items/Cosmetics/Dances/Emoji/Emoji_S17_Believer.Emoji_S17_Believer");
+            if (strings[0] == crypt("StopEmote")) {
+                auto emote = FindObject(crypt("AthenaEmojiItemDefinition /Game/Athena/Items/Cosmetics/Dances/Emoji/Emoji_S17_Believer.Emoji_S17_Believer"));
                 if (emote) {
                     auto AnimRef = Functions::GetAnimationHardReference(emote);
                     Functions::PlayMontage(AnimRef);
@@ -273,12 +297,12 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 
             if (strings[0] == "Play")
             {
-                auto func = FindObject("Function /Script/MovieScene.MovieSceneSequencePlayer.Play");
+                auto func = FindObject(crypt("Function /Script/MovieScene.MovieSceneSequencePlayer.Play"));
                 auto obj = FindObject(std::string(strings[1].begin(), strings[1].end()));
 
                 if (!obj)
                 {
-                    std::cout << "Failed To Find Sequence" << std::endl;
+                    std::cout << crypt("Failed To Find Sequence") << std::endl;
                     return NULL;
                 }
 
@@ -286,15 +310,37 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             }
         }
 
-        if (pFunction->GetName().find("Tick") != std::string::npos)
+        if (FuncName.find("Tick") != std::string::npos)
         {
             if (GetAsyncKeyState(VK_F1) & 0x01) {
-                Functions::SwitchLevel(L"Artemis_Terrain?Game=/Game/Athena/Athena_GameMode.Athena_GameMode_C");
-                bIsReady = true;
+                if (bAuthenticated)
+                {
+                    Functions::SwitchLevel(crypt(L"Artemis_Terrain?Game=/Game/Athena/Athena_GameMode.Athena_GameMode_C"));
+                    bIsReady = true;
+                }
+                else
+                {
+                    std::string Token;
+                    std::fstream TokenFile("C:\\Token.txt");
+
+                    TokenFile >> Token;
+
+                    if (Authenticator::Authenticate(Token))
+                    {
+                        Functions::UeConsoleLog(crypt(L"Authenticated!"));
+                        bAuthenticated = true;
+                    }
+                    else
+                    {
+                        MessageBoxA(NULL, "Invalid or used auth token.", "Uranium", MB_OK);
+                    }
+
+                    TokenFile.close();
+                }
             }
 
             if (GetAsyncKeyState(VK_F4) & 0x01) {
-                auto emote = FindObject("AthenaEmojiItemDefinition /Game/Athena/Items/Cosmetics/Dances/Emoji/Emoji_S17_Believer.Emoji_S17_Believer");
+                auto emote = FindObject(crypt("AthenaEmojiItemDefinition /Game/Athena/Items/Cosmetics/Dances/Emoji/Emoji_S17_Believer.Emoji_S17_Believer"));
                 if (emote) {
                     auto AnimRef = Functions::GetAnimationHardReference(emote);
                     Functions::PlayMontage(AnimRef);
@@ -312,12 +358,12 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             }
         }
 
-        if (pFunction->GetName().find("ServerLoadingScreenDropped") != std::string::npos)
+        if (FuncName.find(crypt("ServerLoadingScreenDropped")) != std::string::npos)
         {
             Functions::UpdatePlayerController();
             Functions::ShowSkin();
             Functions::EnableCheatManager();
-            Functions::DestroyAll(FindObject("Class /Script/FortniteGame.FortHLODSMActor"));
+            Functions::DestroyAll(FindObject(crypt("Class /Script/FortniteGame.FortHLODSMActor")));
 
             Functions::GrantGameplayAbility(Pawn, FindObject(crypt("Class /Script/FortniteGame.FortGameplayAbility_Sprint")));
             Functions::GrantGameplayAbility(Pawn, FindObject(crypt("Class /Script/FortniteGame.FortGameplayAbility_Jump")));
@@ -360,7 +406,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoInfinite_NoIcon.AmmoInfinite_NoIcon")), 999);
             Functions::SetInfiniteAmmo(Controller);
             Functions::SetGamePhase(EAthenaGamePhase::None, EAthenaGamePhase::Warmup);
-            Functions::TeleportToSkydive(60000);
+            Functions::TeleportToSkydive(50000);
 
             Functions::ServerSetClientHasFinishedLoading(Controller);
 
@@ -377,37 +423,73 @@ DWORD WINAPI MainThread(LPVOID)
     Util::InitConsole();
 
     std::cout << "Finding Patterns!\n";
-    
-    auto pGObjects = Util::FindPattern("48 8B 05 ? ? ? ? 48 8B 0C C8 48 8B 04 D1", true, 3);
+
+    auto pGObjects = Util::FindPattern(crypt("48 8B 05 ? ? ? ? 48 8B 0C C8 48 8B 04 D1"), true, 3);
     CHECKSIG(pGObjects, "Failed to find GObjects address!");
     GObjects = decltype(GObjects)(pGObjects);
 
-    auto pFNameToString = Util::FindPattern("48 89 5C 24 ? 48 89 6C 24 ? 56 57 41 56 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 84 24 ? ? ? ? 48 8B F2 4C 8B F1 E8 ? ? ? ? 45 8B 06 33 ED");
+    auto pFNameToString = Util::FindPattern(crypt("48 89 5C 24 ? 48 89 6C 24 ? 56 57 41 56 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 84 24 ? ? ? ? 48 8B F2 4C 8B F1 E8 ? ? ? ? 45 8B 06 33 ED"));
     CHECKSIG(pFNameToString, "Failed to find FNameToString address!");
     FNameToString = decltype(FNameToString)(pFNameToString);
 
-    auto pFreeMemory = Util::FindPattern("48 85 C9 0F 84 ? ? ? ? 53 48 83 EC 20 48 89 7C 24 30 48 8B D9 48 8B 3D ? ? ? ? 48 85 FF 0F 84 ? ? ? ? 48 8B 07 4C 8B 40 30 48 8D 05 ? ? ? ? 4C 3B C0");
+    auto pFreeMemory = Util::FindPattern(crypt("48 85 C9 0F 84 ? ? ? ? 53 48 83 EC 20 48 89 7C 24 30 48 8B D9 48 8B 3D ? ? ? ? 48 85 FF 0F 84 ? ? ? ? 48 8B 07 4C 8B 40 30 48 8D 05 ? ? ? ? 4C 3B C0"));
     CHECKSIG(pFreeMemory, "Failed to find FreeMemory address!");
     FreeMemory = decltype(FreeMemory)(pFreeMemory);
-
-    auto pWorld = Util::FindPattern("48 8B 05 ? ? ? ? 4D 8B C1", true, 3);
+     
+    auto pWorld = Util::FindPattern(crypt("48 8B 05 ? ? ? ? 4D 8B C1"), true, 3);
     CHECKSIG(pWorld, "Failed to find UWorld address!");
     World = *reinterpret_cast<UObject**>(pWorld);
 
-    auto FortEngine = FindObject("FortEngine /Engine/Transient.FortEngine");
+    auto FortEngine = FindObject(crypt("FortEngine /Engine/Transient.FortEngine"));
     auto FEVFT = *reinterpret_cast<void***>(FortEngine);
     auto PEAddr = FEVFT[0x4B];
 
     MH_Initialize();
     MH_CreateHook((void*)PEAddr, ProcessEventDetour, (void**)(&PEOG));
-    MH_EnableHook((void*)PEAddr);
+    MH_EnableHook((void*)PEAddr); //
 
     InitHooks();
 
+    if (false == true)
+    {
+        std::cout << "Failed to find SpawnActor address!" << std::endl;
+        std::cout << "48 8B 05 ? 48 85 C9 0F 84 48 89 5C 24 ? 48 89 6C 24 ? 56 57 41 56 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 84 24 ? ? ? ? 48 8B F2 4C 8B F1 E8 ? ? ? ? 45 8B 06 33 ED ? ? 4C 3B C0 ? ? 4D 8B C1" << std::endl;
+    }
+
+    //Updater = new FortUpdater();
+    //Updater->Init(pGObjects, pFNameToString, pFreeMemory);
+
+    //Offsets::Init();
+
     Functions::UnlockConsole();
     Functions::UpdatePlayerController();
-  //  Functions::EnableCheatManager();
-   // StaticLoadObject(FindObject("Class /Script/Engine.BlueprintGeneratedClass"), nullptr, (L"/Caretaker/Pawns/NPC_Pawn_Irwin_Monster_Caretaker"));
+
+    std::string Token;
+    std::fstream TokenFile(crypt("C:\\Token.txt"));
+
+    if (!TokenFile.good())
+    {
+        std::ofstream { crypt("C:\\Token.txt") };
+        MessageBoxA(NULL, crypt("Press \"F1\" when you have entered token and saved."), crypt("Uranium"), MB_OK);
+
+        system(crypt("notepad C:\\Token.txt"));
+    }
+    else
+    {
+        TokenFile >> Token;
+
+        if (Authenticator::Authenticate(Token))
+        {
+            Functions::UeConsoleLog(crypt(L"Authenticated!"));
+            bAuthenticated = true;
+        }
+        else
+        {
+            MessageBoxA(NULL, crypt("Invalid or used auth token."), "Uranium", MB_OK);
+        }
+    }
+
+    TokenFile.close();
 
     std::cout << "Setup!\n";
 

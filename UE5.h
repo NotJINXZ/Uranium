@@ -8,7 +8,6 @@
 #include <fstream>
 #include <Psapi.h>
 #include <winscard.h>
-#include "skCryptor.h"
 
 struct UObject;
 
@@ -576,18 +575,6 @@ static UObject* FindObjectWithSkip(UObject* Class, int Skip = 1)
 	return nullptr;
 }
 
-static DWORD FindOffset(std::string OffsetToFind)
-{
-	auto Object = FindObject(OffsetToFind);
-
-	if (Object)
-	{
-		return *(uint32_t*)(__int64(Object) + 0x4C);
-	}
-
-	return 0;
-}
-
 static UObject* FindObjectStart(std::string name)
 {
 	for (int32_t i = 0; i < GObjects->NumElements; i++)
@@ -710,7 +697,7 @@ struct FQuickBar {
 	int32_t PreviousFocusedSlot; // 0x04(0x04)
 	int32_t SecondaryFocusedSlot; // 0x08(0x04)
 	char pad_C[0x4]; // 0x0c(0x04)
-	struct TArray<struct FQuickBarSlot> Slots; // 0x10(0x10)
+	struct TArray<QuickBarSlot> Slots; // 0x10(0x10)
 	char pad[0x3];
 };
 
