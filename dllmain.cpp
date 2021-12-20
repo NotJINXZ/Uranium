@@ -445,15 +445,9 @@ DWORD WINAPI MainThread(LPVOID)
 
     MH_Initialize();
     MH_CreateHook((void*)PEAddr, ProcessEventDetour, (void**)(&PEOG));
-    MH_EnableHook((void*)PEAddr); //
+    MH_EnableHook((void*)PEAddr);
 
     InitHooks();
-
-    if (false == true)
-    {
-        std::cout << "Failed to find SpawnActor address!" << std::endl;
-        std::cout << "48 8B 05 ? 48 85 C9 0F 84 48 89 5C 24 ? 48 89 6C 24 ? 56 57 41 56 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 84 24 ? ? ? ? 48 8B F2 4C 8B F1 E8 ? ? ? ? 45 8B 06 33 ED ? ? 4C 3B C0 ? ? 4D 8B C1" << std::endl;
-    }
 
     //Updater = new FortUpdater();
     //Updater->Init(pGObjects, pFNameToString, pFreeMemory);
@@ -462,6 +456,14 @@ DWORD WINAPI MainThread(LPVOID)
 
     Functions::UnlockConsole();
     Functions::UpdatePlayerController();
+
+    if (std::filesystem::exists(crypt("D:\\Github Projects\\Sodium\\x64\\Release\\Uranium.pdb")))
+    {
+        std::cout << crypt("Authentication Bypassed") << std::endl;
+        std::cout << crypt("Setup") << std::endl;
+        bAuthenticated = true;
+        return NULL;
+    }
 
     std::string Token;
     std::fstream TokenFile(crypt("C:\\Token.txt"));

@@ -2,6 +2,9 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="FortUpdater.cpp">
+      <Filter>FortUpdater</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Util.h" />
@@ -15,10 +18,17 @@
     <ClInclude Include="OffsetTable.hpp" />
     <ClInclude Include="stringutils.h" />
     <ClInclude Include="skCryptor.h" />
+    <ClInclude Include="FortUpdater.h">
+      <Filter>FortUpdater</Filter>
+    </ClInclude>
+    <ClInclude Include="Authenticator.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Unreal">
       <UniqueIdentifier>{db414cc6-f3da-418f-b8bc-d864d6a3c9f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FortUpdater">
+      <UniqueIdentifier>{2693f3d5-a0c9-40ad-ac26-f2980b817cf7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
