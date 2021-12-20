@@ -353,6 +353,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             if (GetAsyncKeyState(VK_F5) & 0x01 && bIsReady) {
                 //CreateThread(0, 0, DumpObjectThread, 0, 0, 0);
                 Functions::InitMatch();
+
             }
 
             if (GetAsyncKeyState(VK_F3) & 0x01) {

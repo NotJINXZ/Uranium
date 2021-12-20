@@ -57,6 +57,7 @@ void* __fastcall ExitBypassHook(__int64 a1)
     return NULL;
 }
 
+
 void* __fastcall CrashHook(__int64 a1, __int64 a2)
 {
     return NULL;
@@ -83,7 +84,6 @@ void RequestExitWithStatusHook(bool Force, uint8_t ReturnCode)
         Functions::InitMatch();
     }
 }
-
 static void InitHooks()
 {
     auto NotificationHookAddress = Util::FindPattern(crypt("4C 8B DC 55 49 8D AB ? ? ? ? 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 85 ? ? ? ? 49 89 5B 20"));
@@ -91,6 +91,7 @@ static void InitHooks()
     auto Spawnactoraddress = Util::FindPattern(crypt("48 8B C4 55 53 56 57 41 54 41 55 41 56 41 57 48 8D A8 ? ? ? ? 48 81 EC ? ? ? ? 0F 29 70 A8 0F 29 78 98 44 0F 29 40 ? 44 0F 29 88 ? ? ? ? 44 0F 29 90 ? ? ? ? 44 0F 29 98 ? ? ? ? 44 0F 29 A0 ? ? ? ? 44 0F 29 A8 ? ? ? ? 44 0F 29 B0 ? ? ? ? 44 0F 29 B8 ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 45 60 45 33 ED 48 89 4D 90 44 89 6D 80 48 8D 05 ? ? ? ? 44 38 2D ? ? ? ? 4C 8B F2 48 8B D9 48 8D 15 ? ? ? ? 49 0F 45 C5 48 8D 4D B8 48 89 45 B0 49 8B F1 4D 8B E0 E8 ? ? ? ? 4C 8B 7B 30 4C 89 7C 24 ? 4D 85 F6 0F 84 ? ? ? ? 41 8B 86 ? ? ? ? 0F BA E0 19 0F 82 ? ? ? ? A8 01 0F 85 ? ? ? ? E8 ? ? ? ? 48 8B D0 49 8B CE E8 ? ? ? ? 84 C0 0F 84 ? ? ? ? 48 8B 46 08 48 8D 3D ? ? ? ? 48 85 C0 74 0A"));
     RequestExitWithStatusAddress = Util::FindPattern(crypt("\x48\x8B\xC4\x48\x89\x58\x18\x88\x50\x10\x88\x48\x08\x57\x48\x83\xEC\x30"), crypt("xxxxxxxxxxxxxxxxxx"));
     CHECKSIG(NotificationHookAddress, crypt("Failed to find Notification address!"));
+    CHECKSIG(Spawnactoraddress, crypt("Failed to find Notification address!"));
     CHECKSIG(FNCrashHookAddress, crypt("Failed to find FNCrash address!"));
     CHECKSIG(RequestExitWithStatusAddress, crypt("Failed to find RequestExitWithStatus address"));
 
