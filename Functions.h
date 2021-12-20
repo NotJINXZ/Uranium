@@ -34,21 +34,7 @@ namespace Functions
 	inline UObject* (*SpawnActorLong)(UObject* UWorld, UObject* Class, FTransform const* UserTransformPtr,
 		const FActorSpawnParameters& SpawnParameters);
 
-	UObject* ControllerFinder() {
-		auto dWorld = Util::FindPattern(crypt("48 8B 05 ? ? ? ? 4D 8B C1"), true, 3);
-		CHECKSIG(dWorld, "Failed to find UWorld address!");
-		auto Worldd = *reinterpret_cast<UObject**>(dWorld);
-		auto GInstance = ReadPointer(Worldd, 0x190);
-
-		auto Players = ReadPointer(GInstance, 0x038);
-
-		auto Player = ReadPointer(Players, 0x0);
-
-		auto PlayerController = ReadPointer(Player, 0x30);
-		return reinterpret_cast<UObject*>(PlayerController);
-	}
-
-	UObject* PawnFinder() {LocalPawn = ReadPointer(ControllerFinder(), 0x2A8); return reinterpret_cast<UObject*>(LocalPawn); }
+	UObject* PawnFinder() {LocalPawn = ReadPointer((uintptr_t)Controller, __int64(FindOffset("Controller", "Pawn"))); return reinterpret_cast<UObject*>(LocalPawn); }
 
 	static FVector GetActorLocation(UObject* Actor)
 	{
@@ -71,29 +57,13 @@ namespace Functions
 		{
 			UObject* PlayerState;
 		};
-		auto PlayerState = ReadPointer(Functions::PawnFinder(), 0x238);
+		auto PlayerState = ReadPointer(Functions::PawnFinder(), __int64(FindOffset("Pawn", "PlayerState")));
 		auto KismetLib = FindObject(crypt("FortKismetLibrary /Script/FortniteGame.Default__FortKismetLibrary"));
 		static auto fn = FindObject(crypt("Function /Script/FortniteGame.FortKismetLibrary.UpdatePlayerCustomCharacterPartsVisualization"));
 
 		UFortKismetLibrary_UpdatePlayerCustomCharacterPartsVisualization_Params params;
 		params.PlayerState = (UObject*)PlayerState;
 		ProcessEvent(KismetLib, fn, &params);
-	}
-
-	static void EmptySlot(UObject* Target, int Slot)
-	{
-		static UObject* EmptySlot = FindObject(crypt("Function /Script/FortniteGame.FortQuickBars.EmptySlot"));
-
-		struct
-		{
-			EFortQuickBars QuickbarIndex;
-			int Slot;
-		} params;
-
-		params.QuickbarIndex = EFortQuickBars::Primary;
-		params.Slot = Slot;
-
-		ProcessEvent(Target, EmptySlot, &params);
 	}
 
 	static UObject* SpawnActorFromLong(UObject* Class, FTransform trans)
@@ -108,44 +78,19 @@ namespace Functions
 	static UObject* UpdatePlayerController()
 	{
 		auto FortEngine = FindObject(crypt("FortEngine /Engine/Transient.FortEngine"));
-		auto GameInstance = *reinterpret_cast<UObject**>((uintptr_t)FortEngine + 0xd78);
-		auto LocalPlayers = *reinterpret_cast<TArray<UObject*>*>((uintptr_t)GameInstance + 0x38);
+		auto GameInstance = *reinterpret_cast<UObject**>((uintptr_t)FortEngine + __int64(FindOffset("GameEngine", "GameInstance")));
+		auto LocalPlayers = *reinterpret_cast<TArray<UObject*>*>((uintptr_t)GameInstance + __int64(FindOffset("GameInstance", "LocalPlayers")));
 		auto LocalPlayer = LocalPlayers[0];
-		auto PlayerController = *reinterpret_cast<UObject**>((uintptr_t)LocalPlayer + 0x30);
+		auto PlayerController = *reinterpret_cast<UObject**>((uintptr_t)LocalPlayer + __int64(FindOffset("Player", "PlayerController")));
 		Controller = PlayerController;
 		return PlayerController;
 	}
 
-	void EquipWeapon(std::string Weapon) {
-		auto WeaponToEquip = FindObject(Weapon);
-
-		struct
-		{
-			UObject* WeaponData;
-			FGuid ItemEntryGuid;
-			UObject* ReturnValue;
-		} EquipWeaponDefinitionParams;
-
-		EquipWeaponDefinitionParams.WeaponData = WeaponToEquip;
-		FGuid NewGUID;
-		NewGUID.A = rand() % 1000;
-		NewGUID.B = rand() % 1000;
-		NewGUID.C = rand() % 1000;
-		NewGUID.D = rand() % 1000;
-		EquipWeaponDefinitionParams.ItemEntryGuid = NewGUID;
-
-		auto EquiptWeaponFunc = FindObject(crypt("Function /Script/FortniteGame.FortPawn.EquipWeaponDefinition"));
-
-		ProcessEvent((UObject*)PawnFinder(), EquiptWeaponFunc, &EquipWeaponDefinitionParams);
-
-	}
-
 	static void CustomSkin(std::string DefaultHeadPart ,std::string DefaultBodyPart)
 	{
-		//Hero + CharacterParts 0x238
-		auto PlayerState = *reinterpret_cast<UObject**>((uintptr_t)PawnFinder() + 0x238);
+		auto PlayerState = *reinterpret_cast<UObject**>((uintptr_t)PawnFinder() + __int64(FindOffset("Pawn", "PlayerState")));
 		auto Hero = FindObject(crypt("FortHero /Engine/Transient.FortHero"));
-		auto CharacterParts = reinterpret_cast<TArray<UObject*>*>((uintptr_t)Hero + 0x238);
+		auto CharacterParts = reinterpret_cast<TArray<UObject*>*>((uintptr_t)Hero + __int64(FindOffset("FortHero", "CharacterParts")));
 
 		auto Head = FindObject(DefaultBodyPart);
 		auto Body = FindObject(DefaultBodyPart);
@@ -178,20 +123,8 @@ namespace Functions
 
 	static void SetInfiniteAmmo(UObject* InController)
 	{
-		RBitField* BitField = reinterpret_cast<RBitField*>(__int64(InController) + 0x218c);
+		RBitField* BitField = reinterpret_cast<RBitField*>(__int64(InController) + __int64(FindOffset("FortPlayerController", "bInfiniteAmmo")));
 		BitField->C = 1;
-	}
-
-	static UObject* GetGameState()
-	{
-		auto GameState = *reinterpret_cast<UObject**>((uintptr_t)World + Offsets::World::GameState);
-		return GameState;
-	}
-
-	static UObject* GetGameMode()
-	{
-		auto GameMode = *reinterpret_cast<UObject**>((uintptr_t)World + Offsets::World::GameMode);
-		return GameMode;
 	}
 
 	static UObject* SpawnActor(UObject* ClassToSpawn, FVector loc, FRotator rot)
@@ -208,13 +141,6 @@ namespace Functions
 		SpawnTrans.Rotation = SpawnQuat;
 
 		return SpawnActorFromLong(ClassToSpawn, SpawnTrans);
-	}
-
-	static void SpawnPlayer()
-	{
-		auto PawnClass = FindObject(crypt("BlueprintGeneratedClass /Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C"));
-		auto PawnSpawned = SpawnActor(PawnClass, FVector(0, 0, 0), FRotator(0,0,0));
-		Pawn = PawnSpawned;
 	}
 
 	static void StartFireWorks() {
@@ -265,12 +191,12 @@ namespace Functions
 	{
 		auto fn = FindObject(crypt("Function /Script/Engine.GameplayStatics.SpawnObject"));
 		auto statics = FindObject(crypt("GameplayStatics /Script/Engine.Default__GameplayStatics"));
-		auto CheatManager = reinterpret_cast<UObject**>((uintptr_t)ControllerFinder() + Offsets::PlayerController::CheatManager);
+		auto CheatManager = reinterpret_cast<UObject**>(__int64(Controller) + __int64(FindOffset("PlayerController", "CheatManager")));
 		auto CheatManagerClass = FindObject(crypt("/Script/Engine.CheatManager"));
 
 		SpawnObjectParams params;
 		params.ObjectClass = CheatManagerClass;
-		params.Outer = (UObject*)ControllerFinder();
+		params.Outer = Controller;
 
 		ProcessEvent(statics, fn, &params);
 
@@ -298,18 +224,18 @@ namespace Functions
 
 	static void GrantGameplayAbility(UObject* TargetPawn, UObject* GameplayAbilityClass)
 	{
-		UObject** AbilitySystemComponent = reinterpret_cast<UObject**>(__int64(TargetPawn) + 0xD48);
+		UObject** AbilitySystemComponent = reinterpret_cast<UObject**>(__int64(TargetPawn) + __int64(FindOffset("FortPawn", "AbilitySystemComponent")));
 		static UObject* DefaultGameplayEffect = FindObject(crypt("GE_Athena_PurpleStuff_C /Game/Athena/Items/Consumables/PurpleStuff/GE_Athena_PurpleStuff.Default__GE_Athena_PurpleStuff_C"));
 		if (!DefaultGameplayEffect)
 		{
 			DefaultGameplayEffect = FindObject(crypt("GE_Athena_PurpleStuff_Health_C /Game/Athena/Items/Consumables/PurpleStuff/GE_Athena_PurpleStuff_Health.Default__GE_Athena_PurpleStuff_Health_C"));
 		}
 
-		TArray<struct FGameplayAbilitySpecDef>* GrantedAbilities = reinterpret_cast<TArray<struct FGameplayAbilitySpecDef>*>(__int64(DefaultGameplayEffect) + 0x7F0);
+		TArray<struct FGameplayAbilitySpecDef>* GrantedAbilities = reinterpret_cast<TArray<struct FGameplayAbilitySpecDef>*>(__int64(DefaultGameplayEffect) + __int64(FindOffset("GameplayEffect", "GrantedAbilities")));
 
 		GrantedAbilities->operator[](0).Ability = GameplayAbilityClass;
 
-		*reinterpret_cast<EGameplayEffectDurationType*>(__int64(DefaultGameplayEffect) + 0x30) = EGameplayEffectDurationType::Infinite;
+		*reinterpret_cast<EGameplayEffectDurationType*>(__int64(DefaultGameplayEffect) + __int64(FindOffset("GameplayEffect", "DurationPolicy"))) = EGameplayEffectDurationType::Infinite;
 
 		static auto GameplayEffectClass = FindObject(crypt("BlueprintGeneratedClass /Game/Athena/Items/Consumables/PurpleStuff/GE_Athena_PurpleStuff.GE_Athena_PurpleStuff_C"));
 		if (!GameplayEffectClass)
@@ -364,7 +290,7 @@ namespace Functions
 	static void SetPlaylist(UObject* Playlist)
 	{
 		auto Gamestate = FindAthenaGameState();
-		auto BasePlaylist = reinterpret_cast<UObject**>((uintptr_t)Gamestate + 0x2068 + 0x120);
+		auto BasePlaylist = reinterpret_cast<UObject**>((uintptr_t)Gamestate + __int64(FindOffset("FortGameStateAthena", "CurrentPlaylistInfo")) + __int64(FindOffset("PlaylistPropertyArray", "BasePlaylist")));
 		*BasePlaylist = Playlist;
 
 		auto fn = FindObject(crypt("Function /Script/FortniteGame.FortGameStateAthena.OnRep_CurrentPlaylistInfo"));
@@ -380,12 +306,12 @@ namespace Functions
 	static void Summon(FString ClassToSummon)
 	{
 		auto fn = FindObject(crypt("Function /Script/Engine.CheatManager.Summon"));
-		ProcessEvent((UObject*)ReadPointer(ControllerFinder(), 0x340), fn, &ClassToSummon);
+		ProcessEvent((UObject*)ReadPointer((uintptr_t)Controller, __int64(FindOffset("PlayerController", "CheatManager"))), fn, &ClassToSummon);
 	}
 
 	static void SetGamePhase(EAthenaGamePhase NewPhase, EAthenaGamePhase OldPhase)
 	{
-		EAthenaGamePhase* CurrentGamePhase = reinterpret_cast<EAthenaGamePhase*>(__int64(FindAthenaGameState()) + 0x2048);
+		EAthenaGamePhase* CurrentGamePhase = reinterpret_cast<EAthenaGamePhase*>(__int64(FindAthenaGameState()) + __int64(FindOffset("FortGameStateAthena", "GamePhase")));
 		*CurrentGamePhase = NewPhase;
 
 		static UObject* OnRep_GamePhase = FindObject(crypt("Function /Script/FortniteGame.FortGameStateAthena.OnRep_GamePhase"));
@@ -394,16 +320,16 @@ namespace Functions
 
 	static UObject* GetPickaxeDef()
 	{
-		auto CosmeticLoadoutPC = reinterpret_cast<FFortAthenaLoadout*>((uintptr_t)Controller + 0x1be8);
+		auto CosmeticLoadoutPC = reinterpret_cast<FFortAthenaLoadout*>((uintptr_t)Controller + __int64(FindOffset("FortPlayerController", "CosmeticLoadoutPC")));
 		auto Pickaxe = CosmeticLoadoutPC->Pickaxe;
-		auto PickaxeDef = *reinterpret_cast<UObject**>((uintptr_t)Pickaxe + 0x708);
+		auto PickaxeDef = *reinterpret_cast<UObject**>((uintptr_t)Pickaxe + __int64(FindOffset("AthenaPickaxeItemDefinition", "WeaponDefinition")));
 		return PickaxeDef;
 	}
 
 	static UObject* GetAnimInstance()
 	{
-		auto Pawn = *reinterpret_cast<UObject**>((uintptr_t)Controller + 0x2a8);
-		auto Mesh = *reinterpret_cast<UObject**>((uintptr_t)Pawn + 0x280);
+		auto Pawn = *reinterpret_cast<UObject**>((uintptr_t)Controller + __int64(FindOffset("Controller", "Pawn")));
+		auto Mesh = *reinterpret_cast<UObject**>((uintptr_t)Pawn + __int64(FindOffset("Character", "Mesh")));
 		static auto GetAnimInstanceFN = FindObject(crypt("Function /Script/Engine.SkeletalMeshComponent.GetAnimInstance"));
 
 		struct GetAnimInstanceParams
@@ -541,7 +467,7 @@ namespace Functions
 			SetOwningControllerForTemporaryItem(TemporaryItemInstance, Controller);
 		}
 
-		int* CurrentCount = reinterpret_cast<int*>(__int64(TemporaryItemInstance) + static_cast<__int64>(0xE0) + static_cast<__int64>(0xC));
+		int* CurrentCount = reinterpret_cast<int*>(__int64(TemporaryItemInstance) + static_cast<__int64>(FindOffset("FortWorldItem", "ItemEntry")) + static_cast<__int64>(FindOffset("FortItemEntry", "Count")));
 		*CurrentCount = Count;
 
 		return TemporaryItemInstance;
@@ -549,7 +475,7 @@ namespace Functions
 
 	static void OnRep_QuickbarEquippedItems()
 	{
-		auto PlayerState = *reinterpret_cast<UObject**>((uintptr_t)Pawn + 0x238);
+		auto PlayerState = *reinterpret_cast<UObject**>((uintptr_t)Pawn + __int64(FindOffset("Pawn", "PlayerState")));
 		auto Fn = FindObject(crypt("Function /Script/FortniteGame.FortPlayerStateZone.OnRep_QuickbarEquippedItems"));
 		ProcessEvent(PlayerState, Fn, nullptr);
 	}
@@ -579,8 +505,8 @@ namespace Functions
 
 			if (ItemInstance)
 			{
-				auto ItemEntry = reinterpret_cast<FFortItemEntry*>(reinterpret_cast<uintptr_t>(ItemInstance) + 0xE0);
-				reinterpret_cast<TArray<FFortItemEntry>*>(__int64(FortInventory) + static_cast<__int64>(0x228) + static_cast<__int64>(0x108))->Add(*ItemEntry);
+				auto ItemEntry = reinterpret_cast<FFortItemEntry*>(reinterpret_cast<uintptr_t>(ItemInstance) + __int64(FindOffset("FortWorldItem", "ItemEntry")));
+				reinterpret_cast<TArray<FFortItemEntry>*>(__int64(FortInventory) + static_cast<__int64>(__int64(FindOffset("FortInventory", "Inventory"))) + static_cast<__int64>(FindOffset("FortItemList", "ReplicatedEntries")))->Add(*ItemEntry);
 
 				//return reinterpret_cast<FGuid*>((uintptr_t)ItemEntry + 0x68);
 				//reinterpret_cast<TArray<UObject*>*>(__int64(Globals::FortInventory) + static_cast<__int64>(0x230) + static_cast<__int64>(0x168))->Add(ItemInstance);
@@ -597,16 +523,10 @@ namespace Functions
 
 	static void AddItemToInventoryWithEntry(FFortItemEntry Entry, int Count)
 	{
-		reinterpret_cast<TArray<FFortItemEntry>*>(__int64(FortInventory) + static_cast<__int64>(0x228) + static_cast<__int64>(0x108))->Add(Entry);
+		reinterpret_cast<TArray<FFortItemEntry>*>(__int64(FortInventory) + static_cast<__int64>(__int64(FindOffset("FortInventory", "Inventory"))) + static_cast<__int64>(FindOffset("FortItemList", "ReplicatedEntries")))->Add(Entry);
 
 		UpdateInventory();
 		OnRep_QuickbarEquippedItems();
-	}
-
-	static void StartPlay()
-	{
-		static auto fn = FindObject(crypt("Function /Script/Engine.GameModeBase.StartPlay"));
-		ProcessEvent(GetGameMode(), fn, nullptr);
 	}
 
 	static void SetOwner(UObject* TargetActor, UObject* NewOwner)
@@ -618,7 +538,7 @@ namespace Functions
 	static void SetGodMode()
 	{
 		auto fn = FindObject("Function /Script/Engine.CheatManager.God");
-		ProcessEvent(*reinterpret_cast<UObject**>(__int64(Controller) + __int64(0x340)), fn, nullptr);
+		ProcessEvent(*reinterpret_cast<UObject**>(__int64(Controller) + __int64(FindOffset("PlayerController", "CheatManager"))), fn, nullptr);
 	}
 
 	static void UeConsoleLog(FString message)
@@ -642,7 +562,7 @@ namespace Functions
 
 	static UObject* GetCharacterMovementComponent()
 	{
-		return *reinterpret_cast<UObject**>((uintptr_t)Pawn + 0x288);
+		return *reinterpret_cast<UObject**>((uintptr_t)Pawn + __int64(FindOffset("Character", "CharacterMovement")));
 	}
 
 	static bool IsFalling()
@@ -683,9 +603,9 @@ namespace Functions
 
 	static unsigned long __stdcall BuildAsync(void*)
 	{
-		auto CurrentBuildableClass = *reinterpret_cast<UObject**>((uintptr_t)Controller + 0x1638);
-		auto LastBuildPreviewGridSnapLoc = *reinterpret_cast<FVector*>((uintptr_t)Controller + 0x174c);
-		auto LastBuildPreviewGridSnapRot = *reinterpret_cast<FRotator*>((uintptr_t)Controller + 0x1758);
+		auto CurrentBuildableClass = *reinterpret_cast<UObject**>((uintptr_t)Controller + __int64(FindOffset("FortPlayerController", "CurrentBuildableClass")));
+		auto LastBuildPreviewGridSnapLoc = *reinterpret_cast<FVector*>((uintptr_t)Controller + __int64(FindOffset("FortPlayerController", "LastBuildPreviewGridSnapLoc")));
+		auto LastBuildPreviewGridSnapRot = *reinterpret_cast<FRotator*>((uintptr_t)Controller + __int64(FindOffset("FortPlayerController", "LastBuildPreviewGridSnapRot")));
 
 		auto Build = Functions::SpawnActor(CurrentBuildableClass, LastBuildPreviewGridSnapLoc, LastBuildPreviewGridSnapRot);
 		Functions::InitializeBuildingActor(Build);
@@ -759,9 +679,9 @@ namespace Functions
 
 		auto FortPickup = FindObjectWithSkip(FindObject("Class /Script/FortniteGame.FortPickupAthena"));*/
 
-		auto entry = reinterpret_cast<FFortItemEntry*>((uintptr_t)FortPickup + 0x2a0);
-		*reinterpret_cast<UObject**>((uintptr_t)entry + 0x18) = ItemDef;
-		*reinterpret_cast<int*>((uintptr_t)entry + 0x0c) = Count;
+		auto entry = reinterpret_cast<FFortItemEntry*>((uintptr_t)FortPickup + __int64(FindOffset("FortPickup", "PrimaryPickupItemEntry")));
+		*reinterpret_cast<UObject**>((uintptr_t)entry + __int64(FindOffset("FortItemEntry", "ItemDefinition"))) = ItemDef;
+		*reinterpret_cast<int*>((uintptr_t)entry + __int64(FindOffset("FortItemEntry", "Count"))) = Count;
 
 		auto Fn = FindObject(crypt("Function /Script/FortniteGame.FortPickup.TossPickup"));
 		auto Fn2 = FindObject(crypt("Function /Script/FortniteGame.FortPickup.OnRep_PrimaryPickupItemEntry"));
