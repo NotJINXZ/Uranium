@@ -18,7 +18,7 @@ UObject* FortInventory;
 PVOID(*AGarbageInternal)(uint32_t, bool) = nullptr;
 PVOID AGarbInteralHook(uint32_t KeepFlags, bool bPerformFullPurge)
 {
-	printf("[SODIUM] Garbage Collection Failed To Purge \n");
+	printf("[URANIUM] Garbage Collection Failed To Purge \n");
 	return NULL;
 }
 
