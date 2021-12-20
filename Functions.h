@@ -3,6 +3,9 @@
 #include "UE5.h"
 #include "OffSetTable.hpp"
 #include "skCryptor.h"
+#include "minhook/MinHook.h"
+
+#pragma comment(lib, "minhook/minhook.lib")
 
 UObject* Controller;
 UObject* World;
@@ -11,6 +14,13 @@ UObject* GameState;
 PVOID LocalPawn;
 UObject* QuickBar;
 UObject* FortInventory;
+
+PVOID(*AGarbageInternal)(uint32_t, bool) = nullptr;
+PVOID AGarbInteralHook(uint32_t KeepFlags, bool bPerformFullPurge)
+{
+	printf("[SODIUM] Garbage Collection Failed To Purge \n");
+	return NULL;
+}
 
 static bool IsMatchingGuid(FGuid A, FGuid B)
 {
@@ -759,6 +769,12 @@ namespace Functions
 			Functions::SetGodMode();
 			Functions::ShowSkin();
 		}
+
+		// GarbageCollection (DO NOT INIT IN LOBBY)
+		auto AGarbAdd = Util::FindPattern(crypt("48 8B C4 48 89 70 08 48 89 78 10 55"));
+		CHECKSIG(AGarbAdd, crypt("Failed to find AGarb address!"));
+		MH_CreateHook(static_cast<LPVOID>((LPVOID)AGarbAdd), AGarbInteralHook, reinterpret_cast<LPVOID*>(&AGarbageInternal));
+		MH_EnableHook(static_cast<LPVOID>((LPVOID)AGarbAdd));
 	}
 
 	static void SpawnPickup(UObject* ItemDef, int Count, EFortPickupSourceTypeFlag InPickupSourceTypeFlags, EFortPickupSpawnSource InPickupSpawnSource)
