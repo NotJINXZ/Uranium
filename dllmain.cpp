@@ -89,7 +89,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                     return NULL;
                 }
 
-                UObject* LastEmotePlayed = *reinterpret_cast<UObject**>(__int64(Controller) + __int64(0x1e78));
+                UObject* LastEmotePlayed = *reinterpret_cast<UObject**>(__int64(Controller) + __int64(Offsets::LastEmotePlayedOffset));
 
                 if (LastEmotePlayed) {
                     auto AnimRef = Functions::GetAnimationHardReference(LastEmotePlayed);
@@ -115,12 +115,12 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
         {
             FGuid* guid = reinterpret_cast<FGuid*>(pParams);
 
-            auto entries = reinterpret_cast<TArray<FFortItemEntry>*>(__int64(FortInventory) + 0x228 + 0x108);
+            auto entries = reinterpret_cast<TArray<FFortItemEntry>*>(__int64(FortInventory) + __int64(Offsets::InventoryOffset) + __int64(Offsets::EntriesOffset));
 
             for (int i = 0; i < entries->Num(); i++)
             {
                 auto entry = entries->operator[](i);
-                auto entryGuid = reinterpret_cast<FGuid*>((uintptr_t)&entry + 0x68);
+                auto entryGuid = reinterpret_cast<FGuid*>((uintptr_t)&entry + __int64(Offsets::ItemGuidOffset));
 
                 if (IsMatchingGuid(*entryGuid, *guid))
                 {
@@ -131,7 +131,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                         UObject* ReturnValue;
                     } EquipWeaponDefinitionParams;
 
-                    EquipWeaponDefinitionParams.WeaponData = *reinterpret_cast<UObject**>((uintptr_t)&entry + 0x18);
+                    EquipWeaponDefinitionParams.WeaponData = *reinterpret_cast<UObject**>((uintptr_t)&entry + __int64(Offsets::ItemDefinitionOffset));
                     EquipWeaponDefinitionParams.ItemEntryGuid = *guid;
 
                     auto EquiptWeaponFunc = FindObject(crypt("Function /Script/FortniteGame.FortPawn.EquipWeaponDefinition"));
@@ -164,11 +164,11 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 return NULL;
             }
 
-            auto primQuickbar = reinterpret_cast<FQuickBar*>((uintptr_t)QuickBar + 0x220);
-            auto entries = reinterpret_cast<TArray<FFortItemEntry>*>(__int64(FortInventory) + static_cast<__int64>(0x228) + static_cast<__int64>(0x108));
+            auto primQuickbar = reinterpret_cast<FQuickBar*>((uintptr_t)QuickBar + __int64(Offsets::PrimQuickBarOffset));
+            auto entries = reinterpret_cast<TArray<FFortItemEntry>*>(__int64(FortInventory) + static_cast<__int64>(Offsets::InventoryOffset) + static_cast<__int64>(Offsets::EntriesOffset));
 
-            auto PickupEntry = reinterpret_cast<FFortItemEntry*>((uintptr_t)params->PickUp + 0x2a0);
-            Functions::AddItemToInventoryWithEntry(*PickupEntry, *(int*)((uintptr_t)PickupEntry + 0x0c));
+            auto PickupEntry = reinterpret_cast<FFortItemEntry*>((uintptr_t)params->PickUp + __int64(Offsets::PickupEntryOffset));
+            Functions::AddItemToInventoryWithEntry(*PickupEntry, *(int*)((uintptr_t)PickupEntry + __int64(Offsets::EntryCountOffset)));
 
             Functions::DestroyActor(params->PickUp);
         }
@@ -190,13 +190,13 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             };
             auto params = (Params*)(pParams);
 
-            auto entries = reinterpret_cast<TArray<FFortItemEntry>*>(__int64(FortInventory) + static_cast<__int64>(0x228) + static_cast<__int64>(0x108));
+            auto entries = reinterpret_cast<TArray<FFortItemEntry>*>(__int64(FortInventory) + static_cast<__int64>(Offsets::InventoryOffset) + static_cast<__int64>(Offsets::EntriesOffset));
 
             for (int i = 0; i < entries->Num(); i++)
             {
                 auto entry = entries->operator[](i);
-                auto entryGuid = reinterpret_cast<FGuid*>((uintptr_t)&entry + 0x68);
-                auto entryItemDef = *reinterpret_cast<UObject**>((uintptr_t)&entry + 0x18);
+                auto entryGuid = reinterpret_cast<FGuid*>((uintptr_t)&entry + __int64(Offsets::ItemGuidOffset));
+                auto entryItemDef = *reinterpret_cast<UObject**>((uintptr_t)&entry + __int64(Offsets::ItemDefinitionOffset));
 
                 if (IsMatchingGuid(params->ItemGuid, *entryGuid)) {
                     Functions::SpawnPickup(entryItemDef, params->Count, EFortPickupSourceTypeFlag::Tossed, EFortPickupSpawnSource::TossedByPlayer);
@@ -206,7 +206,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 
         if (FuncName.find(crypt("ServerReturnToMainMenu")) != std::string::npos)
         {
-            auto CheatManager = reinterpret_cast<UObject**>((uintptr_t)Controller + Offsets::PlayerController::CheatManager);
+            auto CheatManager = reinterpret_cast<UObject**>((uintptr_t)Controller + __int64(FindOffset("PlayerController", "CheatManager")));
             *CheatManager = nullptr;
             Sleep(500);
             Functions::SwitchLevel(L"Frontend?Game=/Script/FortniteGame.FortGameModeFrontEnd");
@@ -270,21 +270,6 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             if (strings[0] == crypt("SetSkin"))
             {
                 Functions::CustomSkin(strings[1], strings[2]);
-            }
-
-            if (strings[0] == crypt("GrantEffect"))
-            {
-                auto Effect = strings[1];
-
-                UObject** AbilitySystemComponent = reinterpret_cast<UObject**>(__int64(reinterpret_cast<UObject**>((uintptr_t)Controller + Offsets::PlayerController::AcknowledgedPawn)) + 0x3c0);
-
-                auto EffectObject = FindObject(crypt("BlueprintGeneratedClass ") + std::string(Effect.begin(), Effect.end()));
-                if (EffectObject == nullptr)
-                {
-                    std::cout << crypt("Could Not Find Effect \n");
-                    return NULL;
-                }
-                //  Functions::BP_ApplyGameplayEffectToSelf(*AbilitySystemComponent, EffectObject);
             }
 
             if (strings[0] == crypt("StopEmote")) {
@@ -379,14 +364,8 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             Functions::GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Athena/Items/EnvironmentalItems/HidingProps/GA_Athena_HidingProp_Hide.GA_Athena_HidingProp_Hide_C")));
             Functions::GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Abilities/Player/Generic/Traits/DefaultPlayer/GA_DefaultPlayer_InteractUse.GA_DefaultPlayer_InteractUse_C")));
 
-            //auto Controller = *reinterpret_cast<UObject**>((uintptr_t)Functions::ControllerFinder());
-            FortInventory = reinterpret_cast<InventoryPointer*>((uintptr_t)Controller + 0x1ab0)->Inventory;
-            QuickBar = reinterpret_cast<QuickBarPointer*>((uintptr_t)Controller + 0x17f8)->QuickBar;
-
-            //std::cout << "FortInventory: " << FortInventory->GetFullName() << std::endl;
-            //std::cout << "QuickBar: " << QuickBar << std::endl;
-
-            //Functions::SetOwner(Controller, QuickBar);
+            FortInventory = reinterpret_cast<InventoryPointer*>((uintptr_t)Controller + __int64(FindOffset("FortPlayerController", "WorldInventory")))->Inventory;
+            QuickBar = reinterpret_cast<QuickBarPointer*>((uintptr_t)Controller + __int64(FindOffset("FortPlayerController", "ClientQuickBars")))->QuickBar;
 
             Functions::AddItemToInventory(Functions::GetPickaxeDef(), 1, true, EFortQuickBars::Primary, 0);
             Functions::AddItemToInventory(FindObject(crypt("FortBuildingItemDefinition /Game/Items/Weapons/BuildingTools/BuildingItemData_Wall.BuildingItemData_Wall")), 1);
@@ -405,11 +384,11 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoInfinite_NoIcon.AmmoInfinite_NoIcon")), 999);
             Functions::SetInfiniteAmmo(Controller);
             Functions::SetGamePhase(EAthenaGamePhase::None, EAthenaGamePhase::Warmup);
-            Functions::TeleportToSkydive(50000);
+            Functions::TeleportToSkydive(70000);
 
             Functions::ServerSetClientHasFinishedLoading(Controller);
 
-            auto bHasServerFinishedLoading = reinterpret_cast<bool*>(reinterpret_cast<uintptr_t>(Controller) + 0x959);
+            auto bHasServerFinishedLoading = reinterpret_cast<bool*>(reinterpret_cast<uintptr_t>(Controller) + __int64(FindOffset("FortPlayerController", "bHasServerFinishedLoading")));
             *bHasServerFinishedLoading = true;
         }
     }
@@ -423,19 +402,30 @@ DWORD WINAPI MainThread(LPVOID)
 
     std::cout << "Finding Patterns!\n";
 
+    //17 - 19
     auto pGObjects = Util::FindPattern(crypt("48 8B 05 ? ? ? ? 48 8B 0C C8 48 8B 04 D1"), true, 3);
     CHECKSIG(pGObjects, "Failed to find GObjects address!");
     GObjects = decltype(GObjects)(pGObjects);
 
+    //19
     auto pFNameToString = Util::FindPattern(crypt("48 89 5C 24 ? 48 89 6C 24 ? 56 57 41 56 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 84 24 ? ? ? ? 48 8B F2 4C 8B F1 E8 ? ? ? ? 45 8B 06 33 ED"));
+    if (!pFNameToString) {
+        //17 - 18
+        pFNameToString = Util::FindPattern(crypt("48 89 5C 24 ? 48 89 74 24 ? 55 57 41 56 48 8D AC 24 ? ? ? ? 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 85 ? ? ? ? 45 33 F6 48 8B F2 44 39 71 04 0F 85 ? ? ? ? 8B 19 0F B7 FB E8 ? ? ? ? 8B CB 48 8D 54 24"));
+    }
     CHECKSIG(pFNameToString, "Failed to find FNameToString address!");
     FNameToString = decltype(FNameToString)(pFNameToString);
 
+    //17 - 19
     auto pFreeMemory = Util::FindPattern(crypt("48 85 C9 0F 84 ? ? ? ? 53 48 83 EC 20 48 89 7C 24 30 48 8B D9 48 8B 3D ? ? ? ? 48 85 FF 0F 84 ? ? ? ? 48 8B 07 4C 8B 40 30 48 8D 05 ? ? ? ? 4C 3B C0"));
     CHECKSIG(pFreeMemory, "Failed to find FreeMemory address!");
     FreeMemory = decltype(FreeMemory)(pFreeMemory);
-     
+    
+    //19
     auto pWorld = Util::FindPattern(crypt("48 8B 05 ? ? ? ? 4D 8B C1"), true, 3);
+    if (!pWorld) {
+        pWorld = Util::FindPattern(crypt("48 8B 05 ? ? ? ? 4D 8B C2"));
+    }
     CHECKSIG(pWorld, "Failed to find UWorld address!");
     World = *reinterpret_cast<UObject**>(pWorld);
 
@@ -449,15 +439,10 @@ DWORD WINAPI MainThread(LPVOID)
 
     InitHooks();
 
-    //Updater = new FortUpdater();
-    //Updater->Init(pGObjects, pFNameToString, pFreeMemory);
-
-    //Offsets::Init();
-
     Functions::UnlockConsole();
     Functions::UpdatePlayerController();
 
-    if (std::filesystem::exists(crypt("D:\\Github Projects\\Sodium\\x64\\Release\\Uranium.pdb")))
+    if (std::filesystem::exists(crypt("D:\\Github Projects\\Sodium\\x64\\Release\\Uranium.pdb")) || std::filesystem::exists(crypt("D:\\Sodium\\x64\\Release\\Uranium.pdb")))
     {
         std::cout << crypt("Authentication Bypassed") << std::endl;
         std::cout << crypt("Setup") << std::endl;

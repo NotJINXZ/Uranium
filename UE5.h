@@ -753,6 +753,8 @@ struct UClass : UStruct
 {
 };
 
+FString* (*GetEngineVersion)(void*);
+
 static void DumpObjects()
 {
 	std::ofstream log(crypt("Dump.txt"));
