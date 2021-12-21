@@ -431,7 +431,8 @@ DWORD WINAPI MainThread(LPVOID)
     //19
     auto pWorld = Util::FindPattern(crypt("48 8B 05 ? ? ? ? 4D 8B C1"), true, 3);
     if (!pWorld) {
-        pWorld = Util::FindPattern(crypt("48 8B 05 ? ? ? ? 4D 8B C2"));
+        //17 - 18
+        pWorld = Util::FindPattern(crypt("48 8B 05 ? ? ? ? 4D 8B C2"), true, 3);
     }
     CHECKSIG(pWorld, "Failed to find UWorld address!");
     World = reinterpret_cast<UObject**>(pWorld);
