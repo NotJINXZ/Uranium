@@ -874,7 +874,6 @@ static DWORD FindOffset(std::string ClassName, std::string VarName)
 	{
 		std::cout << "[Offset Finder]: Found Class: " << ObjectClass->GetFullName() << std::endl;
 
-		UObject* propertyObject = nullptr;
 		FField* next = ObjectClass->ChildProperties->Next;
 
 		if (next == nullptr)

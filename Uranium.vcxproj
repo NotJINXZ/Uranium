@@ -88,11 +88,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="FortUpdater.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Authenticator.hpp" />
-    <ClInclude Include="FortUpdater.h" />
     <ClInclude Include="Functions.h" />
     <ClInclude Include="GUI.h" />
     <ClInclude Include="Hooks.h" />
