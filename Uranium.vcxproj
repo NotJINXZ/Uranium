@@ -94,6 +94,7 @@
     <ClInclude Include="Authenticator.hpp" />
     <ClInclude Include="FortUpdater.h" />
     <ClInclude Include="Functions.h" />
+    <ClInclude Include="GUI.h" />
     <ClInclude Include="Hooks.h" />
     <ClInclude Include="OffsetTable.hpp" />
     <ClInclude Include="skCryptor.h" />

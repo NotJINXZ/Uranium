@@ -22,6 +22,9 @@
       <Filter>FortUpdater</Filter>
     </ClInclude>
     <ClInclude Include="Authenticator.hpp" />
+    <ClInclude Include="GUI.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Unreal">
@@ -29,6 +32,12 @@
     </Filter>
     <Filter Include="FortUpdater">
       <UniqueIdentifier>{2693f3d5-a0c9-40ad-ac26-f2980b817cf7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI">
+      <UniqueIdentifier>{ba275f3b-71d1-45b7-b9f5-4d870c6bbadf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\ImGui">
+      <UniqueIdentifier>{d1e7f784-8425-443d-a730-8de538b461dd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
