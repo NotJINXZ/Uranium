@@ -76,6 +76,19 @@ public:
 	T* Data;
 	INT32 Count;
 	INT32 Max;
+
+	inline void Remove(T InData)
+	{
+		TArray<T> NewArray;
+		for (int i = 0; i < this->Count; i++)
+		{
+			if (this->operator[](i) != InData)
+			{
+				NewArray.Add(this->operator[](i));
+			}
+		}
+		this = NewArray;
+	}
 };
 
 
