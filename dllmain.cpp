@@ -200,6 +200,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 
                 if (IsMatchingGuid(params->ItemGuid, *entryGuid)) {
                     Functions::SpawnPickup(entryItemDef, params->Count, EFortPickupSourceTypeFlag::Tossed, EFortPickupSpawnSource::TossedByPlayer);
+                    Functions::OnRep_QuickbarEquippedItems();
                 }
             }
         }
@@ -300,7 +301,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             if (GetAsyncKeyState(VK_F1) & 0x01) {
                 if (bAuthenticated)
                 {
-                    Functions::SwitchLevel(crypt(L"Artemis_Terrain?Game=/Game/Athena/Athena_GameMode.Athena_GameMode_C"));
+                    Functions::SwitchLevel(crypt(L"Apollo_Papaya?Game=/Game/Athena/Athena_GameMode.Athena_GameMode_C"));
                     bIsReady = true;
                 }
                 else
@@ -339,6 +340,10 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 
             if (GetAsyncKeyState(VK_F3) & 0x01) {
                 Functions::TeleportToSkydive(50000);
+            }
+
+            if (GetAsyncKeyState(VK_F9) & 0x01) {
+                Functions::EmptyQuickBarSlot(EFortQuickBars::Primary, 1);
             }
         }
 
@@ -384,12 +389,14 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoInfinite_NoIcon.AmmoInfinite_NoIcon")), 999);
             Functions::SetInfiniteAmmo(Controller);
             Functions::SetGamePhase(EAthenaGamePhase::None, EAthenaGamePhase::Warmup);
-            Functions::TeleportToSkydive(70000);
+            Functions::TeleportToSkydive(60000);
 
             Functions::ServerSetClientHasFinishedLoading(Controller);
 
             auto bHasServerFinishedLoading = reinterpret_cast<bool*>(reinterpret_cast<uintptr_t>(Controller) + __int64(FindOffset("FortPlayerController", "bHasServerFinishedLoading")));
             *bHasServerFinishedLoading = true;
+
+            Offsets::InitPreDefinedOffsets();
         }
     }
 
@@ -427,7 +434,7 @@ DWORD WINAPI MainThread(LPVOID)
         pWorld = Util::FindPattern(crypt("48 8B 05 ? ? ? ? 4D 8B C2"));
     }
     CHECKSIG(pWorld, "Failed to find UWorld address!");
-    World = *reinterpret_cast<UObject**>(pWorld);
+    World = reinterpret_cast<UObject**>(pWorld);
 
     auto FortEngine = FindObject(crypt("FortEngine /Engine/Transient.FortEngine"));
     auto FEVFT = *reinterpret_cast<void***>(FortEngine);

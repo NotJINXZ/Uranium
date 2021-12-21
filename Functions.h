@@ -8,7 +8,7 @@
 #pragma comment(lib, "minhook/minhook.lib")
 
 UObject* Controller;
-UObject* World;
+UObject** World;
 UObject* Pawn;
 UObject* GameState;
 PVOID LocalPawn;
@@ -108,7 +108,7 @@ namespace Functions
 			bool bSuccess;
 		} params;
 
-		params.WorldContextObject = World;
+		params.WorldContextObject = (*World);
 		params.CharacterParts = *CharacterParts;
 		params.PlayerState = PlayerState;
 
@@ -709,10 +709,23 @@ namespace Functions
 		ProcessEvent(FortPickup, Fn, &params);
 	}
 
-	static void SetupNetDebugUI()
+	static void EmptyQuickBarSlot(EFortQuickBars QuickBarType, int32_t SlotIndex)
 	{
-		auto NDBGUI = FindObject("NetDebugUI_C /Engine/Transient.FortEngine_");
+		auto fn = FindObject("Function /Script/FortniteGame.FortKismetLibrary.EmptyQuickBarSlot");
+		auto kismet = FindObject("FortKismetLibrary /Script/FortniteGame.Default__FortKismetLibrary");
 
+		struct
+		{
+			UObject* WorldContextObject;
+			EFortQuickBars QuickBarType;
+			int32_t SlotIndex;
+			bool ReturnValue;
+		}params;
 
+		params.WorldContextObject = (*World);
+		params.QuickBarType = QuickBarType;
+		params.SlotIndex = SlotIndex;
+		
+		ProcessEvent(kismet, fn, &params);
 	}
 }
