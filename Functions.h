@@ -480,21 +480,11 @@ namespace Functions
 		ProcessEvent(PlayerState, Fn, nullptr);
 	}
 
-	static void AddItemToQuickBars(UObject* ItemDef, EFortQuickBars QuickBarType, int32_t slot)
+	static void OnRep_AccumulatedItems()
 	{
-		struct Params
-		{
-			UObject* ItemDefinition;
-			EFortQuickBars QuickBarType;
-			int32_t Slot;
-		};
-		Params params;
-		params.ItemDefinition = ItemDef;
-		params.QuickBarType = QuickBarType;
-		params.Slot = slot;
-
-		auto fn = FindObject(crypt("Function /Script/FortniteGame.FortPlayerController.AddItemToQuickBars"));
-		ProcessEvent(Controller, fn, &params);
+		auto PlayerState = *reinterpret_cast<UObject**>((uintptr_t)Pawn + __int64(FindOffset("Pawn", "PlayerState")));
+		auto Fn = FindObject(crypt("Function /Script/FortniteGame.FortPlayerStateZone.OnRep_AccumulatedItems"));
+		ProcessEvent(PlayerState, Fn, nullptr);
 	}
 
 	static void AddItemToInventory(UObject* ItemDef, int Count, bool bAddToQuickBars = false, EFortQuickBars QuickBarType = EFortQuickBars::Max_None, int32_t slot = 0)

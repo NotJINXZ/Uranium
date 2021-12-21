@@ -344,6 +344,9 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 
             if (GetAsyncKeyState(VK_F9) & 0x01) {
                 Functions::EmptyQuickBarSlot(EFortQuickBars::Primary, 1);
+                Functions::OnRep_QuickbarEquippedItems();
+                Functions::OnRep_AccumulatedItems();
+                Functions::UpdateInventory();
             }
         }
 
