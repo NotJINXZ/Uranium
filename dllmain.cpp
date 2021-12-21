@@ -199,8 +199,11 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 auto entryItemDef = *reinterpret_cast<UObject**>((uintptr_t)&entry + __int64(Offsets::ItemDefinitionOffset));
 
                 if (IsMatchingGuid(params->ItemGuid, *entryGuid)) {
+                    entries->Remove(i);
                     Functions::SpawnPickup(entryItemDef, params->Count, EFortPickupSourceTypeFlag::Tossed, EFortPickupSpawnSource::TossedByPlayer);
                     Functions::OnRep_QuickbarEquippedItems();
+                    Functions::OnRep_AccumulatedItems();
+                    Functions::UpdateInventory();
                 }
             }
         }
@@ -341,13 +344,6 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             if (GetAsyncKeyState(VK_F3) & 0x01) {
                 Functions::TeleportToSkydive(50000);
             }
-
-            if (GetAsyncKeyState(VK_F9) & 0x01) {
-                Functions::EmptyQuickBarSlot(EFortQuickBars::Primary, 1);
-                Functions::OnRep_QuickbarEquippedItems();
-                Functions::OnRep_AccumulatedItems();
-                Functions::UpdateInventory();
-            }
         }
 
         if (FuncName.find(crypt("ServerLoadingScreenDropped")) != std::string::npos)
@@ -453,13 +449,13 @@ DWORD WINAPI MainThread(LPVOID)
     Functions::UnlockConsole();
     Functions::UpdatePlayerController();
 
-    if (std::filesystem::exists(crypt("D:\\Github Projects\\Sodium\\x64\\Release\\Uranium.pdb")) || std::filesystem::exists(crypt("D:\\Sodium\\x64\\Release\\Uranium.pdb")))
-    {
+    /*if (std::filesystem::exists(crypt("D:\\Github Projects\\Sodium\\x64\\Release\\Uranium.pdb")) || std::filesystem::exists(crypt("D:\\Sodium\\x64\\Release\\Uranium.pdb")))
+    {*/
         std::cout << crypt("Authentication Bypassed") << std::endl;
         std::cout << crypt("Setup") << std::endl;
         bAuthenticated = true;
         return NULL;
-    }
+    /*}*/
 
     std::string Token;
     std::fstream TokenFile(crypt("C:\\Token.txt"));

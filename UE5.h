@@ -58,6 +58,21 @@ public:
 		Max = Count;
 	};
 
+	inline void Remove(int32_t Index)
+	{
+		TArray<T> NewArray;
+		for (int i = 0; i < this->Count; i++)
+		{
+			if (i == Index)
+				continue;
+
+			NewArray.Add(this->operator[](i));
+		}
+		this->Data = (T*)realloc(NewArray.Data, sizeof(T) * (NewArray.Count));
+		this->Count = NewArray.Count;
+		this->Max = NewArray.Count;
+	}
+
 	T* Data;
 	INT32 Count;
 	INT32 Max;
