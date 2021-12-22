@@ -197,10 +197,17 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 auto entry = entries->operator[](i);
                 auto entryGuid = reinterpret_cast<FGuid*>((uintptr_t)&entry + __int64(Offsets::ItemGuidOffset));
                 auto entryItemDef = *reinterpret_cast<UObject**>((uintptr_t)&entry + __int64(Offsets::ItemDefinitionOffset));
+                auto entryCount = *reinterpret_cast<int*>((uintptr_t)&entry + 0xC);
 
                 if (IsMatchingGuid(params->ItemGuid, *entryGuid)) {
                     entries->Remove(i);
                     Functions::SpawnPickup(entryItemDef, params->Count, EFortPickupSourceTypeFlag::Tossed, EFortPickupSpawnSource::TossedByPlayer);
+
+                    if (params->Count != entryCount)
+                    {
+                        Functions::AddItemToInventory(entryItemDef, entryCount - params->Count);
+                    }
+
                     Functions::OnRep_QuickbarEquippedItems();
                     Functions::OnRep_AccumulatedItems();
                     Functions::UpdateInventory();
