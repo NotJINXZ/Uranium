@@ -25,7 +25,6 @@ FVector LastEmoteLoc;
 bool bIsEmoting;
 UObject* CurrentEmote;
 bool bIsPickingUp = false;
-bool bAuthenticated = false;
 
 DWORD WINAPI EmoteCheckThread(LPVOID)
 {
@@ -230,12 +229,13 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             auto fstring = params->ScriptName;
             auto string = params->ScriptName.ToString();
             auto strings = String::StringUtils::Split(string, " ");
+            strings[0] = String::StringUtils::ToLower(strings[0]);
 
-            if (strings[0] == crypt("Dump")) {
+            if (strings[0] == crypt("dump")) {
                 CreateThread(0, 0, DumpObjectThread, 0, 0, 0);
             }
 
-            if (strings[0] == crypt("Weapon")) {
+            if (strings[0] == crypt("weapon")) {
                 auto weapon = FindObject(strings[1] + "." + strings[1]);
                 if (weapon == nullptr) {
                     Functions::UeConsoleLog(crypt(L"Failed to find weapon!\n"));
@@ -245,7 +245,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 Functions::AddItemToInventory(weapon, 1);
             }
 
-            if (strings[0] == crypt("Pickup")) {
+            if (strings[0] == crypt("pickup")) {
                 auto weapon = FindObject(strings[1] + "." + strings[1]);
                 if (weapon == nullptr) {
                     Functions::UeConsoleLog(crypt(L"Failed to find pickup!\n"));
@@ -255,12 +255,12 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 Functions::SpawnPickup(weapon, 1, EFortPickupSourceTypeFlag::Other, EFortPickupSpawnSource::Unset);
             }
 
-            if (strings[0] == crypt("Loadbp")) {
+            if (strings[0] == crypt("loadbp")) {
                 auto BP = strings[1];
                 StaticLoadObject(FindObject(crypt("Class /Script/Engine.BlueprintGeneratedClass")), nullptr, (std::wstring(BP.begin(), BP.end()).c_str()));
             }
 
-            if (strings[0] == crypt("Jonl")) {
+            if (strings[0] == crypt("jonl")) {
 
                 struct JonLHack_GetAllObjectsOfClassFromPathParams
                 {
@@ -278,12 +278,12 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 ProcessEvent(kismet, JonLHack, &Params);
             }
 
-            if (strings[0] == crypt("SetSkin"))
+            if (strings[0] == crypt("setskin"))
             {
                 Functions::CustomSkin(strings[1], strings[2]);
             }
 
-            if (strings[0] == crypt("StopEmote")) {
+            if (strings[0] == crypt("stopemote")) {
                 auto emote = FindObject(crypt("AthenaEmojiItemDefinition /Game/Athena/Items/Cosmetics/Dances/Emoji/Emoji_S17_Believer.Emoji_S17_Believer"));
                 if (emote) {
                     auto AnimRef = Functions::GetAnimationHardReference(emote);
@@ -291,7 +291,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 }
             }
 
-            if (strings[0] == "Play")
+            if (strings[0] == "play")
             {
                 auto func = FindObject(crypt("Function /Script/MovieScene.MovieSceneSequencePlayer.Play"));
                 auto obj = FindObject(std::string(strings[1].begin(), strings[1].end()));
@@ -309,30 +309,8 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
         if (FuncName.find("Tick") != std::string::npos)
         {
             if (GetAsyncKeyState(VK_F1) & 0x01) {
-                if (bAuthenticated)
-                {
-                    Functions::SwitchLevel(crypt(L"Apollo_Papaya?Game=/Game/Athena/Athena_GameMode.Athena_GameMode_C"));
-                    bIsReady = true;
-                }
-                else
-                {
-                    std::string Token;
-                    std::fstream TokenFile("C:\\Token.txt");
-
-                    TokenFile >> Token;
-
-                    if (Authenticator::Authenticate(Token))
-                    {
-                        Functions::UeConsoleLog(crypt(L"Authenticated!"));
-                        bAuthenticated = true;
-                    }
-                    else
-                    {
-                        MessageBoxA(NULL, "Invalid or used auth token.", "Uranium", MB_OK);
-                    }
-
-                    TokenFile.close();
-                }
+                Functions::SwitchLevel(crypt(L"Artemis_Terrain?game=/Game/Athena/Athena_GameMode.Athena_GameMode_C"));
+                bIsReady = true;
             }
 
             if (GetAsyncKeyState(VK_F4) & 0x01) {
@@ -455,41 +433,6 @@ DWORD WINAPI MainThread(LPVOID)
 
     Functions::UnlockConsole();
     Functions::UpdatePlayerController();
-
-    /*if (std::filesystem::exists(crypt("D:\\Github Projects\\Sodium\\x64\\Release\\Uranium.pdb")) || std::filesystem::exists(crypt("D:\\Sodium\\x64\\Release\\Uranium.pdb")))
-    {*/
-        std::cout << crypt("Authentication Bypassed") << std::endl;
-        std::cout << crypt("Setup") << std::endl;
-        bAuthenticated = true;
-        return NULL;
-    /*}*/
-
-    std::string Token;
-    std::fstream TokenFile(crypt("C:\\Token.txt"));
-
-    if (!TokenFile.good())
-    {
-        std::ofstream { crypt("C:\\Token.txt") };
-        MessageBoxA(NULL, crypt("Press \"F1\" when you have entered token and saved."), crypt("Uranium"), MB_OK);
-
-        system(crypt("notepad C:\\Token.txt"));
-    }
-    else
-    {
-        TokenFile >> Token;
-
-        if (Authenticator::Authenticate(Token))
-        {
-            Functions::UeConsoleLog(crypt(L"Authenticated!"));
-            bAuthenticated = true;
-        }
-        else
-        {
-            MessageBoxA(NULL, crypt("Invalid or used auth token."), "Uranium", MB_OK);
-        }
-    }
-
-    TokenFile.close();
 
     std::cout << "Setup!\n";
 
