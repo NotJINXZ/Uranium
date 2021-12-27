@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <iostream>
+#include <alghorithm
 
 namespace String
 {
@@ -22,6 +22,14 @@ namespace String
 
             res.push_back(s.substr(pos_start));
             return res;
+        }
+        
+        static std::string ToLower(std::string str)
+        {
+            std::for_each(str.begin(), str.end(), [](char& c) {
+                c = ::tolower(c);
+                });
+            return str;
         }
     };
 }
