@@ -15,7 +15,6 @@
     <ClInclude Include="OffsetTable.hpp" />
     <ClInclude Include="stringutils.h" />
     <ClInclude Include="skCryptor.h" />
-    <ClInclude Include="Authenticator.hpp" />
     <ClInclude Include="GUI.h">
       <Filter>GUI</Filter>
     </ClInclude>
@@ -30,8 +29,5 @@
     <Filter Include="GUI\ImGui">
       <UniqueIdentifier>{d1e7f784-8425-443d-a730-8de538b461dd}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
 </Project>

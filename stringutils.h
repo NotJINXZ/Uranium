@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <alghorithm
+#include <algorithm>
 
 namespace String
 {

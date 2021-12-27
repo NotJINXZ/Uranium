@@ -1,4 +1,3 @@
-#include "Authenticator.hpp"
 #include <Windows.h>
 #include "Util.h"
 #include "UE5.h"
@@ -25,50 +24,6 @@ FVector LastEmoteLoc;
 bool bIsEmoting;
 UObject* CurrentEmote;
 bool bIsPickingUp = false;
-
-DWORD WINAPI EmoteCheckThread(LPVOID)
-{
-    while (Pawn)
-    {
-        auto PawnLoc = Functions::GetActorLocation(Pawn);
-        float Xdif = PawnLoc.X - LastEmoteLoc.X;
-        float Ydif = PawnLoc.Y - LastEmoteLoc.Y;
-
-        if (Xdif > 75 || Xdif < -75 || Ydif > 75 || Ydif < -75)
-        {
-            bIsEmoting = false;
-            CurrentEmote = nullptr;
-            
-            auto emote = FindObject("AthenaEmojiItemDefinition /Game/Athena/Items/Cosmetics/Dances/Emoji/Emoji_S17_Believer.Emoji_S17_Believer");
-            if (emote) {
-                auto AnimRef = Functions::GetAnimationHardReference(emote);
-                Functions::PlayMontage(AnimRef);
-            }
-        }
-
-        /*if (Functions::IsFalling())
-        {
-            bIsEmoting = false;
-            CurrentEmote = nullptr;
-
-            auto emote = FindObject("AthenaEmojiItemDefinition /Game/Athena/Items/Cosmetics/Dances/Emoji/Emoji_S17_Believer.Emoji_S17_Believer");
-            if (emote) {
-                auto AnimRef = Functions::GetAnimationHardReference(emote);
-                Functions::PlayMontage(AnimRef);
-            }
-        }*/
-
-        Sleep(1000 / 60);
-    }
-
-    return 0;
-}
-
-int ConeSkip = 0;
-int WallSkip = 0;
-int FloorSkip = 0;
-int StairSkip = 0;
-
 UObject* OldCheat;
 
 void* (*PEOG)(void*, void*, void*);

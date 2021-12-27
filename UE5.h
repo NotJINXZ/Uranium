@@ -8,9 +8,11 @@
 #include <fstream>
 #include <Psapi.h>
 #include <winscard.h>
+#include "skCryptor.h"
+#include <vector>
+#include "Util.h"
 
 struct UObject;
-
 
 static UObject* StaticLoadObject(UObject* Class, UObject* InOuter, const TCHAR* Name, const TCHAR* FileName = nullptr, uint32_t LoadFlags = 0, void* Sandbox = nullptr, bool bAllowObjectReconciliation = false, void* InstancingContext = nullptr)
 {
@@ -900,7 +902,7 @@ static DWORD FindOffset(std::string ClassName, std::string VarName)
 
 	if (ObjectClass != nullptr)
 	{
-		std::cout << "[Offset Finder]: Found Class: " << ObjectClass->GetFullName() << std::endl;
+		//std::cout << "[Offset Finder]: Found Class: " << ObjectClass->GetFullName() << std::endl;
 
 		FField* next = ObjectClass->ChildProperties->Next;
 
@@ -911,7 +913,7 @@ static DWORD FindOffset(std::string ClassName, std::string VarName)
 
 		if (fPropertyName == VarName)
 		{
-			std::cout << "[Offset Finder]: Found Offset: " << *(DWORD*)(__int64(ObjectClass->ChildProperties) + 0x4C) << " At: " << VarName << std::endl;
+			//std::cout << "[Offset Finder]: Found Offset: " << *(DWORD*)(__int64(ObjectClass->ChildProperties) + 0x4C) << " At: " << VarName << std::endl;
 			return *(DWORD*)(__int64(ObjectClass->ChildProperties) + 0x4C);
 		}
 
@@ -920,7 +922,7 @@ static DWORD FindOffset(std::string ClassName, std::string VarName)
 			auto nextName = next->GetName();
 
 			if (nextName == VarName) {
-				std::cout << "[Offset Finder]: Found Offset: " << *(DWORD*)(__int64(next) + 0x4C) << " At: " << VarName << std::endl;
+				//std::cout << "[Offset Finder]: Found Offset: " << *(DWORD*)(__int64(next) + 0x4C) << " At: " << VarName << std::endl;
 				return *(DWORD*)(__int64(next) + 0x4C);
 			} else {
 				next = next->Next;
