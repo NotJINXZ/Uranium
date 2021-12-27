@@ -215,24 +215,6 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 StaticLoadObject(FindObject(crypt("Class /Script/Engine.BlueprintGeneratedClass")), nullptr, (std::wstring(BP.begin(), BP.end()).c_str()));
             }
 
-            if (strings[0] == crypt("jonl")) {
-
-                struct JonLHack_GetAllObjectsOfClassFromPathParams
-                {
-                    struct FString Path;
-                    class UClass* Class;
-                    TArray<class UObject*> ReturnValue;
-                };
-                auto JonLHack = FindObject(crypt("Function /Script/FortniteGame.FortKismetLibrary.JonLHack_GetAllObjectsOfClassFromPath"));
-                auto path = strings[1]; // folder path
-                auto classPath = strings[2]; // class path
-                auto kismet = FindObject(crypt("FortKismetLibrary /Script/FortniteGame.Default__FortKismetLibrary")); // find kismet
-                UClass* classInstance = reinterpret_cast<UClass*>(FindObject(std::string(classPath.begin(), classPath.end()))); // find the class from clasPath parameter
-
-                JonLHack_GetAllObjectsOfClassFromPathParams Params{ std::wstring(path.begin(), path.end()).c_str(), classInstance }; // set up parameters
-                ProcessEvent(kismet, JonLHack, &Params);
-            }
-
             if (strings[0] == crypt("setskin"))
             {
                 Functions::CustomSkin(strings[1], strings[2]);

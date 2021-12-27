@@ -34,8 +34,6 @@ namespace Functions
 	inline UObject* (*SpawnActorLong)(UObject* UWorld, UObject* Class, FTransform const* UserTransformPtr,
 		const FActorSpawnParameters& SpawnParameters);
 
-	UObject* PawnFinder() {LocalPawn = ReadPointer((uintptr_t)Controller, __int64(FindOffset("Controller", "Pawn"))); return reinterpret_cast<UObject*>(LocalPawn); }
-
 	static FVector GetActorLocation(UObject* Actor)
 	{
 		static auto fn = FindObject(crypt("Function /Script/Engine.Actor.K2_GetActorLocation"));
@@ -57,12 +55,12 @@ namespace Functions
 		{
 			UObject* PlayerState;
 		};
-		auto PlayerState = ReadPointer(Functions::PawnFinder(), __int64(FindOffset("Pawn", "PlayerState")));
+		auto PlayerState = *reinterpret_cast<UObject**>(__int64(Pawn) + __int64(FindOffset("Pawn", "PlayerState")));
 		auto KismetLib = FindObject(crypt("FortKismetLibrary /Script/FortniteGame.Default__FortKismetLibrary"));
 		static auto fn = FindObject(crypt("Function /Script/FortniteGame.FortKismetLibrary.UpdatePlayerCustomCharacterPartsVisualization"));
 
 		UFortKismetLibrary_UpdatePlayerCustomCharacterPartsVisualization_Params params;
-		params.PlayerState = (UObject*)PlayerState;
+		params.PlayerState = PlayerState;
 		ProcessEvent(KismetLib, fn, &params);
 	}
 
@@ -86,9 +84,9 @@ namespace Functions
 		return PlayerController;
 	}
 
-	static void CustomSkin(std::string DefaultHeadPart ,std::string DefaultBodyPart)
+	static void CustomSkin(std::string DefaultHeadPart, std::string DefaultBodyPart)
 	{
-		auto PlayerState = *reinterpret_cast<UObject**>((uintptr_t)PawnFinder() + __int64(FindOffset("Pawn", "PlayerState")));
+		auto PlayerState = *reinterpret_cast<UObject**>((uintptr_t)Pawn + __int64(FindOffset("Pawn", "PlayerState")));
 		auto Hero = FindObject(crypt("FortHero /Engine/Transient.FortHero"));
 		auto CharacterParts = reinterpret_cast<TArray<UObject*>*>((uintptr_t)Hero + __int64(FindOffset("FortHero", "CharacterParts")));
 
@@ -147,7 +145,7 @@ namespace Functions
 		auto fn = FindObject(crypt("Function /NewYears/Blueprints/BP_NewYearTimer.BP_NewYearTimer_C.ReceiveBeginPlay"));
 		auto Class = FindObject(crypt("BlueprintGeneratedClass /NewYears/Levels/Artemis_NYE_Celebration.Artemis_NYE_Celebration_C"));
 
-		ProcessEvent(Class,fn,nullptr);
+		ProcessEvent(Class, fn, nullptr);
 	}
 
 	static void ServerReadyToStartMatch()
@@ -170,11 +168,11 @@ namespace Functions
 		auto ConsoleClass = FindObject(crypt("/Script/Engine.Console"));
 		auto ViewportConsole = reinterpret_cast<UObject**>((uintptr_t)FortGameViewportClient + 0x40);
 
-	//	std::cout << "FortGameViewportClient: " << FortGameViewportClient << std::endl;
-	//	std::cout << "SpawnObject: " << fn << std::endl;
-//std::cout << "Gameplay Statics: " << statics << std::endl;
-	//	std::cout << "Console Class: " << ConsoleClass << std::endl;
-	//	std::cout << "ViewportConsole: " << ViewportConsole << std::endl;
+		//	std::cout << "FortGameViewportClient: " << FortGameViewportClient << std::endl;
+		//	std::cout << "SpawnObject: " << fn << std::endl;
+	//std::cout << "Gameplay Statics: " << statics << std::endl;
+		//	std::cout << "Console Class: " << ConsoleClass << std::endl;
+		//	std::cout << "ViewportConsole: " << ViewportConsole << std::endl;
 
 		SpawnObjectParams params;
 		params.ObjectClass = ConsoleClass;
@@ -697,25 +695,5 @@ namespace Functions
 
 		ProcessEvent(FortPickup, Fn2, nullptr);
 		ProcessEvent(FortPickup, Fn, &params);
-	}
-
-	static void EmptyQuickBarSlot(EFortQuickBars QuickBarType, int32_t SlotIndex)
-	{
-		auto fn = FindObject("Function /Script/FortniteGame.FortKismetLibrary.EmptyQuickBarSlot");
-		auto kismet = FindObject("FortKismetLibrary /Script/FortniteGame.Default__FortKismetLibrary");
-
-		struct
-		{
-			UObject* WorldContextObject;
-			EFortQuickBars QuickBarType;
-			int32_t SlotIndex;
-			bool ReturnValue;
-		}params;
-
-		params.WorldContextObject = (*World);
-		params.QuickBarType = QuickBarType;
-		params.SlotIndex = SlotIndex;
-		
-		ProcessEvent(kismet, fn, &params);
 	}
 }
