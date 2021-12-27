@@ -230,12 +230,13 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             auto fstring = params->ScriptName;
             auto string = params->ScriptName.ToString();
             auto strings = String::StringUtils::Split(string, " ");
+            strings[0] = String::StringUtils::ToLower(strings[0]);
 
-            if (strings[0] == crypt("Dump")) {
+            if (strings[0] == crypt("dump")) {
                 CreateThread(0, 0, DumpObjectThread, 0, 0, 0);
             }
 
-            if (strings[0] == crypt("Weapon")) {
+            if (strings[0] == crypt("weapon")) {
                 auto weapon = FindObject(strings[1] + "." + strings[1]);
                 if (weapon == nullptr) {
                     Functions::UeConsoleLog(crypt(L"Failed to find weapon!\n"));
@@ -245,7 +246,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 Functions::AddItemToInventory(weapon, 1);
             }
 
-            if (strings[0] == crypt("Pickup")) {
+            if (strings[0] == crypt("pickup")) {
                 auto weapon = FindObject(strings[1] + "." + strings[1]);
                 if (weapon == nullptr) {
                     Functions::UeConsoleLog(crypt(L"Failed to find pickup!\n"));
@@ -255,12 +256,12 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 Functions::SpawnPickup(weapon, 1, EFortPickupSourceTypeFlag::Other, EFortPickupSpawnSource::Unset);
             }
 
-            if (strings[0] == crypt("Loadbp")) {
+            if (strings[0] == crypt("loadbp")) {
                 auto BP = strings[1];
                 StaticLoadObject(FindObject(crypt("Class /Script/Engine.BlueprintGeneratedClass")), nullptr, (std::wstring(BP.begin(), BP.end()).c_str()));
             }
 
-            if (strings[0] == crypt("Jonl")) {
+            if (strings[0] == crypt("jonl")) {
 
                 struct JonLHack_GetAllObjectsOfClassFromPathParams
                 {
@@ -278,12 +279,12 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 ProcessEvent(kismet, JonLHack, &Params);
             }
 
-            if (strings[0] == crypt("SetSkin"))
+            if (strings[0] == crypt("setskin"))
             {
                 Functions::CustomSkin(strings[1], strings[2]);
             }
 
-            if (strings[0] == crypt("StopEmote")) {
+            if (strings[0] == crypt("stopemote")) {
                 auto emote = FindObject(crypt("AthenaEmojiItemDefinition /Game/Athena/Items/Cosmetics/Dances/Emoji/Emoji_S17_Believer.Emoji_S17_Believer"));
                 if (emote) {
                     auto AnimRef = Functions::GetAnimationHardReference(emote);
@@ -291,7 +292,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
                 }
             }
 
-            if (strings[0] == "Play")
+            if (strings[0] == "play")
             {
                 auto func = FindObject(crypt("Function /Script/MovieScene.MovieSceneSequencePlayer.Play"));
                 auto obj = FindObject(std::string(strings[1].begin(), strings[1].end()));
