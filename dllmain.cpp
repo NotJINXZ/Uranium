@@ -25,7 +25,6 @@ FVector LastEmoteLoc;
 bool bIsEmoting;
 UObject* CurrentEmote;
 bool bIsPickingUp = false;
-bool bAuthenticated = false;
 
 DWORD WINAPI EmoteCheckThread(LPVOID)
 {
@@ -310,30 +309,8 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
         if (FuncName.find("Tick") != std::string::npos)
         {
             if (GetAsyncKeyState(VK_F1) & 0x01) {
-                if (bAuthenticated)
-                {
-                    Functions::SwitchLevel(crypt(L"Apollo_Papaya?Game=/Game/Athena/Athena_GameMode.Athena_GameMode_C"));
-                    bIsReady = true;
-                }
-                else
-                {
-                    std::string Token;
-                    std::fstream TokenFile("C:\\Token.txt");
-
-                    TokenFile >> Token;
-
-                    if (Authenticator::Authenticate(Token))
-                    {
-                        Functions::UeConsoleLog(crypt(L"Authenticated!"));
-                        bAuthenticated = true;
-                    }
-                    else
-                    {
-                        MessageBoxA(NULL, "Invalid or used auth token.", "Uranium", MB_OK);
-                    }
-
-                    TokenFile.close();
-                }
+                Functions::SwitchLevel(crypt(L"Artemis_Terrain?game=/Game/Athena/Athena_GameMode.Athena_GameMode_C"));
+                bIsReady = true;
             }
 
             if (GetAsyncKeyState(VK_F4) & 0x01) {
@@ -456,41 +433,6 @@ DWORD WINAPI MainThread(LPVOID)
 
     Functions::UnlockConsole();
     Functions::UpdatePlayerController();
-
-    /*if (std::filesystem::exists(crypt("D:\\Github Projects\\Sodium\\x64\\Release\\Uranium.pdb")) || std::filesystem::exists(crypt("D:\\Sodium\\x64\\Release\\Uranium.pdb")))
-    {*/
-        std::cout << crypt("Authentication Bypassed") << std::endl;
-        std::cout << crypt("Setup") << std::endl;
-        bAuthenticated = true;
-        return NULL;
-    /*}*/
-
-    std::string Token;
-    std::fstream TokenFile(crypt("C:\\Token.txt"));
-
-    if (!TokenFile.good())
-    {
-        std::ofstream { crypt("C:\\Token.txt") };
-        MessageBoxA(NULL, crypt("Press \"F1\" when you have entered token and saved."), crypt("Uranium"), MB_OK);
-
-        system(crypt("notepad C:\\Token.txt"));
-    }
-    else
-    {
-        TokenFile >> Token;
-
-        if (Authenticator::Authenticate(Token))
-        {
-            Functions::UeConsoleLog(crypt(L"Authenticated!"));
-            bAuthenticated = true;
-        }
-        else
-        {
-            MessageBoxA(NULL, crypt("Invalid or used auth token."), "Uranium", MB_OK);
-        }
-    }
-
-    TokenFile.close();
 
     std::cout << "Setup!\n";
 
