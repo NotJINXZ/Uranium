@@ -73,6 +73,25 @@ namespace Functions
 		return SpawnActorLong((*pWorld), Class, &trans, parms);
 	}
 
+	static TArray<UObject*> GetAllActorsOfClass(UObject* ActorClass)
+	{
+		auto fn = FindObject("Function /Script/Engine.GameplayStatics.GetAllActorsOfClass");
+		auto gps = FindObject("Class /Script/Engine.GameplayStatics");
+
+		struct
+		{
+			UObject* WorldContextObject;
+			UObject* ActorClass;
+			TArray<UObject*> OutActors;
+		}params;
+		params.WorldContextObject = (*World);
+		params.ActorClass = ActorClass;
+
+		ProcessEvent(gps, fn, &params);
+
+		return params.OutActors;
+	}
+
 	static UObject* UpdatePlayerController()
 	{
 		auto FortEngine = FindObject(crypt("FortEngine /Engine/Transient.FortEngine"));
@@ -603,6 +622,8 @@ namespace Functions
 
 	static void InitMatch()
 	{
+		World = reinterpret_cast<UObject**>(Util::FindPattern("48 8B 05 ? ? ? ? 4D 8B C1", true, 3));
+
 		Functions::UpdatePlayerController();
 		Functions::EnableCheatManager();
 
