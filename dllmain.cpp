@@ -243,48 +243,12 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 
                 ProcessEvent(obj, func, nullptr);
             }
-
-            if (strings[0] == "test") {
-                auto OutActors = Functions::GetAllActorsOfClass(FindObject("Class /Script/FortniteGame.FortPickup"));
-
-                if (OutActors.Num() == 0)
-                    return PEOG(pObject, pFunction, pParams);
-
-                for (int i = 0; i < OutActors.Num(); i++)
-                {
-                    auto FortPickup = OutActors[i];
-                    auto Fn = FindObject(crypt("Function /Script/FortniteGame.FortPickup.TossPickup"));
-                    auto Fn2 = FindObject(crypt("Function /Script/FortniteGame.FortPickup.OnRep_PrimaryPickupItemEntry"));
-
-                    struct
-                    {
-                        FVector FinalLocation;
-                        UObject* Pawn;
-                        int32_t OverrideMaxStackCount;
-                        bool bToss;
-                        bool bShouldCombinePickupsWhenTossCompletes;
-                        EFortPickupSourceTypeFlag InPickupSourceTypeFlags;
-                        EFortPickupSpawnSource InPickupSpawnSource;
-                    }params;
-
-                    params.FinalLocation = Functions::GetActorLocation(FortPickup);
-                    params.bToss = true;
-                    params.bShouldCombinePickupsWhenTossCompletes = true;
-                    params.Pawn = Pawn;
-                    params.OverrideMaxStackCount = 999;
-                    params.InPickupSourceTypeFlags = EFortPickupSourceTypeFlag::FloorLoot;
-                    params.InPickupSpawnSource = EFortPickupSpawnSource::Unset;
-
-                    ProcessEvent(FortPickup, Fn2, nullptr);
-                    ProcessEvent(FortPickup, Fn, &params);
-                }
-            }
         }
 
         if (FuncName.find("Tick") != std::string::npos)
         {
             if (GetAsyncKeyState(VK_F1) & 0x01) {
-                Functions::SwitchLevel(crypt(L"Artemis_Terrain?game=/Game/Athena/Athena_GameMode.Athena_GameMode_C"));
+                Functions::SwitchLevel(crypt(L"Apollo_Papaya?game=/Game/Athena/Athena_GameMode.Athena_GameMode_C"));
                 bIsReady = true;
             }
 
@@ -339,14 +303,23 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             Functions::AddItemToInventory(FindObject(crypt("FortResourceItemDefinition /Game/Items/ResourcePickups/WoodItemData.WoodItemData")), 999);
             Functions::AddItemToInventory(FindObject(crypt("FortResourceItemDefinition /Game/Items/ResourcePickups/StoneItemData.StoneItemData")), 999);
             Functions::AddItemToInventory(FindObject(crypt("FortResourceItemDefinition /Game/Items/ResourcePickups/MetalItemData.MetalItemData")), 999);
-            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Items/Ammo/AmmoDataEnergyCell.AmmoDataEnergyCell")), 999);
-            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Items/Ammo/AmmoDataExplosive.AmmoDataExplosive")), 999);
-            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Items/Ammo/AmmoDataShells.AmmoDataShells")), 999);
-            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Items/Ammo/AmmoDataBulletsMedium.AmmoDataBulletsMedium")), 999);
-            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Items/Ammo/AmmoDataBulletsLight.AmmoDataBulletsLight")), 999);
-            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Items/Ammo/AmmoDataBulletsHeavy.AmmoDataBulletsHeavy")), 999);
+            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaOakCash.AthenaOakCash")), 999);
+            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmoDataShells.AthenaAmmoDataShells")), 999);
+            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmoDataHooks.AthenaAmmoDataHooks")), 999);
+            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmoDataFringePlank.AthenaAmmoDataFringePlank")), 999);
+            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmoDataEnergyCell.AthenaAmmoDataEnergyCell")), 999);
+            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmoDataBulletsMedium.AthenaAmmoDataBulletsMedium")), 999);
+            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmoDataBulletsLight.AthenaAmmoDataBulletsLight")), 999);
+            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmoDataBulletsHeavy.AthenaAmmoDataBulletsHeavy")), 999);
+            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmoDataBalloons.AthenaAmmoDataBalloons")), 999);
+            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmo_Boss.AthenaAmmo_Boss")), 999);
+            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoInfiniteShells_Athena.AmmoInfiniteShells_Athena")), 999);
+            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoInfiniteCrossbow_Athena.AmmoInfiniteCrossbow_Athena")), 999);
+            //Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoInfinite.AmmoInfinite")), 999);
             Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoInfinite_NoIcon.AmmoInfinite_NoIcon")), 999);
-            Functions::SetInfiniteAmmo(Controller);
+            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoDataRockets.AmmoDataRockets")), 999);
+            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoDataPetrol.AmmoDataPetrol")), 999);
+            //Functions::SetInfiniteAmmo(Controller);
             Functions::SetGamePhase(EAthenaGamePhase::None, EAthenaGamePhase::Warmup);
             Functions::TeleportToSkydive(60000);
 
