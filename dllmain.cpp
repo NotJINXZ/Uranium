@@ -36,37 +36,6 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 
         //printf("FuncName: %s\n", FuncName.c_str());
 
-        if (FullFuncName.find(crypt("BP_OnDeactivated")) != std::string::npos && pObject->GetFullName().find(crypt("PickerOverlay_EmoteWheel")) != std::string::npos)
-        {
-            if (Pawn) {
-                Functions::UnCrouch();
-                
-                if (Functions::IsFalling()) {
-                    return NULL;
-                }
-
-                UObject* LastEmotePlayed = *reinterpret_cast<UObject**>(__int64(Controller) + __int64(Offsets::LastEmotePlayedOffset));
-
-                if (LastEmotePlayed) {
-                    auto AnimRef = Functions::GetAnimationHardReference(LastEmotePlayed);
-
-                    if (CurrentEmote == AnimRef) {
-                        return NULL;
-                    }
-
-                    Functions::PlayMontage(AnimRef);
-
-                    CurrentEmote = AnimRef;
-                    LastEmoteLoc = Functions::GetActorLocation(Pawn);
-                }
-            }
-        }
-
-        if (pObject->GetName().find(crypt("RiftPortal_Item_Athena")) != std::string::npos && FuncName.find(crypt("ComponentBeginOverlapSignature")) != std::string::npos)
-        {
-            Functions::TeleportToSkydive(25000);
-        }
-
         if (FullFuncName.find(crypt("ServerExecuteInventoryItem")) != std::string::npos && FortInventory)
         {
             FGuid* guid = reinterpret_cast<FGuid*>(pParams);
@@ -248,7 +217,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
         if (FuncName.find("Tick") != std::string::npos)
         {
             if (GetAsyncKeyState(VK_F1) & 0x01) {
-                Functions::SwitchLevel(crypt(L"Apollo_Papaya?game=/Game/Athena/Athena_GameMode.Athena_GameMode_C"));
+                Functions::SwitchLevel(crypt(L"Artemis_Terrain?game=/Game/Athena/Athena_GameMode.Athena_GameMode_C"));
                 bIsReady = true;
             }
 
@@ -320,8 +289,8 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoDataRockets.AmmoDataRockets")), 999);
             Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoDataPetrol.AmmoDataPetrol")), 999);
             //Functions::SetInfiniteAmmo(Controller);
-            Functions::SetGamePhase(EAthenaGamePhase::None, EAthenaGamePhase::Warmup);
-            Functions::TeleportToSkydive(60000);
+            //Functions::SetGamePhase(EAthenaGamePhase::None, EAthenaGamePhase::Warmup);
+            //Functions::TeleportToSkydive(60000);
 
             Functions::ServerSetClientHasFinishedLoading(Controller);
 

@@ -306,6 +306,12 @@ namespace Functions
 
 	static void SetPlaylist(UObject* Playlist)
 	{
+		auto bSkipAircraft = reinterpret_cast<bool*>((uintptr_t)Playlist + __int64(FindOffset("FortPlaylistAthena", "bSkipAircraft")));
+		*bSkipAircraft = false;
+
+		auto bSkipWarmup = reinterpret_cast<bool*>((uintptr_t)Playlist + __int64(FindOffset("FortPlaylistAthena", "bSkipWarmup")));
+		*bSkipWarmup = false;
+
 		auto Gamestate = FindAthenaGameState();
 		auto BasePlaylist = reinterpret_cast<UObject**>((uintptr_t)Gamestate + __int64(FindOffset("FortGameStateAthena", "CurrentPlaylistInfo")) + __int64(FindOffset("PlaylistPropertyArray", "BasePlaylist")));
 		*BasePlaylist = Playlist;
@@ -627,23 +633,14 @@ namespace Functions
 		Functions::UpdatePlayerController();
 		Functions::EnableCheatManager();
 
-		Functions::Summon(crypt(L"PlayerPawn_Athena_C"));
+		//Functions::Summon(crypt(L"PlayerPawn_Athena_C"));
 
-		for (int i = 0; i < GObjects->NumElements; i++)
-		{
-			auto object = GObjects->GetByIndex(i);
+		auto OutActors = GetAllActorsOfClass(FindObject("/Script/Engine.PlayerStart"));
+		auto RandIndex = rand() % OutActors.Num();
+		auto OutActor = OutActors[RandIndex];
+		auto ActorLocation = GetActorLocation(OutActor);
 
-			if (object == nullptr)
-				continue;
-
-			if (object->GetFullName() == crypt("PlayerPawn_Athena_C /Game/Athena/PlayerPawn_Athena.Default__PlayerPawn_Athena_C"))
-				continue;
-
-			if (object->GetFullName().starts_with(crypt("PlayerPawn_Athena_C "))) {
-				Pawn = object;
-				break;
-			}
-		}
+		Pawn = SpawnActor(FindObject("BlueprintGeneratedClass /Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C"), ActorLocation, FRotator());
 
 		if (Pawn) {
 			Functions::SetPlaylist(FindObject(crypt("/Game/Athena/Playlists/BattleLab/Playlist_BattleLab.Playlist_BattleLab")));
@@ -656,23 +653,7 @@ namespace Functions
 		Functions::UpdatePlayerController();
 		Functions::EnableCheatManager();
 
-		Functions::Summon(crypt(L"PlayerPawn_Athena_C"));
-
-		for (int i = 0; i < GObjects->NumElements; i++)
-		{
-			auto object = GObjects->GetByIndex(i);
-
-			if (object == nullptr)
-				continue;
-
-			if (object->GetFullName() == crypt("PlayerPawn_Athena_C /Game/Athena/PlayerPawn_Athena.Default__PlayerPawn_Athena_C"))
-				continue;
-
-			if (object->GetFullName().starts_with(crypt("PlayerPawn_Athena_C "))) {
-				Pawn = object;
-				break;
-			}
-		}
+		Pawn = SpawnActor(FindObject("BlueprintGeneratedClass /Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C"), ActorLocation, FRotator());
 
 		if (Pawn) {
 			Functions::Possess(Pawn);
