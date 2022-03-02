@@ -4,8 +4,8 @@
 #include <iostream>
 #include "Functions.h"
 #include "minhook/MinHook.h"
+#include "GUI.h"
 
-bool bIsReady = false;
 bool bHasSpawned = false;
 
 #include "Hooks.h"
@@ -196,18 +196,19 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 
         if (FuncName.find("Tick") != std::string::npos)
         {
-            if (GetAsyncKeyState(VK_F1) & 0x01) {
-                playerControllerFunctions->SwitchLevel(crypt(L"Apollo_Papaya?game=/Game/Athena/Athena_GameMode.Athena_GameMode_C"));
-                bIsReady = true;
-            }
- 
-            if (GetAsyncKeyState(VK_F2) & 0x01 && bIsReady) {
-                //CreateThread(0, 0, DumpObjectThread, 0, 0, 0);
+            if (GetAsyncKeyState(VK_F1) & 0x1 && bIsReady) {
                 Functions::InitMatch();
             }
 
-            if (GetAsyncKeyState(VK_F3) & 0x01) {
-                pawnFunctions->TeleportToSkydive(50000);
+            if (GetAsyncKeyState(VK_INSERT) & 0x1) {
+                bShowWindow = !bShowWindow;
+
+                if (bShowWindow && bIsReady) {
+                    ImGui::GetIO().MouseDrawCursor = true;
+                }
+                else {
+                    ImGui::GetIO().MouseDrawCursor = false;
+                }
             }
         }
 
@@ -217,7 +218,6 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             kismetLibraryFunctions->ShowSkin();
             Functions::EnableCheatManager();
             Functions::DestroyAll(FindObject(crypt("Class /Script/FortniteGame.FortHLODSMActor")));
-
 
             gameplayAbilitiesFunctions->GrantGameplayAbility(Pawn, FindObject(crypt("Class /Script/FortniteGame.FortGameplayAbility_Sprint")));
             gameplayAbilitiesFunctions->GrantGameplayAbility(Pawn, FindObject(crypt("Class /Script/FortniteGame.FortGameplayAbility_Jump")));
@@ -263,7 +263,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             inventoryFunctions->AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoDataPetrol.AmmoDataPetrol")), 999);
             //playerControllerFunctions->SetInfiniteAmmo(Controller);
             gamestateFunctions->SetGamePhase(EAthenaGamePhase::None, EAthenaGamePhase::Warmup);
-            pawnFunctions->TeleportToSkydive(60000);
+            //pawnFunctions->TeleportToSkydive(60000);
 
             playerControllerFunctions->ServerSetClientHasFinishedLoading(Controller);
 
@@ -328,6 +328,8 @@ DWORD WINAPI MainThread(LPVOID)
 
     Functions::UnlockConsole();
     Functions::UpdatePlayerController();
+
+    SetupGUI();
 
     std::cout << "Setup!\n";
 

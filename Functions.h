@@ -582,11 +582,10 @@ namespace Functions
 		auto OutActor = OutActors[RandIndex];
 		auto ActorLocation = actorFunctions->GetActorLocation(OutActor);
 
-		Pawn = worldFunctions->SpawnActor(FindObject("BlueprintGeneratedClass /Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C"), FVector(0, 0, 0), FRotator());
+		Pawn = worldFunctions->SpawnActor(FindObject("BlueprintGeneratedClass /Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C"), FVector(0, 0, 5000), FRotator());
 
 		if (Pawn) {
-			
-			gamestateFunctions->SetPlaylist(FindObject(crypt("/Game/Athena/Playlists/Showdown/Playlist_Showdown_Solo.Playlist_Showdown_Solo")));
+			gamestateFunctions->SetPlaylist(FindObject(crypt("/Game/Athena/Playlists/BattleLab/Playlist_BattleLab.Playlist_BattleLab")));
 			playerControllerFunctions->Possess(Pawn);
 			gamemodeFunctions->StartMatch();
 			playerControllerFunctions->ServerReadyToStartMatch();
@@ -596,7 +595,7 @@ namespace Functions
 		Functions::UpdatePlayerController();
 		Functions::EnableCheatManager();
 
-		Pawn = worldFunctions->SpawnActor(FindObject("BlueprintGeneratedClass /Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C"), FVector(0, 0, 0), FRotator());
+		Pawn = worldFunctions->SpawnActor(FindObject("BlueprintGeneratedClass /Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C"), FVector(0, 0, 5000), FRotator());
 
 		if (Pawn) {
 			playerControllerFunctions->Possess(Pawn);
