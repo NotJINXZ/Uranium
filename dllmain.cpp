@@ -65,11 +65,6 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             }
         }
 
-        if (FuncName.find(crypt("ServerCreateBuilding")) != std::string::npos)
-        {
-            CreateThread(0, 0, Functions::BuildAsync, 0, 0, 0);
-        }
-
         if (FuncName.find(crypt("ServerHandlePickup")) != std::string::npos && FortInventory)
         {
             if (!bIsPickingUp)
@@ -93,9 +88,9 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             auto entries = reinterpret_cast<TArray<FFortItemEntry>*>(__int64(FortInventory) + static_cast<__int64>(Offsets::InventoryOffset) + static_cast<__int64>(Offsets::EntriesOffset));
 
             auto PickupEntry = reinterpret_cast<FFortItemEntry*>((uintptr_t)params->PickUp + __int64(Offsets::PickupEntryOffset));
-            Functions::AddItemToInventoryWithEntry(*PickupEntry, *(int*)((uintptr_t)PickupEntry + __int64(Offsets::EntryCountOffset)));
+            inventoryFunctions->AddItemToInventoryWithEntry(*PickupEntry, *(int*)((uintptr_t)PickupEntry + __int64(Offsets::EntryCountOffset)));
 
-            Functions::DestroyActor(params->PickUp);
+            actorFunctions->DestroyActor(params->PickUp);
         }
 
         if (FuncName.find(crypt("ServerAttemptInventoryDrop")) != std::string::npos && FortInventory)
@@ -126,16 +121,14 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 
                 if (IsMatchingGuid(params->ItemGuid, *entryGuid)) {
                     entries->Remove(i);
-                    Functions::SpawnPickup(entryItemDef, params->Count, EFortPickupSourceTypeFlag::Tossed, EFortPickupSpawnSource::TossedByPlayer);
+                    pickupFunctions->SpawnPickup(entryItemDef, params->Count, EFortPickupSourceTypeFlag::Tossed, EFortPickupSpawnSource::TossedByPlayer);
 
                     if (params->Count != entryCount)
                     {
-                        Functions::AddItemToInventory(entryItemDef, entryCount - params->Count);
+                        inventoryFunctions->AddItemToInventory(entryItemDef, entryCount - params->Count);
                     }
 
-                    Functions::OnRep_QuickbarEquippedItems();
-                    Functions::OnRep_AccumulatedItems();
-                    Functions::UpdateInventory();
+                    inventoryFunctions->UpdateInventory();
                 }
             }
         }
@@ -145,7 +138,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             auto CheatManager = reinterpret_cast<UObject**>((uintptr_t)Controller + __int64(FindOffset("PlayerController", "CheatManager")));
             *CheatManager = nullptr;
             Sleep(500);
-            Functions::SwitchLevel(L"Frontend?Game=/Script/FortniteGame.FortGameModeFrontEnd");
+            playerControllerFunctions->SwitchLevel(L"Frontend?Game=/Script/FortniteGame.FortGameModeFrontEnd");
         }
 
         if (FuncName.find(crypt("CheatScript")) != std::string::npos) {
@@ -164,39 +157,26 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             if (strings[0] == crypt("weapon")) {
                 auto weapon = FindObject(strings[1] + "." + strings[1]);
                 if (weapon == nullptr) {
-                    Functions::UeConsoleLog(crypt(L"Failed to find weapon!\n"));
+                    gamemodeFunctions->Say(crypt(L"Failed to find weapon!\n"));
                     return NULL;
                 }
 
-                Functions::AddItemToInventory(weapon, 1);
+                inventoryFunctions->AddItemToInventory(weapon, 1);
             }
 
             if (strings[0] == crypt("pickup")) {
                 auto weapon = FindObject(strings[1] + "." + strings[1]);
                 if (weapon == nullptr) {
-                    Functions::UeConsoleLog(crypt(L"Failed to find pickup!\n"));
+                    gamemodeFunctions->Say(crypt(L"Failed to find pickup!\n"));
                     return NULL;
                 }
 
-                Functions::SpawnPickup(weapon, 1, EFortPickupSourceTypeFlag::Other, EFortPickupSpawnSource::Unset);
+                pickupFunctions->SpawnPickup(weapon, 1, EFortPickupSourceTypeFlag::Other, EFortPickupSpawnSource::Unset);
             }
 
             if (strings[0] == crypt("loadbp")) {
                 auto BP = strings[1];
                 StaticLoadObject(FindObject(crypt("Class /Script/Engine.BlueprintGeneratedClass")), nullptr, (std::wstring(BP.begin(), BP.end()).c_str()));
-            }
-
-            if (strings[0] == crypt("setskin"))
-            {
-                Functions::CustomSkin(strings[1], strings[2]);
-            }
-
-            if (strings[0] == crypt("stopemote")) {
-                auto emote = FindObject(crypt("AthenaEmojiItemDefinition /Game/Athena/Items/Cosmetics/Dances/Emoji/Emoji_S17_Believer.Emoji_S17_Believer"));
-                if (emote) {
-                    auto AnimRef = Functions::GetAnimationHardReference(emote);
-                    Functions::PlayMontage(AnimRef);
-                }
             }
 
             if (strings[0] == "play")
@@ -217,82 +197,75 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
         if (FuncName.find("Tick") != std::string::npos)
         {
             if (GetAsyncKeyState(VK_F1) & 0x01) {
-                Functions::SwitchLevel(crypt(L"Artemis_Terrain?game=/Game/Athena/Athena_GameMode.Athena_GameMode_C"));
+                playerControllerFunctions->SwitchLevel(crypt(L"Apollo_Papaya?game=/Game/Athena/Athena_GameMode.Athena_GameMode_C"));
                 bIsReady = true;
             }
-
-            if (GetAsyncKeyState(VK_F4) & 0x01) {
-                auto emote = FindObject(crypt("AthenaEmojiItemDefinition /Game/Athena/Items/Cosmetics/Dances/Emoji/Emoji_S17_Believer.Emoji_S17_Believer"));
-                if (emote) {
-                    auto AnimRef = Functions::GetAnimationHardReference(emote);
-                    Functions::PlayMontage(AnimRef);
-                }
-            }
  
-            if (GetAsyncKeyState(VK_F5) & 0x01 && bIsReady) {
+            if (GetAsyncKeyState(VK_F2) & 0x01 && bIsReady) {
                 //CreateThread(0, 0, DumpObjectThread, 0, 0, 0);
                 Functions::InitMatch();
             }
 
             if (GetAsyncKeyState(VK_F3) & 0x01) {
-                Functions::TeleportToSkydive(50000);
+                pawnFunctions->TeleportToSkydive(50000);
             }
         }
 
         if (FuncName.find(crypt("ServerLoadingScreenDropped")) != std::string::npos)
         {
             Functions::UpdatePlayerController();
-            Functions::ShowSkin();
+            kismetLibraryFunctions->ShowSkin();
             Functions::EnableCheatManager();
             Functions::DestroyAll(FindObject(crypt("Class /Script/FortniteGame.FortHLODSMActor")));
 
-            Functions::GrantGameplayAbility(Pawn, FindObject(crypt("Class /Script/FortniteGame.FortGameplayAbility_Sprint")));
-            Functions::GrantGameplayAbility(Pawn, FindObject(crypt("Class /Script/FortniteGame.FortGameplayAbility_Jump")));
-            Functions::GrantGameplayAbility(Pawn, FindObject(crypt("Class /Script/FortniteGame.FortGameplayAbility_Crouch")));
-            Functions::GrantGameplayAbility(Pawn, FindObject(crypt("Class /Script/FortniteGame.FortGameplayAbility_RangedWeapon")));
-            Functions::GrantGameplayAbility(Pawn, FindObject(crypt("Class /Script/FortniteGame.FortGameplayAbility_Reload")));
-            Functions::GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Abilities/Player/Sliding/GA_Athena_Player_Slide.GA_Athena_Player_Slide_C")));
-            Functions::GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Abilities/Player/Generic/Traits/DefaultPlayer/GA_DefaultPlayer_InteractSearch.GA_DefaultPlayer_InteractSearch_C")));
-            Functions::GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Abilities/Player/Generic/Traits/DefaultPlayer/GA_DefaultPlayer_InteractUse.GA_DefaultPlayer_InteractUse_C")));
-            Functions::GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Athena/DrivableVehicles/GA_AthenaEnterVehicle.GA_AthenaEnterVehicle_C")));
-            Functions::GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Athena/DrivableVehicles/GA_AthenaExitVehicle.GA_AthenaExitVehicle_C")));
-            Functions::GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Athena/DrivableVehicles/GA_AthenaInVehicle.GA_AthenaInVehicle_C")));
-            Functions::GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Athena/Items/EnvironmentalItems/HidingProps/GA_Athena_HidingProp_JumpOut.GA_Athena_HidingProp_JumpOut_C")));
-            Functions::GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Athena/Items/EnvironmentalItems/HidingProps/GA_Athena_HidingProp_Hide.GA_Athena_HidingProp_Hide_C")));
-            Functions::GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Abilities/Player/Generic/Traits/DefaultPlayer/GA_DefaultPlayer_InteractUse.GA_DefaultPlayer_InteractUse_C")));
+
+            gameplayAbilitiesFunctions->GrantGameplayAbility(Pawn, FindObject(crypt("Class /Script/FortniteGame.FortGameplayAbility_Sprint")));
+            gameplayAbilitiesFunctions->GrantGameplayAbility(Pawn, FindObject(crypt("Class /Script/FortniteGame.FortGameplayAbility_Jump")));
+            gameplayAbilitiesFunctions->GrantGameplayAbility(Pawn, FindObject(crypt("Class /Script/FortniteGame.FortGameplayAbility_Crouch")));
+            gameplayAbilitiesFunctions->GrantGameplayAbility(Pawn, FindObject(crypt("Class /Script/FortniteGame.FortGameplayAbility_RangedWeapon")));
+            gameplayAbilitiesFunctions->GrantGameplayAbility(Pawn, FindObject(crypt("Class /Script/FortniteGame.FortGameplayAbility_Reload")));
+            gameplayAbilitiesFunctions->GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Abilities/Player/Sliding/GA_Athena_Player_Slide.GA_Athena_Player_Slide_C")));
+            gameplayAbilitiesFunctions->GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Abilities/Player/Generic/Traits/DefaultPlayer/GA_DefaultPlayer_InteractSearch.GA_DefaultPlayer_InteractSearch_C")));
+            gameplayAbilitiesFunctions->GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Abilities/Player/Generic/Traits/DefaultPlayer/GA_DefaultPlayer_InteractUse.GA_DefaultPlayer_InteractUse_C")));
+            gameplayAbilitiesFunctions->GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Athena/DrivableVehicles/GA_AthenaEnterVehicle.GA_AthenaEnterVehicle_C")));
+            gameplayAbilitiesFunctions->GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Athena/DrivableVehicles/GA_AthenaExitVehicle.GA_AthenaExitVehicle_C")));
+            gameplayAbilitiesFunctions->GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Athena/DrivableVehicles/GA_AthenaInVehicle.GA_AthenaInVehicle_C")));
+            gameplayAbilitiesFunctions->GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Athena/Items/EnvironmentalItems/HidingProps/GA_Athena_HidingProp_JumpOut.GA_Athena_HidingProp_JumpOut_C")));
+            gameplayAbilitiesFunctions->GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Athena/Items/EnvironmentalItems/HidingProps/GA_Athena_HidingProp_Hide.GA_Athena_HidingProp_Hide_C")));
+            gameplayAbilitiesFunctions->GrantGameplayAbility(Pawn, FindObject(crypt("BlueprintGeneratedClass /Game/Abilities/Player/Generic/Traits/DefaultPlayer/GA_DefaultPlayer_InteractUse.GA_DefaultPlayer_InteractUse_C")));
 
             FortInventory = reinterpret_cast<InventoryPointer*>((uintptr_t)Controller + __int64(FindOffset("FortPlayerController", "WorldInventory")))->Inventory;
             QuickBar = reinterpret_cast<QuickBarPointer*>((uintptr_t)Controller + __int64(FindOffset("FortPlayerController", "ClientQuickBars")))->QuickBar;
 
-            Functions::AddItemToInventory(Functions::GetPickaxeDef(), 1, true, EFortQuickBars::Primary, 0);
-            Functions::AddItemToInventory(FindObject(crypt("FortBuildingItemDefinition /Game/Items/Weapons/BuildingTools/BuildingItemData_Wall.BuildingItemData_Wall")), 1);
-            Functions::AddItemToInventory(FindObject(crypt("FortBuildingItemDefinition /Game/Items/Weapons/BuildingTools/BuildingItemData_Floor.BuildingItemData_Floor")), 1);
-            Functions::AddItemToInventory(FindObject(crypt("FortBuildingItemDefinition /Game/Items/Weapons/BuildingTools/BuildingItemData_Stair_W.BuildingItemData_Stair_W")), 1);
-            Functions::AddItemToInventory(FindObject(crypt("FortBuildingItemDefinition /Game/Items/Weapons/BuildingTools/BuildingItemData_RoofS.BuildingItemData_RoofS")), 1);
-            Functions::AddItemToInventory(FindObject(crypt("FortResourceItemDefinition /Game/Items/ResourcePickups/WoodItemData.WoodItemData")), 999);
-            Functions::AddItemToInventory(FindObject(crypt("FortResourceItemDefinition /Game/Items/ResourcePickups/StoneItemData.StoneItemData")), 999);
-            Functions::AddItemToInventory(FindObject(crypt("FortResourceItemDefinition /Game/Items/ResourcePickups/MetalItemData.MetalItemData")), 999);
-            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaOakCash.AthenaOakCash")), 999);
-            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmoDataShells.AthenaAmmoDataShells")), 999);
-            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmoDataHooks.AthenaAmmoDataHooks")), 999);
-            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmoDataFringePlank.AthenaAmmoDataFringePlank")), 999);
-            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmoDataEnergyCell.AthenaAmmoDataEnergyCell")), 999);
-            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmoDataBulletsMedium.AthenaAmmoDataBulletsMedium")), 999);
-            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmoDataBulletsLight.AthenaAmmoDataBulletsLight")), 999);
-            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmoDataBulletsHeavy.AthenaAmmoDataBulletsHeavy")), 999);
-            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmoDataBalloons.AthenaAmmoDataBalloons")), 999);
-            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmo_Boss.AthenaAmmo_Boss")), 999);
-            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoInfiniteShells_Athena.AmmoInfiniteShells_Athena")), 999);
-            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoInfiniteCrossbow_Athena.AmmoInfiniteCrossbow_Athena")), 999);
-            //Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoInfinite.AmmoInfinite")), 999);
-            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoInfinite_NoIcon.AmmoInfinite_NoIcon")), 999);
-            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoDataRockets.AmmoDataRockets")), 999);
-            Functions::AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoDataPetrol.AmmoDataPetrol")), 999);
-            //Functions::SetInfiniteAmmo(Controller);
-            //Functions::SetGamePhase(EAthenaGamePhase::None, EAthenaGamePhase::Warmup);
-            //Functions::TeleportToSkydive(60000);
+            inventoryFunctions->AddItemToInventory(Functions::GetPickaxeDef(), 1, true, EFortQuickBars::Primary, 0);
+            inventoryFunctions->AddItemToInventory(FindObject(crypt("FortBuildingItemDefinition /Game/Items/Weapons/BuildingTools/BuildingItemData_Wall.BuildingItemData_Wall")), 1);
+            inventoryFunctions->AddItemToInventory(FindObject(crypt("FortBuildingItemDefinition /Game/Items/Weapons/BuildingTools/BuildingItemData_Floor.BuildingItemData_Floor")), 1);
+            inventoryFunctions->AddItemToInventory(FindObject(crypt("FortBuildingItemDefinition /Game/Items/Weapons/BuildingTools/BuildingItemData_Stair_W.BuildingItemData_Stair_W")), 1);
+            inventoryFunctions->AddItemToInventory(FindObject(crypt("FortBuildingItemDefinition /Game/Items/Weapons/BuildingTools/BuildingItemData_RoofS.BuildingItemData_RoofS")), 1);
+            inventoryFunctions->AddItemToInventory(FindObject(crypt("FortResourceItemDefinition /Game/Items/ResourcePickups/WoodItemData.WoodItemData")), 999);
+            inventoryFunctions->AddItemToInventory(FindObject(crypt("FortResourceItemDefinition /Game/Items/ResourcePickups/StoneItemData.StoneItemData")), 999);
+            inventoryFunctions->AddItemToInventory(FindObject(crypt("FortResourceItemDefinition /Game/Items/ResourcePickups/MetalItemData.MetalItemData")), 999);
+            inventoryFunctions->AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaOakCash.AthenaOakCash")), 999);
+            inventoryFunctions->AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmoDataShells.AthenaAmmoDataShells")), 999);
+            inventoryFunctions->AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmoDataHooks.AthenaAmmoDataHooks")), 999);
+            inventoryFunctions->AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmoDataFringePlank.AthenaAmmoDataFringePlank")), 999);
+            inventoryFunctions->AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmoDataEnergyCell.AthenaAmmoDataEnergyCell")), 999);
+            inventoryFunctions->AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmoDataBulletsMedium.AthenaAmmoDataBulletsMedium")), 999);
+            inventoryFunctions->AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmoDataBulletsLight.AthenaAmmoDataBulletsLight")), 999);
+            inventoryFunctions->AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmoDataBulletsHeavy.AthenaAmmoDataBulletsHeavy")), 999);
+            inventoryFunctions->AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmoDataBalloons.AthenaAmmoDataBalloons")), 999);
+            inventoryFunctions->AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmo_Boss.AthenaAmmo_Boss")), 999);
+            inventoryFunctions->AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoInfiniteShells_Athena.AmmoInfiniteShells_Athena")), 999);
+            inventoryFunctions->AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoInfiniteCrossbow_Athena.AmmoInfiniteCrossbow_Athena")), 999);
+            //inventoryFunctions->AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoInfinite.AmmoInfinite")), 999);
+            inventoryFunctions->AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoInfinite_NoIcon.AmmoInfinite_NoIcon")), 999);
+            inventoryFunctions->AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoDataRockets.AmmoDataRockets")), 999);
+            inventoryFunctions->AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoDataPetrol.AmmoDataPetrol")), 999);
+            //playerControllerFunctions->SetInfiniteAmmo(Controller);
+            gamestateFunctions->SetGamePhase(EAthenaGamePhase::None, EAthenaGamePhase::Warmup);
+            pawnFunctions->TeleportToSkydive(60000);
 
-            Functions::ServerSetClientHasFinishedLoading(Controller);
+            playerControllerFunctions->ServerSetClientHasFinishedLoading(Controller);
 
             auto bHasServerFinishedLoading = reinterpret_cast<bool*>(reinterpret_cast<uintptr_t>(Controller) + __int64(FindOffset("FortPlayerController", "bHasServerFinishedLoading")));
             *bHasServerFinishedLoading = true;
@@ -307,6 +280,19 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
 DWORD WINAPI MainThread(LPVOID)
 {
     Util::InitConsole();
+
+    actorFunctions = new ActorFunctions;
+    playerControllerFunctions = new PlayerControllerFunctions;
+    kismetLibraryFunctions = new KismetLibraryFunctions;
+    gameplayAbilitiesFunctions = new GameplayAblitiesFunctions;
+    gamemodeFunctions = new GameModeFunctions;
+    gamestateFunctions = new GameStateFunctions;
+    cheatManagerFunctions = new CheatManagerFunctions;
+    inventoryFunctions = new InventoryFunctions;
+    pawnFunctions  = new PawnFunctions;
+    buildingActorFunctions = new BuildingActorFunctions;
+    pickupFunctions = new PickupFunctions;
+    worldFunctions = new WorldFunctions;
 
     std::cout << "Finding Patterns!\n";
 
