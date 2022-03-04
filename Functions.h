@@ -358,10 +358,10 @@ public:
 			if (ItemInstance)
 			{
 				auto ItemEntry = reinterpret_cast<FFortItemEntry*>(reinterpret_cast<uintptr_t>(ItemInstance) + __int64(FindOffset("FortWorldItem", "ItemEntry")));
+				//reinterpret_cast<TArray<UObject*>*>(__int64(FortInventory) + static_cast<__int64>(FindOffset("FortInventory", "Inventory")) + static_cast<__int64>(FindOffset("FortItemList", "ItemInstances")))->Add(ItemInstance);
 				reinterpret_cast<TArray<FFortItemEntry>*>(__int64(FortInventory) + static_cast<__int64>(__int64(FindOffset("FortInventory", "Inventory"))) + static_cast<__int64>(FindOffset("FortItemList", "ReplicatedEntries")))->Add(*ItemEntry);
 
 				//return reinterpret_cast<FGuid*>((uintptr_t)ItemEntry + 0x68);
-				//reinterpret_cast<TArray<UObject*>*>(__int64(Globals::FortInventory) + static_cast<__int64>(0x230) + static_cast<__int64>(0x168))->Add(ItemInstance);
 			}
 
 			if (bAddToQuickBars) {

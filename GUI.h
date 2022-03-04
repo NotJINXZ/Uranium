@@ -65,67 +65,88 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 	}
 
 	if (bShowWindow) {
+		ImGui::SetNextWindowSize(ImVec2(360, 558));
+		ImGui::SetNextWindowBgAlpha(0.7f);
+
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
-		ImGui::Begin("Uranium Menu");
+		const auto Flags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings;
 
-		if (ImGui::BeginTabBar("")) {
-			if (!bIsReady) { // we only show this when your in the lobby
-				if (ImGui::BeginTabItem("Lobby")) {
+		{
+			ImGui::Begin("Uranium Menu", reinterpret_cast<bool*>(true), Flags);
 
-					static char InputMap[512] = "";
+			if (ImGui::BeginTabBar("")) {
+				if (!bIsReady) { // we only show this when your in the lobby
+					if (ImGui::BeginTabItem("Lobby")) {
 
-					ImGui::InputText("##Map", InputMap, IM_ARRAYSIZE(InputMap));
+						static char InputMap[512] = "";
 
-					ImGui::SameLine();
+						ImGui::InputText("##Map", InputMap, IM_ARRAYSIZE(InputMap));
 
-					if (ImGui::Button("LoadMap")) {
-						std::string MapAsString = (const char*)InputMap;
-						std::wstring MapAsWString = std::wstring(MapAsString.begin(), MapAsString.end());
+						ImGui::SameLine();
 
-						MapAsWString += L"?Game=/Game/Athena/Athena_GameMode.Athena_GameMode_C";
+						if (ImGui::Button("LoadMap")) {
+							std::string MapAsString = (const char*)InputMap;
+							std::wstring MapAsWString = std::wstring(MapAsString.begin(), MapAsString.end());
 
-						playerControllerFunctions->SwitchLevel(MapAsWString.c_str());
-						bIsReady = true;
+							MapAsWString += L"?Game=/Game/Athena/Athena_GameMode.Athena_GameMode_C";
+
+							playerControllerFunctions->SwitchLevel(MapAsWString.c_str());
+							bIsReady = true;
+						}
+
+						//ImGui::NewLine();
+
+						ImGui::Text("To load into a match, enter the name of the map\nyou want, then press \"F1\" after your\nloading bar is full!");
+
+						ImGui::NewLine();
+
+						ImGui::Text("List of maps:");
+						ImGui::Text("Artemis_Terrain - Main battle royale island");
+						ImGui::Text("Apollo_Papaya - Party Royale island");
+
+						ImGui::EndTabItem();
+					}
+				}
+
+				if (ImGui::BeginTabItem("Game")) {
+					if (ImGui::Button("Exit Game")) {
+						exit(0);
 					}
 
 					ImGui::EndTabItem();
 				}
-			}
 
-			if (ImGui::BeginTabItem("Game")) {
-				if (ImGui::Button("Exit Game")) {
-					exit(0);
+				if (ImGui::BeginTabItem("Player")) {
+					int Height = 60000;
+
+					ImGui::InputInt("##Height", &Height);
+
+					ImGui::SameLine();
+
+					if (ImGui::Button("TeleportToSkydive")) {
+						pawnFunctions->TeleportToSkydive(Height);
+					}
+
+					ImGui::EndTabItem();
 				}
 
-				ImGui::EndTabItem();
-			}
-
-			if (ImGui::BeginTabItem("Player")) {
-				int Height = 60000;
-
-				ImGui::InputInt("##Height", &Height);
-
-				ImGui::SameLine();
-
-				if (ImGui::Button("TeleportToSkydive")) {
-					pawnFunctions->TeleportToSkydive(Height);
+				if (ImGui::BeginTabItem("About")) {
+					ImGui::Text("This project was created by Jacobb626 and M1.\nWith help from others such as Kemo, Dani, Ender and Fevers.\nIt is currently maintained by Jacobb626 and Fevers!");
 				}
 
-				ImGui::EndTabItem();
+				ImGui::EndTabBar();
 			}
 
-			ImGui::EndTabBar();
+			ImGui::End();
+
+			ImGui::Render();
+
+			pContext->OMSetRenderTargets(1, &mainRenderTargetView, NULL);
+			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 		}
-
-		ImGui::End();
-
-		ImGui::Render();
-
-		pContext->OMSetRenderTargets(1, &mainRenderTargetView, NULL);
-		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	}
 
 	return oPresent(pSwapChain, SyncInterval, Flags);
