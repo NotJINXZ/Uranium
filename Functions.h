@@ -15,6 +15,8 @@ PVOID LocalPawn;
 UObject* QuickBar;
 UObject* FortInventory;
 
+std::vector<UObject*> LevelActors;
+
 #define RELATIVE_ADDR(addr, size) ((PBYTE)((UINT_PTR)(addr) + *(PINT)((UINT_PTR)(addr) + ((size) - sizeof(INT))) + (size)))
 #define ReadPointer(base, offset) (*(PVOID *)(((PBYTE)base + offset)))
 

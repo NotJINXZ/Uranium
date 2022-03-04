@@ -72,7 +72,7 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
-		const auto Flags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings;
+		const auto Flags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
 
 		{
 			ImGui::Begin("Uranium Menu", reinterpret_cast<bool*>(true), Flags);
@@ -110,27 +110,44 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 						ImGui::EndTabItem();
 					}
 				}
+				else { //Only show ingame
+					if (ImGui::BeginTabItem("Game")) {
+						if (ImGui::Button("Exit Game")) {
+							exit(0);
+						}
 
-				if (ImGui::BeginTabItem("Game")) {
-					if (ImGui::Button("Exit Game")) {
-						exit(0);
+						ImGui::EndTabItem();
 					}
 
-					ImGui::EndTabItem();
-				}
+					if (ImGui::BeginTabItem("Player")) {
+						int Height = 60000;
 
-				if (ImGui::BeginTabItem("Player")) {
-					int Height = 60000;
+						ImGui::InputInt("##Height", &Height);
 
-					ImGui::InputInt("##Height", &Height);
+						ImGui::SameLine();
 
-					ImGui::SameLine();
+						if (ImGui::Button("TeleportToSkydive")) {
+							pawnFunctions->TeleportToSkydive(Height);
+						}
 
-					if (ImGui::Button("TeleportToSkydive")) {
-						pawnFunctions->TeleportToSkydive(Height);
+						ImGui::EndTabItem();
 					}
 
-					ImGui::EndTabItem();
+					if (ImGui::BeginTabItem("Level Actors")) {
+						auto levelActors = kismetLibraryFunctions->GetAllActorsOfClass(FindObject("/Script/Engine.Actor"));
+
+						//const char* Items[] = {""};
+
+						for (int i = 0; i < levelActors.Num(); i++)
+						{
+							auto Actor = levelActors[i];
+
+							if (Actor != nullptr) {
+								//Items[i] = Actor->GetName().c_str();
+								ImGui::Text(Actor->GetName().c_str());
+							}
+						}
+					}
 				}
 
 				if (ImGui::BeginTabItem("About")) {
