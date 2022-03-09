@@ -89,6 +89,11 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 
 						if (ImGui::Button("LoadMap")) {
 							std::string MapAsString = (const char*)InputMap;
+
+							if (MapAsString.empty()) {
+								MapAsString = "Artemis_Terrain";
+							}
+
 							std::wstring MapAsWString = std::wstring(MapAsString.begin(), MapAsString.end());
 
 							MapAsWString += L"?Game=/Game/Athena/Athena_GameMode.Athena_GameMode_C";
@@ -133,20 +138,52 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 						ImGui::EndTabItem();
 					}
 
-					if (ImGui::BeginTabItem("Level Actors")) {
-						auto levelActors = kismetLibraryFunctions->GetAllActorsOfClass(FindObject("/Script/Engine.Actor"));
+					if (ImGui::BeginTabItem("Weapons")) {
 
-						//const char* Items[] = {""};
-
-						for (int i = 0; i < levelActors.Num(); i++)
 						{
-							auto Actor = levelActors[i];
+							if (ImGui::CollapsingHeader("Inventory")) {
+								static char InputWIDInv[512] = "";
 
-							if (Actor != nullptr) {
-								//Items[i] = Actor->GetName().c_str();
-								ImGui::Text(Actor->GetName().c_str());
+								ImGui::InputText("##WIDInv", InputWIDInv, IM_ARRAYSIZE(InputWIDInv));
+
+								ImGui::SameLine();
+
+								if (ImGui::Button("EquipWeapon")) {
+									std::string WIDInvAsString = (const char*)InputWIDInv;
+
+									if (!WIDInvAsString.empty()) {
+										auto Weapon = FindObject(WIDInvAsString + "." + WIDInvAsString);
+
+										if (Weapon) {
+											inventoryFunctions->AddItemToInventory(Weapon, 1);
+										}
+									}
+								}
 							}
 						}
+
+						{
+							if (ImGui::CollapsingHeader("Pickups")) {
+								static char InputWIDPickup[512] = "";
+
+								ImGui::InputText("##WIDPickup", InputWIDPickup, IM_ARRAYSIZE(InputWIDPickup));
+
+								ImGui::SameLine();
+
+								if (ImGui::Button("SpawnPickup")) {
+									std::string WIDPickupAsString = (const char*)InputWIDPickup;
+
+									if (!WIDPickupAsString.empty()) {
+										auto Weapon = FindObject(WIDPickupAsString + "." + WIDPickupAsString);
+
+										if (Weapon) {
+											pickupFunctions->SpawnPickup(Weapon, 1, EFortPickupSourceTypeFlag::Tossed, EFortPickupSpawnSource::TossedByPlayer);
+										}
+									}
+								}
+							}
+						}
+
 					}
 				}
 
