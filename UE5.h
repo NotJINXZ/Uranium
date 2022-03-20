@@ -333,9 +333,9 @@ FUObjectArray* GObjects;
 
 struct FVector
 {
-	float X;
-	float Y;
-	float Z;
+	double X;
+	double Y;
+	double Z;
 
 	FVector()
 		: X(0), Y(0), Z(0)
@@ -914,7 +914,7 @@ static DWORD FindOffset(std::string ClassName, std::string VarName)
 		if (fPropertyName == VarName)
 		{
 			//std::cout << "[Offset Finder]: Found Offset: " << *(DWORD*)(__int64(ObjectClass->ChildProperties) + 0x4C) << " At: " << VarName << std::endl;
-			return *(DWORD*)(__int64(ObjectClass->ChildProperties) + 0x4C);
+			return *(DWORD*)(__int64(ObjectClass->ChildProperties) + 0x44);
 		}
 
 		while (next)
@@ -923,7 +923,7 @@ static DWORD FindOffset(std::string ClassName, std::string VarName)
 
 			if (nextName == VarName) {
 				//std::cout << "[Offset Finder]: Found Offset: " << *(DWORD*)(__int64(next) + 0x4C) << " At: " << VarName << std::endl;
-				return *(DWORD*)(__int64(next) + 0x4C);
+				return *(DWORD*)(__int64(next) + 0x44);
 			} else {
 				next = next->Next;
 			}
@@ -935,7 +935,7 @@ static DWORD FindOffset(std::string ClassName, std::string VarName)
 
 inline bool ProcessEvent(UObject* pObject, UObject* pFunction, void* pParams) {
 	auto vtable = *reinterpret_cast<void***>(pObject);
-	auto ProcesseventVtable = static_cast<void(*)(void*, void*, void*)>(vtable[0x4A]); if (!ProcesseventVtable) return false;
+	auto ProcesseventVtable = static_cast<void(*)(void*, void*, void*)>(vtable[0x4B]); if (!ProcesseventVtable) return false;
 	ProcesseventVtable(pObject, pFunction, pParams);
 	return true;
 }

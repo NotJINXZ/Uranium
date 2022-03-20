@@ -263,7 +263,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             inventoryFunctions->AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AmmoDataPetrol.AmmoDataPetrol")), 999);
             //playerControllerFunctions->SetInfiniteAmmo(Controller);
             gamestateFunctions->SetGamePhase(EAthenaGamePhase::None, EAthenaGamePhase::Warmup);
-            //pawnFunctions->TeleportToSkydive(60000);
+            pawnFunctions->TeleportToSkydive(60000);
 
             playerControllerFunctions->ServerSetClientHasFinishedLoading(Controller);
 
@@ -300,13 +300,13 @@ DWORD WINAPI MainThread(LPVOID)
     CHECKSIG(pGObjects, "Failed to find GObjects address!");
     GObjects = decltype(GObjects)(pGObjects);
 
-    /*auto pFNameToString = Util::FindPattern(crypt("48 89 5C 24 ? 48 89 6C 24 ? 56 57 41 56 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 84 24 ? ? ? ? 48 8B F2 4C 8B F1 E8 ? ? ? ? 45 8B 06 33 ED"));
-    CHECKSIG(pFNameToString, "Failed to find FNameToString address!");
-    FNameToString = decltype(FNameToString)(pFNameToString);*/
-
-    auto pFNameToString = Util::FindByString(L"%s %s SetTimer passed a negative or zero time. The associated timer may fail to be created/fire! If using InitialStartDelayVariance, be sure it is smaller than (Time + InitialStartDelay).", { CALL }, true, 1);
+    auto pFNameToString = Util::FindPattern(crypt("48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 41 56 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 84 24 ? ? ? ? 8B 01 4C 8B F2 8B F8 0F B7 D8"));
     CHECKSIG(pFNameToString, "Failed to find FNameToString address!");
     FNameToString = decltype(FNameToString)(pFNameToString);
+
+    /*auto pFNameToString = Util::FindByString(L"%s %s SetTimer passed a negative or zero time. The associated timer may fail to be created/fire! If using InitialStartDelayVariance, be sure it is smaller than (Time + InitialStartDelay).", {CALL}, true, 1);
+    CHECKSIG(pFNameToString, "Failed to find FNameToString address!");
+    FNameToString = decltype(FNameToString)(pFNameToString);*/
 
     auto pFreeMemory = Util::FindPattern(crypt("48 85 C9 0F 84 ? ? ? ? 48 89 5C 24 ? 57 48 83 EC 20 48 8B 3D ? ? ? ? 48 8B D9 48"));
     CHECKSIG(pFreeMemory, "Failed to find FreeMemory address!");
@@ -318,7 +318,7 @@ DWORD WINAPI MainThread(LPVOID)
 
     auto FortEngine = FindObject(crypt("FortEngine /Engine/Transient.FortEngine"));
     auto FEVFT = *reinterpret_cast<void***>(FortEngine);
-    auto PEAddr = FEVFT[0x4A];
+    auto PEAddr = FEVFT[0x4B];
 
     MH_Initialize();
     MH_CreateHook((void*)PEAddr, ProcessEventDetour, (void**)(&PEOG));

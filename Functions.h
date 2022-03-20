@@ -429,9 +429,9 @@ class PickupFunctions
 public:
 	void SpawnPickup(UObject* ItemDef, int Count, EFortPickupSourceTypeFlag InPickupSourceTypeFlags, EFortPickupSpawnSource InPickupSpawnSource)
 	{
-		auto FortPickup = worldFunctions->SpawnActor(FindObject(crypt("Class /Script/FortniteGame.FortPickupAthena")), actorFunctions->GetActorLocation(Pawn), FRotator());
-		/*Functions::Summon(L"FortPickupAthena_C");
-		auto FortPickup = FindObjectWithSkip(FindObject("Class /Script/FortniteGame.FortPickupAthena"));*/
+		//auto FortPickup = worldFunctions->SpawnActor(FindObject(crypt("Class /Script/FortniteGame.FortPickupAthena")), actorFunctions->GetActorLocation(Pawn), FRotator());
+		cheatManagerFunctions->Summon(L"FortPickupAthena_C");
+		auto FortPickup = FindObjectWithSkip(FindObject("Class /Script/FortniteGame.FortPickupAthena"));
 
 		auto entry = reinterpret_cast<FFortItemEntry*>((uintptr_t)FortPickup + __int64(FindOffset("FortPickup", "PrimaryPickupItemEntry")));
 		*reinterpret_cast<UObject**>((uintptr_t)entry + __int64(FindOffset("FortItemEntry", "ItemDefinition"))) = ItemDef;
@@ -579,12 +579,9 @@ namespace Functions
 		Functions::UpdatePlayerController();
 		Functions::EnableCheatManager();
 
-		auto OutActors = kismetLibraryFunctions->GetAllActorsOfClass(FindObject("/Script/Engine.PlayerStart"));
-		auto RandIndex = rand() % OutActors.Num();
-		auto OutActor = OutActors[RandIndex];
-		auto ActorLocation = actorFunctions->GetActorLocation(OutActor);
-
-		Pawn = worldFunctions->SpawnActor(FindObject("BlueprintGeneratedClass /Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C"), FVector(0, 0, 5000), FRotator());
+		cheatManagerFunctions->Summon(TEXT("PlayerPawn_Athena_C"));
+		auto OutActors = kismetLibraryFunctions->GetAllActorsOfClass(FindObject("BlueprintGeneratedClass /Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C"));
+		Pawn = OutActors[0];
 
 		if (Pawn) {
 			gamestateFunctions->SetPlaylist(FindObject(crypt("/Game/Athena/Playlists/BattleLab/Playlist_BattleLab.Playlist_BattleLab")));
@@ -597,7 +594,9 @@ namespace Functions
 		Functions::UpdatePlayerController();
 		Functions::EnableCheatManager();
 
-		Pawn = worldFunctions->SpawnActor(FindObject("BlueprintGeneratedClass /Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C"), FVector(0, 0, 5000), FRotator());
+		cheatManagerFunctions->Summon(TEXT("PlayerPawn_Athena_C"));
+		auto OutActors2 = kismetLibraryFunctions->GetAllActorsOfClass(FindObject("BlueprintGeneratedClass /Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C"));
+		Pawn = OutActors2[0];
 
 		if (Pawn) {
 			playerControllerFunctions->Possess(Pawn);
