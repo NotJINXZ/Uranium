@@ -963,17 +963,18 @@ enum class EFortQuickBars : uint8_t
 
 struct FFortAthenaLoadout
 {
+	unsigned char UnknownData00[0x10];
 	FString BannerIconId;
 	FString BannerColorId;
 	UObject* SkyDiveContrail;
 	UObject* Glider;
 	UObject* Pickaxe;
 	bool bIsDefaultCharacter;
-	unsigned char UnknownData00[0x7];
+	unsigned char UnknownData01[0x7];
 	UObject* Character;
 	TArray<UObject*> CharacterVariantChannels;
 	bool bForceUpdateVariants;
-	unsigned char UnknownData01[0x7];
+	unsigned char UnknownData02[0x7];
 	UObject* Hat;
 	UObject* Backpack;
 	UObject* LoadingScreen;
@@ -989,6 +990,7 @@ struct FFortAthenaLoadout
 	UObject* CharmOverride;
 	TArray<UObject*> Charms;
 	UObject* PetSkin;
+	unsigned char UnknownData03[0x60];
 };
 
 enum class EFortCustomBodyType : uint8_t

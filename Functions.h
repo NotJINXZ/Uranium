@@ -400,7 +400,7 @@ public:
 
 	UObject* SpawnActorFromLong(UObject* Class, FTransform trans)
 	{
-		SpawnActorLong = decltype(SpawnActorLong)(Util::FindPattern(crypt("48 8b c4 55 53 56 57 41 54 41 55 41 56 41 57 48 8d a8 ? ? ? ? 48 81 ec ? ? ? ? 0f 29 70 ? 0f 29 78 ? 44 0f 29 40 ? 44 0f 29 88 ? ? ? ? 44 0f 29 90 ? ? ? ? 44 0f 29 98 ? ? ? ? 44 0f 29 a0 ? ? ? ? 44 0f 29 a8 ? ? ? ? 44 0f 29 b0 ? ? ? ? 44 0f 29 b8 ? ? ? ? 48 8b 05 ? ? ? ? 48 33 c4 48 89 45 ? 45 33 ed")));
+		SpawnActorLong = decltype(SpawnActorLong)(Util::FindPattern(crypt("48 8B C4 55 53 56 57 41 54 41 55 41 56 41 57 48 8D A8 ? ? ? ? 48 81 EC ? ? ? ? 0F 29 70 A8 0F 29 78 98 44 0F 29 40 ? 44 0F 29 88 ? ? ? ? 44 0F 29 90 ? ? ? ? 44 0F 29 98 ? ? ? ? 44 0F 29 A0 ? ? ? ? 44 0F 29 A8 ? ? ? ? 44 0F 29 B0 ? ? ? ? 44 0F 29 B8 ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 85 ? ? ? ? 45 33 ED 48 89 4C 24 ? 44 89 6C 24 ? 48 8D 05 ? ? ? ? 44 38 2D ? ? ? ? 4C 8B FA 48 8B D9 48 8D 15 ? ? ? ? 49 0F 45 C5 48 8D 4D 18 48 89 45 10 4D 8B F1 49 8B F0 E8 ? ? ? ? 4C 8B 63 30 4C 89 65 C0 4D 85 FF 0F 84 ? ? ? ? 41 8B 87 ? ? ? ? 0F BA E0 19 0F 82 ? ? ? ? A8 01 0F 85 ? ? ? ? E8 ? ? ? ? 48 8B D0 49 8B CF E8 ? ? ? ? 84 C0")));
 		auto pWorld = reinterpret_cast<UObject**>(Util::FindPattern(crypt("48 8B 05 ? ? ? ? 4D 8B C1"), true, 3));
 
 		auto parms = FActorSpawnParameters();
@@ -429,9 +429,9 @@ class PickupFunctions
 public:
 	void SpawnPickup(UObject* ItemDef, int Count, EFortPickupSourceTypeFlag InPickupSourceTypeFlags, EFortPickupSpawnSource InPickupSpawnSource)
 	{
-		//auto FortPickup = worldFunctions->SpawnActor(FindObject(crypt("Class /Script/FortniteGame.FortPickupAthena")), actorFunctions->GetActorLocation(Pawn), FRotator());
-		cheatManagerFunctions->Summon(L"FortPickupAthena_C");
-		auto FortPickup = FindObjectWithSkip(FindObject("Class /Script/FortniteGame.FortPickupAthena"));
+		auto FortPickup = worldFunctions->SpawnActor(FindObject(crypt("Class /Script/FortniteGame.FortPickupAthena")), actorFunctions->GetActorLocation(Pawn), FRotator());
+		//cheatManagerFunctions->Summon(L"FortPickupAthena_C");
+		//auto FortPickup = FindObjectWithSkip(FindObject("Class /Script/FortniteGame.FortPickupAthena"));
 
 		auto entry = reinterpret_cast<FFortItemEntry*>((uintptr_t)FortPickup + __int64(FindOffset("FortPickup", "PrimaryPickupItemEntry")));
 		*reinterpret_cast<UObject**>((uintptr_t)entry + __int64(FindOffset("FortItemEntry", "ItemDefinition"))) = ItemDef;
