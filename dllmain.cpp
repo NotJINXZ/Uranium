@@ -245,6 +245,7 @@ void* ProcessEventDetour(UObject* pObject, UObject* pFunction, void* pParams)
             inventoryFunctions->AddItemToInventory(FindObject(crypt("FortResourceItemDefinition /Game/Items/ResourcePickups/WoodItemData.WoodItemData")), 999);
             inventoryFunctions->AddItemToInventory(FindObject(crypt("FortResourceItemDefinition /Game/Items/ResourcePickups/StoneItemData.StoneItemData")), 999);
             inventoryFunctions->AddItemToInventory(FindObject(crypt("FortResourceItemDefinition /Game/Items/ResourcePickups/MetalItemData.MetalItemData")), 999);
+            inventoryFunctions->AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /ResolveGameplay/Items/RepairTool/AmmoDataResTorch.AmmoDataResTorch")), 999); // Torch Ammo
             inventoryFunctions->AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaOakCash.AthenaOakCash")), 999);
             inventoryFunctions->AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmoDataShells.AthenaAmmoDataShells")), 999);
             inventoryFunctions->AddItemToInventory(FindObject(crypt("FortAmmoItemDefinition /Game/Athena/Items/Ammo/AthenaAmmoDataHooks.AthenaAmmoDataHooks")), 999);
