@@ -283,14 +283,40 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 
 void SetupGUI()
 {
+	auto renderingApi = Functions::GetRenderingApi();
+
 	bool init_hook = false;
-	do
+
+	switch (renderingApi)
 	{
-		if (kiero::init(kiero::RenderType::D3D11) == kiero::Status::Success)
+	case ERHIType::D3D11:
+		do
 		{
-			kiero::bind(8, (void**)&oPresent, hkPresent);
-			init_hook = true;
-		}
-	} while (!init_hook);
+			if (kiero::init(kiero::RenderType::D3D11) == kiero::Status::Success)
+			{
+				kiero::bind(8, (void**)&oPresent, hkPresent);
+				init_hook = true;
+			}
+		} while (!init_hook);
+		break;
+
+	case ERHIType::D3D12:
+		do
+		{
+			if (kiero::init(kiero::RenderType::D3D12) == kiero::Status::Success)
+			{
+				kiero::bind(8, (void**)&oPresent, hkPresent);
+				init_hook = true;
+			}
+		} while (!init_hook);
+		break;
+
+	case ERHIType::Performance:
+		break;
+
+	default:
+		break;
+	}
+
 	return;
 }

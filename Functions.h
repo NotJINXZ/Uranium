@@ -539,6 +539,18 @@ namespace Functions
 		*CheatManager = params.ReturnValue;
 	}
 
+	ERHIType GetRenderingApi()
+	{
+		auto FortUserSettings = FindObject("FortGameUserSettings /Engine/Transient.FortGameUserSettings_");
+		auto fn = FindObject("Function /Script/FortniteGame.FortGameUserSettings.GetRenderingAPI");
+
+		ERHIType returnVal;
+
+		ProcessEvent(FortUserSettings, fn, &returnVal);
+
+		return returnVal;
+	}
+
 	static UObject* GetPickaxeDef()
 	{
 		auto CosmeticLoadoutPC = reinterpret_cast<FFortAthenaLoadout*>((uintptr_t)Controller + __int64(FindOffset("FortPlayerController", "CosmeticLoadoutPC")));
